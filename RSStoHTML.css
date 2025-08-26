@@ -1,0 +1,140 @@
+.top-image {
+    position: absolute;
+    width: 150px; /* Adjust width as needed */
+    height: 150px; /* Adjust height as needed */
+    top: 10px; /* Adjust distance from the top as needed */
+    right: 77%;
+    transform: translateX(-50%);
+}
+ 
+
+    body {
+/*      background-color: #F7F3E9; */
+      color: #261024;
+      font-family: Arial, sans-serif;
+    }
+  
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+  
+    .map-container {
+/*      background-color: #9b302b; */
+      color: #261024;
+      padding: 20px;
+      border-radius: 10px;
+    }
+  
+    #splain {
+/*      background-color: #fde6cb; */
+/*      color: #261024; */
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+    }
+  
+    h2 {
+      color: #152567;
+    }
+  
+    #rssmenu {
+*/      background-color: #2f2226; */
+      color: #F7F3E9;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+#rssmenu a {
+color: #F7F3E9;
+}
+  
+    /* Additional Accents */
+  
+    .accent-burgundy {
+*/      color: #800020; */
+    }
+  
+    .accent-blue {
+      color: #21123E;
+    }
+  
+    /* Additional CSS Styles */
+  
+    #feedquery {
+      width: 70%;
+      padding: 5px;
+      font-size: 16px;
+    }
+  
+         
+.rss-item {
+/*    border: 1px solid #261024; */
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+/*    background-color: #fde6cb; */
+}
+
+.rss-item h2 {
+    margin: 0;
+    padding-bottom: 10px;
+/*    color: #152567; */
+}
+
+.rss-item a {
+*/    color: #21123E; */
+    text-decoration: none;
+}
+
+.rss-item p {
+    margin-top: 10px;
+/*    color: #261024; */
+}
+
+#rss-input {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#rss-url {
+    flex-grow: 1;
+    margin-right: 10px;
+    padding: 10px;
+    font-size: 16px;
+/*    border: 2px solid #261024; */
+    border-radius: 5px;
+/*    background-color: #fde6cb; */
+/*    color: #261024; */
+}
+
+#load-feed {
+    padding: 10px 20px;
+    font-size: 16px;
+/*    color: #F7F3E9; */
+/*    background-color: #261024; */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#load-feed:hover {
+/*    background-color: #152567; */
+}
+  
+    label {
+      font-weight: bold;
+    }
+  
+    #reset {
+/*      background-color: #21123E; */
+/*      color: #F7F3E9; */
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
