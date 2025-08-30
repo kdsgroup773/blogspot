@@ -335,4 +335,10 @@ function autoLoad() {
         autoLoadAllFeeds();
     }
 }
-autoLoad();
+// ... (all of your existing JavaScript functions and code) ...
+
+// Add this code at the end of your JavaScript file
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM is fully loaded and parsed');
+    autoLoad();
+});
