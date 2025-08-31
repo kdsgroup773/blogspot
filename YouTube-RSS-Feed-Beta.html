@@ -1,0 +1,310 @@
+<div class="separator"style="clear: both; text-align: left;">
+  <figure>
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png" height="160" width="160" id="ken" />
+  </figure>
+
+<script src="https://s3.us-west-2.amazonaws.com/blog.js/kensblogspot/blog.header.js"></script>
+
+<script>
+var rssFeedUrl;
+
+function manualLoad() {
+    const select = document.getElementById('Choice');
+    // Ensure the selected value is a YouTube Channel ID or Username
+    rssFeedUrl = select.value;
+    getYouTubeRssFeed(); // Call the YouTube-specific function
+}
+
+function autoLoad() {
+    console.log("hello");
+    var wlh = window.location.href;
+    console.log(wlh);
+      if (wlh.search("#") > 0) {
+        var ixo = wlh.indexOf("#");
+        selectedIndex = wlh.substr(ixo + 1, 25);
+        // Ensure the ID corresponds to a YouTube Channel ID or Username input
+        rssFeedUrl = document.getElementById(selectedIndex).value;
+       console.log(rssFeedUrl);
+        getYouTubeRssFeed(); // Call the YouTube-specific function
+    }
+}
+
+async function getYouTubeRssFeed() {
+    // Determine if the input is a Channel ID or Username and construct the YouTube RSS URL
+    let youtubeRssBaseUrl = "https://www.youtube.com/feeds/videos.xml?"; // Correct YouTube RSS base URL
+    let finalYouTubeRssUrl;
+
+    if (rssFeedUrl.startsWith("channel_id=")) { // Check for Channel ID format
+        finalYouTubeRssUrl = youtubeRssBaseUrl + rssFeedUrl;
+    } else { // Assume it's a username if not a typical channel ID
+        // YouTube deprecated username feeds, but if you have a legacy one, it would look like this:
+        finalYouTubeRssUrl = youtubeRssBaseUrl + "user=" + rssFeedUrl;
+    }
+
+    console.log("Attempting to get YouTube RSS feed from:", finalYouTubeRssUrl);
+
+    const proxyList = [
+        'https://api.allorigins.win?url=',
+        'https://corsproxy.io/?url=',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://cors-anywhere.herokuapp.com/', // Note: this proxy often requires a click-through on its site
+        'https://cors.lol/?url=',
+        'https://cors.x2u.in/?url=',
+        'https://thingproxy.freeboard.io/fetch/',
+        'https://cors-proxy.htmldriven.com/?url=',
+        'https://crossorigin.me/', // This one is often down or slow
+        'https://yacdn.org/proxy/',
+        // Add more public proxies here, or your own self-hosted proxy
+    ];
+
+    const container = document.getElementById('rss-feed-container');
+    const loadingDiv = document.getElementById('rss-feed-message');
+
+    loadingDiv.textContent = 'Loading YouTube feed...';
+    container.innerHTML = ''; // Clear previous content
+
+    async function fetchWithProxyFallback(targetFeedUrl, proxies) {
+        let lastError = null;
+        for (let i = 0; i < proxies.length; i++) {
+            const proxyBaseUrl = proxies[i];
+            let proxiedUrl;
+            // Adjust proxy URL construction based on the proxy service's expected format
+            if (proxyBaseUrl.includes('allorigins.win') || proxyBaseUrl.includes('corsproxy.io') || proxyBaseUrl.includes('cors.lol') || proxyBaseUrl.includes('cors.x2u.in') || proxyBaseUrl.includes('cors-proxy.htmldriven.com') || proxyBaseUrl.includes('yacdn.org') || proxyBaseUrl.includes('thingproxy.freeboard.io')) {
+                proxiedUrl = `${proxyBaseUrl}${encodeURIComponent(targetFeedUrl)}`;
+            } else if (proxyBaseUrl.includes('codetabs.com')) {
+                proxiedUrl = `${proxyBaseUrl}${targetFeedUrl}`;
+            } else if (proxyBaseUrl.includes('cors-anywhere.herokuapp.com') || proxyBaseUrl.includes('crossorigin.me')) {
+                proxiedUrl = `${proxyBaseUrl}${targetFeedUrl}`;
+            } else {
+                proxiedUrl = `${proxyBaseUrl}${targetFeedUrl}`;
+            }
+          console.log(proxiedUrl);
+            console.log(`Attempting with proxy ${i + 1}/${proxies.length}: ${proxyBaseUrl}`);
+            loadingDiv.textContent = `Trying proxy ${i + 1}/${proxies.length}...`;
+            try {
+                const response = await fetchWithRetry(proxiedUrl);
+                if (response.ok) {
+                    console.log(`Successfully fetched using proxy: ${proxyBaseUrl}`);
+                    return response;
+                } else {
+                    lastError = new Error(`Proxy ${proxyBaseUrl} returned non-OK status: ${response.status} ${response.statusText}`);
+                    console.warn(lastError.message);
+                }
+            } catch (error) {
+                lastError = error;
+                console.error(`Failed with proxy ${proxyBaseUrl}:`, error);
+            }
+        }
+        throw new Error(`All proxy attempts failed to fetch the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
+    }
+
+    async function fetchWithRetry(url, options = {}, retries = 3, delay = 2000) { // Reduced retries for quicker feedback
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                if (response.status === 408 && retries > 0) {
+                    console.warn(`Proxy 408 timeout for ${url}, retrying in ${delay / 1000}s... (${retries} retries left)`);
+                    await new Promise(res => setTimeout(res, delay));
+                    return fetchWithRetry(url, options, retries - 1, delay * 2);
+                }
+                throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+            }
+            return response;
+        } catch (error) {
+            if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('Network request failed') || error.message.includes('timeout') || error.message.includes('ERR_CONNECTION_REFUSED'))) {
+                console.warn(`Fetch failed (network/timeout error for ${url}), retrying in ${delay / 1000}s... (${retries} retries left)`);
+                await new Promise(res => setTimeout(res, delay));
+                return fetchWithRetry(url, options, retries - 1, delay * 2);
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    fetchWithProxyFallback(finalYouTubeRssUrl, proxyList)
+        .then(response => {
+            loadingDiv.textContent = '';
+            return response.text();
+        })
+        .then(xmlString => {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+            const items = xmlDoc.querySelectorAll('entry'); // YouTube RSS uses <entry> instead of <item>
+            let htmlContent = '<h2>Latest YouTube Videos</h2>';
+            htmlContent += '<ul style="list-style: none; padding: 0;">';
+
+            items.forEach(item => {
+                const title = item.querySelector('title')?.textContent || 'No Title';
+                // Correct way to get videoId for YouTube links
+                const videoId = item.querySelector('yt\\:videoId')?.textContent; // Use yt:videoId for YouTube
+                const link = videoId ? `https://www.youtube.com/watch?v=${videoId}` : '#'; // Construct YouTube video link
+
+                const pubDate = item.querySelector('published')?.textContent; // YouTube uses 'published'
+
+                // Access description from media:group/media:description
+                let description = item.querySelector('media\\:group media\\:description')?.textContent || 'No Description';
+                // Clean up description: remove extra newlines and trim
+                description = description.replace(/\s+/g, ' ').trim();
+                const cleanDescription = description.substring(0, 200) + (description.length > 200 ? '...' : '');
+
+                let thumbnailUrl = '';
+                const mediaThumbnail = item.querySelector('media\\:group media\\:thumbnail'); // Correct path for thumbnail
+                if (mediaThumbnail) {
+                    thumbnailUrl = mediaThumbnail.getAttribute('url');
+                }
+
+                htmlContent += `<li style="margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">`;
+                htmlContent += `<h3 style="margin: 0 0 5px 0;"><a href="${link}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #0056b3;">${title}</a></h3>`;
+            
+                if (thumbnailUrl) { // Use thumbnailUrl for the image
+                    htmlContent += `<div style="margin-bottom: 10px;">`;
+                    htmlContent += `<a href="${link}" target="_blank" rel="noopener noreferrer">`;
+                    htmlContent += `<img src="${thumbnailUrl}" alt="${title}" style="max-width: 100%; height: auto; display: block; border-radius: 5px;">`;
+                    htmlContent += `</a>`;
+                    htmlContent += `<a href="${link}" target="_blank" rel="noopener noreferrer" style="font-size: 0.9em; color: #007bff;">Watch Video</a>`;
+                    htmlContent += `</div>`;
+                }
+
+                if (pubDate) {
+                    const date = new Date(pubDate);
+                    htmlContent += `<p style="font-size: 0.8em; color: #666; margin: 0 0 5px 0;">Published: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}</p>`;
+                }
+                htmlContent += `<p style="font-size: 0.9em; color: #333; margin: 0;">${cleanDescription}</p>`;
+
+                htmlContent += `</li>`;
+            });
+            htmlContent += '</ul>';
+            container.innerHTML = htmlContent;
+        })
+        .catch(error => {
+            console.error('FINAL ERROR: Could not fetch or parse YouTube RSS feed after all proxy attempts:', error);
+            loadingDiv.textContent = '';
+            container.innerHTML = '<p style="color: red;">Failed to load YouTube feed. Please ensure the Channel ID or Username is correct, or try again later.</p>';
+        });
+}
+</script>
+  
+<body onload="autoLoad();">
+   <br />
+   <br />
+<select id="Choice" name="Choice" onchange="manualLoad();" class="bg-white text-black">
+<option selected disabled>Choose a Youtube Channel</option>
+<option id="1" value="channel_id=UCX6OQ3DkcsbYNE6H8uQQuVA" target="_blank">mrbeast - James Stephen "Jimmy" Donaldson, better known by his online alias MrBeast, He is known for his fast-paced and high-production videos.</option>
+<option id="2"  value="channel_id=UCq-Fj5jknLsUf-MWSy4_brA">t-series - Super Cassettes Industries Private Limited, doing business as T-Series. It is primarily known for Hindi film soundtracks and Indi-pop music.</option>
+<option id="3" value="channel_id=UCbCmjCuTUZos6Inko4u57UQ" target="_blank">Cocomelon - Cocomelon specializes in 3D animation videos of both traditional nursery rhymes and their own original children's songs.</option>
+<option id="4" value="channel_id=UCpEhnqL0y41EpW2TvWAHD7Q" target="_blank">Set India - Sony Entertainment Television is an Indian Hindi-language general entertainment pay television channel.</option>
+<option id="5" value="channel_id=UCnQu95iotdBvI6S6oywF4Nw" target="_blank">Love, Diana - Diana, Roma, little Oliver and their parents play, learn, sing, explore and share their life experiences.</option>
+<option id="6" value="channel_id=UCvlE5gTbOvjiolFlEm-c_Ow" target="_blank">Vlad and Nicki - Imaginative personalities and antics of brothers Vlad and Niki, who are showcased in non-stop fun and crazy adventures.</option>
+<option id="7" value="channel_id=UCpEJRZdSpdVZ8vh63T9I2KQ" target="_blank">Like Nastya - Every day, millions of kids and families tune in to watch Nastya and her parents play, learn, sing, explore, and share their life experiences.</option>
+<option id="8" value="channel_id=UC-lHJZR3Gqxm24_Vd_AJ5Yw" target="_blank">PewDiePie - Felix Arvid Ulf Kjellberg, better known as PewDiePie, is a Swedish YouTuber known for his comedic videos.</option>
+<option id="9" value="channel_id=UCLWCv3y3FK1pqEbe_yzilsw" target="_blank">Zee Music Company - India's leading television media and entertainment companies.</option>
+<option id="10" value="channel_id=UCJ5v_MCY6GNUBTO8-D3XoAg" target="_blank">WWE - Number one spot to catch WWE original shows and exclusives.</option>
+<option id="11" value="channel_id=UCbp9MyKCTEww4CxEzc_Tp0Q" target="_blank">Stokes Twins - Dive into a world of exciting challenges and laughter with the Stokes Twins!</option>
+<option id="12" value="channel_id=UC2etEuPIfohP4P53wM0KImA" target="_blank">5-Minute Crafts - Do-it-yourself style YouTube channel owned by TheSoul Publishing</option>
+<option id="13" value="channel_id=UCNVE4szbMrOZk9IheX8vHbQ" target="_blank">Baby Shark - Meet Pinkfong’s fun, educational videos that captured the hearts of millions of children around the world.</option>
+<option id="14" value="channel_id=UC2tsySbe9TNrI-xh2lximHA" target="_blank"><img src="https://yt3.ggpht.com/bMYNjzEss32VK-haya3x4qo2YidD7b9tyokvWengywfMmyzEnb6d3FZH5_Jo8AcY9Cu915nOKQ=s176-c-k-c0x00ffffff-no-rj-mo" height="88px" width="88"><br />A4V - A diffecrent collection of music mashups and some different genres of music collection.</option>
+<option id="15" value="channel_id=UC3gNmTGu-TTbFPpfSs5kNkg" target="_blank">Movieclips - The best moments, scenes, and lines from all your favorite films to share, discuss, and relive.</option>
+<option id="16" value="channel_id=UCqECaJ8Gagnn7YCbPEzWH6g" target="_blank">Taylor Swift - A leading figure in popular culture and the subject of widespread public interest.</option>
+<option id="17" value="https://www.rssdog.com/index.php?url=https://www.youtube.com/feeds/videos.xml?channel_id=UCIafb9ExBkh4WsCOagZssZA" target="_blank">
+Sulgi Yang - South Korean YouTube personality and content creator who has gained notable recognition for her mukbang videos</option>
+<option id="18" value="channel_id=UCINb0wqPz-A0dV9nARjJlOQ" target="_blank">
+The Dodo - Highly sharable animal-related stories and videos to help make caring about animals a viral cause.</option>
+<option id="19" value="channel_id=UC4rlAVgAK0SGk-yTfe48Qpw" target="_blank">
+Bright Side - Videos regarding how-to trivia as well as history and knowledge and mistakes.</option>
+<option id="20" value="channel_id=UCjOl2AUblVmg2rA_cRgZkFg" target="_blank">
+Top Gear - Fast-paced and stunt-filled motor show tests whether cars, both mundane and extraordinary, live up to their manufacturers' claims.</option>
+<option id="21" value="channel_id=UC4rlAVgAK0SGk-yTfe48Qpw" target="_blank">
+James Charles - Makeup Mogul James Charles puts artists to the test to find out who has what it takes to become a beauty superstar and win $50,000.</option>
+<option id="22" value="channel_id=UCzQUP1qoWDoEbmsQxvdjxgQ" target="_blank">
+Rosanna Pansino - Known for hosting her baking series Nerdy Nummies on YouTube.</option>
+<option id="23" value="channel_id=UCzQUP1qoWDoEbmsQxvdjxgQ" target="_blank">
+Joe Rogan - Podcast discusses current events, comedy, politics, philosophy, science, martial arts, and hobbies with celebrity guests.</option>
+<option id="24" value="channel_id=UCsTcErHg8oDvUnTzoqsYeNw" target="_blank">
+Unbox Therapy - A variety of videos showcasing the coolest products on the planet.</option>
+<option id="25" value="channel_id=UCkQO3QsgTpNTsOw6ujimT5Q" target="_blank">
+Be Amazed - Amazingly interesting bite-sized documentary-style fact videos.</option>
+<option id="26" value="channel_id=UCCgLoMYIyP0U56dEhEL1wXQ" target="_blank">
+Chloe Ting - Weekly workout videos, healthy food recipes and other fun videos!</option>
+<option id="27" value="channel_id=UC701pqb1-HJPS4RMjSmK4Yg" target="_blank">
+Gordon Ramsay - Recipe tutorials, tips, techniques and the best bits from the archives.</option>
+<option id="28" value="channel_id=UCMyOj6fhvKFMjxUCp3b_3gA" target="_blank">
+Nick DiGiovanni - Recipe tutorials, tips, techniques and the best bits from the archives.</option>
+<option id="29" value="channel_id=UC4PooiX37Pld1T8J5SYT-SQ" target="_blank">
+Good Mythical Morning - Explore surprising new products and trends, implement serious experiments in hilarious ways.</option>
+<option id="30" value="channel_id=UC4PooiX37Pld1T8J5SYT-SQ" target="_blank">
+Uncle Roger - The king of internet reactions, a champion of MSG and roasts celebrity chefs and looks for love.</option>
+<option id="31" value="channel_id=UCJHA_jMfCvEnv-3kRjTCQXw" target="_blank">
+Babbish Culinary Universe - Combine love of film and cooking, and to have some fun in the process.</option>
+<option id="32" value="channel_id=UChBEbMKI1eCcejTtmI32UEw" target="_blank">
+Joshua Weissman - Entertaining, exciting, and inspirational videos about food and cooking.</option>
+<option id="33" value="channel_id=UCpi8TJfiA4lKGkaXs__YdBA" target="_blank">
+Try Guys - A group of guys who will try pretty much anything for the audience's entertainment.</option>
+<option id="34" value="channel_id=UC_pT_Iz6XjuM-eMTlXghdfw" target="_blank">
+Max The Meat Guy - A mouth-watering culinary inspirations involving cuts of meat.</option>
+<option id="35" value="channel_id=UCnq1w-56tAvMdDup-CL6Vtg" target="_blank">
+Bobby Parish - Known for his innovative meal prep techniques.</option>
+<option id="36" value="channel_id=UCHYoe8kQ-7Gn9ASOlmI0k6Q" target="_blank">
+The Food Theorist - Debunks food myths, talks about the best food hacks, covers the history of food mascots.</option>
+<option id="37" value="channel_id=UCqNkn5PNeSqbQTAR5RP-L-Q" target="_blank">
+Andy Cooks - Recipes and cooking tips designed for home cooks and budding chefs that bring people together.</option>
+<option id="38" value="channel_id=UCfE5Cz44GlZVyoaYTHJbuZw" target="_blank">
+Guga Foods - Culinary experiments both adventurous and extreme.</option>
+<option id="39" value="channel_id=UCpqH8-BBNTsluhcOzFKWLuw" target="_blank">
+Matty Matheson - Chef, restaurateur, actor and internet personality.</option>
+<option id="40" value="channel_id=UCpTaewGuthzN4CuYKmgXneQ" target="_blank">
+Webspoon - The most interesting and new culinary recipes!</option>
+<option id="41" value="channel_id=UCR8gyS7wt4CmDwJ_JC6KP_g" target="_blank">
+Anti-Chef - Learn to cook if you lack the skill but not the heart.</option>
+<option id="42" value="channel_id=UC-WRBAagtTDrhRzDaDdNduQ" target="_blank">
+Rachh Loves Life - I like testing things... viral recipes,  Amazon gadgets, Tiktok hacks... they get me every time.</option>
+<option id="43" value="channel_id=UCwsa-MpLNx4pnsM1PiQwhyQ" target="_blank">
+Honeysuckle - Testing Cookbooks, Brands, Products, and the MOST VIEWED TikTok Recipes. Turning Pop Culture into Food!</option>
+<option id="44" value="channel_id=UCGvIBxqin_rx3sY9qacQEhQ" target="_blank">
+Mashed - Mashed is the ultimate destination for food lovers.</option>
+<option id="45" value="channel_id=UCWOA1ZGywLbqmigxE4Qlvuw" target="_blank">
+Netflix - One of the world's leading entertainment services,</option>
+<option id="46" value="channel_id=UCBi2mrWuNuyYy4gbM6fU18Q" target="_blank">
+ABC News - Daily source for breaking national and world news, exclusive interviews and 24/7 live streaming coverage</option>
+<option id="47" value="channel_id=UCY1kMZp36IQSyNx_9h4mpCg" target="_blank">
+Mark Rober - Former NASA engineer. Current CrunchLabs founder and friend of science.</option>
+<option id="48" value="channel_id=UCiWLfSweyRNmLpgEHekhoAg" target="_blank">
+ESPN - Live scores, highlights and sports news</option>
+<option id="49" value="channel_id=UCYJPby9DRCteedh5tfxVbrw" target="_blank">
+Smosh Pit - Sketch comedy-improv collective</option>
+<option id="50" value="channel_id=UCpi8TJfiA4lKGkaXs__YdBA" target="_blank">
+The Try Guys - A group of guys who will try pretty much anything for the audience's entertainment</option>
+<option id="51" value="channel_id=UCupvZG-5ko_eiXAupbDfxWw" target="_blank">
+CNN - A news and information and seeks to inform, engage and empower the world. </option>
+<option id="52" value="channel_id=UCLXo7UDZvByw2ixzpQCufnA" target="_blank">
+Vox - To help everyone understand our complicated world, so that we can all help shape it.</option>
+<option id="53" value="channel_id=UCBi2mrWuNuyYy4gbM6fU18Q" target="_blank">
+ABC - A daily source for breaking national and world news</option>
+<option id="54" value="channel_id=UC16niRr50-MSBwiO3YDb3RA" target="_blank">
+BBC - Global news with an impartial perspective</option>
+<option id="55" value="channel_id=UCE2606prvXQc_noEqKxVJXA" target="_blank">
+ABS-CBN - Global news with an impartial perspective</option>
+<option id="56" value="channel_id=UC9k-yiEpRHMNVOnOi_aQK8w" target="_blank">
+Inside Edition - A syndicated newsmagazine.</option>
+<option id="57" value="channel_id=UC1yBKRuGpC1tSM73A0ZjYjQ" target="_blank">
+The Young Turks - A news and commentary program that goes into great detail breaking down current events and topics that impact modern life.</option>
+<option id="58" value="channel_id=UCe_vXdMrHHseZ_esYUskSBw" target="_blank">
+Crazy Russian Hacker - Reviews user suggested products.</option>
+<option id="59" value="channel_id=UCfyehHM_eo4g5JUyWmms2LA" target="_blank">
+Sorted Food - Just a group of mates battling to become awesome home cooks.</option>
+<option id="60" value="channel_id=UCfyehHM_eo4g5JUyWmms2LA" target="_blank">
+Bright Side - Videos regarding how-to trivia as well as history and knowledge and mistakes.</option>
+<option id="61" value="channel_id=UC701pqb1-HJPS4RMjSmK4Yg" target="_blank">
+Walmart - Come for the Deals. Stay for the drama. </option>              t
+<option id="62" value="channel_id=UC701pqb1-HJPS4RMjSmK4Yg" target="_blank">
+Dylan Anderson - Showing that good news happens in the world every day.</option>
+<option id="63" value="channel_id=UCDnryF_sqBgUsg8ZkSmo6kw" target="_blank">
+Craftsman Vision - Display different craft content with a camera and record interesting craft art.</option>
+<option id="64" value="channel_id=UCDQ2HViwQh37NhOENDRsWKw" target="_blank">
+Chef Koudy - Everyday food fun</option>
+</select>
+<br /><br />
+<div id="rss-feed-container">
+  </div>
+<div id="rss-feed-message">
+  </div>
+</body>
