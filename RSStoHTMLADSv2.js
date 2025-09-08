@@ -117,9 +117,9 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         // If not a single feed, we don't clear the container here,
         // we just append. The initial clear happens in autoLoadAllFeeds.
         if (isSingleFeed) {
-             // If this is a single, explicit load, hide the global message
-             document.getElementById('rss-feed-message').style.display = 'none';
-             displayContainer.innerHTML = ''; // Clear for single view
+            // If this is a single, explicit load, hide the global message
+            document.getElementById('rss-feed-message').style.display = 'none';
+            displayContainer.innerHTML = ''; // Clear for single view
         }
 
         const items = xmlDoc.querySelectorAll('item');
@@ -154,7 +154,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             sectionHtml += `<li>`;
             sectionHtml += `<p>`;
             if (date) {
-                sectionHtml += `${date.toLocaleDateString()}  `;
+                sectionHtml += `${date.toLocaleDateString()} `;
             }
             sectionHtml += `<strong>${sourceText}</strong>: `;
             sectionHtml += `${title}`; // This will now be the potentially truncated title
@@ -268,7 +268,22 @@ async function autoLoadAllFeeds() {
     if (allSucceeded) {
         loadingDiv.textContent = 'All feeds loaded successfully!';
         loadingDiv.style.color = 'green';
-        playSound(); // <--- NEW LINE: Plays a sound on success
+        
+        // Check if the user has already interacted with the page
+        if (document.hasUserInteraction) {
+            playSound(); 
+        } else {
+            // If not, prompt the user to click to play the sound
+            const playButton = document.createElement('button');
+            playButton.textContent = 'Play Notification Sound';
+            playButton.style.marginTop = '10px';
+            loadingDiv.parentNode.insertBefore(playButton, loadingDiv.nextSibling);
+
+            playButton.addEventListener('click', () => {
+                playSound();
+                playButton.remove(); // Remove the button after it's clicked
+            }, { once: true });
+        }
     } else {
         loadingDiv.textContent = 'Some feeds could not be loaded. Please check the console for details.';
         loadingDiv.style.color = 'orange';
@@ -338,10 +353,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM is fully loaded and parsed');
     autoLoad();
 });
+
+// A new global flag to track user interaction
+document.hasUserInteraction = false;
+
+// Listen for the first user interaction
+document.addEventListener('click', () => {
+    document.hasUserInteraction = true;
+}, { once: true });
+
 // Function to play the sound
 function playSound() {
-  const audio = document.getElementById('notificationSound');
-  if (audio) {
-    audio.play().catch(e => console.error("Sound playback failed:", e));
-  }
+    const audio = document.getElementById('notificationSound');
+    if (audio) {
+        audio.play().catch(e => console.error("Sound playback failed:", e));
+    }
 }
