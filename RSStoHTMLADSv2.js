@@ -305,7 +305,7 @@ function changeFavicon(status) {
     if (status === 'success') {
         const favicon = document.getElementById('favicon');
         if (favicon) {
-            favicon.href = 'path/to/success-favicon.png'; // Path to your success favicon image
+            favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg'; // Path to your success favicon image
         }
     }
 }
