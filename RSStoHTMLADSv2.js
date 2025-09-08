@@ -39,9 +39,6 @@ async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
 
 // --- fetchWithProxyFallback Function (No changes) ---
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
-    // Note: The loadingDiv text updates here will only show the *last* proxy attempt's status
-    // when multiple feeds are fetching concurrently. Consider if you need a more granular
-    // loading indicator per feed.
     const loadingDiv = document.getElementById('rss-feed-message');
     let lastError = null;
     for (let i = 0; i < proxies.length; i++) {
@@ -59,13 +56,8 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
         }
 
         console.log(`Attempting with proxy ${i + 1}/${proxies.length}: ${proxyBaseUrl}`);
-        // This will be overwritten quickly if many are running in parallel
-        // loadingDiv.textContent = `Trying proxy ${i + 1}/${proxies.length}...`;
-        // console.log(loadingDiv.textContent);
-
         try {
             const response = await fetchWithRetry(proxiedUrl);
-
             if (!response.ok) {
                 lastError = new Error(`Proxy ${proxyBaseUrl} returned non-OK status: ${response.status} ${response.statusText}`);
                 console.warn(lastError.message);
@@ -73,8 +65,6 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
             }
 
             const xmlString = await response.text();
-            // console.log("Raw content received from proxy (first 500 chars):", xmlString.substring(0, 500) + '...');
-
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
 
@@ -102,39 +92,30 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     }
     console.log("All proxy attempts failed.");
     throw new Error(`All proxy attempts failed to fetch the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
-    // throw new Error(`All proxy attempts failed to fetch or parse the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
-
 }
 
 
-// --- fetchAndDisplayFeed function (Now uses full optionId directly) ---
-// This function will now return a Promise, whether it succeeds or fails
+// --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
-    console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`); // DEBUG LOG
+    console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
-
-        // If not a single feed, we don't clear the container here,
-        // we just append. The initial clear happens in autoLoadAllFeeds.
         if (isSingleFeed) {
-            // If this is a single, explicit load, hide the global message
             document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = ''; // Clear for single view
+            displayContainer.innerHTML = '';
         }
 
         const items = xmlDoc.querySelectorAll('item');
         let sectionHtml = '';
-
         sectionHtml += `<h3>${sourceText}</h3>`;
         sectionHtml += '<ul style="list-style: none; padding: 0;">';
 
         items.forEach(item => {
-            let title = item.querySelector('title')?.textContent || 'No Title'; // Use 'let' as we might modify it
+            let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
 
             if (title.length > 50) {
-                title = title.substring(0, 50); // Just cut it off
-                // console.log(`Truncated title to: ${title}`); // DEBUG LOG
+                title = title.substring(0, 50);
             }
 
             let date = null;
@@ -157,52 +138,49 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
                 sectionHtml += `${date.toLocaleDateString()} `;
             }
             sectionHtml += `<strong>${sourceText}</strong>: `;
-            sectionHtml += `${title}`; // This will now be the potentially truncated title
+            sectionHtml += `${title}`;
 
             if (optionId) {
                 sectionHtml += ` ${optionId}`;
             }
-
             sectionHtml += `</p>`;
             sectionHtml += `</li>`;
         });
 
         sectionHtml += '</ul>';
-        displayContainer.innerHTML += sectionHtml; // Append content
+        displayContainer.innerHTML += sectionHtml;
 
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
         if (isSingleFeed) {
-            // For single feed, hide message and show error directly
             document.getElementById('rss-feed-message').style.display = 'none';
             displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed: ${error.message}</p>`;
         } else {
-            // For multiple feeds, just append the error message for that specific feed
             displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${error.message.substring(0, 100)}...</p>`;
         }
     }
 }
-// --- Helper function to extract the number from the option ID (STILL NEEDED for autoLoad hash handling) ---
+// --- Helper function to extract the number from the option ID ---
 function extractOptionNumberId(fullOptionId) {
     if (fullOptionId) {
         const parts = fullOptionId.split('#');
         if (parts.length > 1) {
-            return parts[parts.length - 1]; // Return the last part after the '#'
+            return parts[parts.length - 1];
         }
     }
-    return ''; // Return empty string if no valid ID found
+    return '';
 }
 
 
-// --- MODIFIED: manualLoad function (Passing full option ID) ---
+// --- MODIFIED: manualLoad function ---
 function manualLoad() {
     const selectElement = document.getElementById('Choice');
     const rssFeedUrl = selectElement.value;
-    const selectedOption = selectElement.options[selectElement.selectedIndex]; // Get the selected option element
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
     const selectedOptionText = selectedOption.textContent;
-    const fullOptionId = selectedOption.id; // Get the full ID string directly
+    const fullOptionId = selectedOption.id;
 
-    console.log(`manualLoad called. Selected URL: ${rssFeedUrl}, Full Option ID: "${fullOptionId}"`); // DEBUG LOG
+    console.log(`manualLoad called. Selected URL: ${rssFeedUrl}, Full Option ID: "${fullOptionId}"`);
 
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
@@ -216,12 +194,12 @@ function manualLoad() {
     loadingDiv.textContent = 'Loading RSS feed...';
     loadingDiv.style.display = 'block';
     container.innerHTML = '';
-
-    fetchAndDisplayFeed(rssFeedUrl, selectedOptionText, container, true, fullOptionId); // Pass the full ID
+    
+    fetchAndDisplayFeed(rssFeedUrl, selectedOptionText, container, true, fullOptionId);
 }
 
 
-// --- NEW / MODIFIED: autoLoadAllFeeds function to use Promise.all() ---
+// --- MODIFIED: autoLoadAllFeeds function to change favicon ---
 async function autoLoadAllFeeds() {
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
@@ -229,30 +207,23 @@ async function autoLoadAllFeeds() {
 
     loadingDiv.textContent = 'Loading all RSS feeds concurrently...';
     loadingDiv.style.display = 'block';
-    container.innerHTML = ''; // Clear existing content
+    container.innerHTML = '';
 
     const feedPromises = [];
-    const feedDetails = []; // To store context for each promise
-
-    // Collect all promises without awaiting them immediately
-    for (let i = 1; i < selectElement.options.length; i++) { // Start from 1 to skip "Choose an Interest"
+    const feedDetails = [];
+    for (let i = 1; i < selectElement.options.length; i++) {
         const option = selectElement.options[i];
         const feedUrl = option.value;
         const sourceText = option.textContent;
         const fullOptionId = option.id;
-
-        // Create a promise for each feed and push it to the array
         feedPromises.push(
             fetchAndDisplayFeed(feedUrl, sourceText, container, false, fullOptionId)
         );
-        feedDetails.push({ sourceText: sourceText, index: i }); // Store for logging/tracking
+        feedDetails.push({ sourceText: sourceText, index: i });
     }
 
     console.log(`Starting to fetch ${feedPromises.length} feeds concurrently.`);
-
-    // Use Promise.allSettled to wait for all promises to settle (either fulfill or reject)
     const results = await Promise.allSettled(feedPromises);
-
     console.log('All feed promises have settled:', results);
 
     let allSucceeded = true;
@@ -266,28 +237,12 @@ async function autoLoadAllFeeds() {
     });
 
     if (allSucceeded) {
-        loadingDiv.textContent = 'All feeds loaded successfully!';
+        loadingDiv.textContent = 'All feeds loaded successfully! ✓';
         loadingDiv.style.color = 'green';
-        
-        // Check if the user has already interacted with the page
-        if (document.hasUserInteraction) {
-            playSound(); 
-        } else {
-            // If not, prompt the user to click to play the sound
-            const playButton = document.createElement('button');
-            playButton.textContent = 'Play Notification Sound';
-            playButton.style.marginTop = '10px';
-            loadingDiv.parentNode.insertBefore(playButton, loadingDiv.nextSibling);
-
-            playButton.addEventListener('click', () => {
-                playSound();
-                playButton.remove(); // Remove the button after it's clicked
-            }, { once: true });
-        }
+        changeFavicon('success'); // Call function to change favicon
     } else {
         loadingDiv.textContent = 'Some feeds could not be loaded. Please check the console for details.';
         loadingDiv.style.color = 'orange';
-        // You could add playSound() here as well if you want a sound for failure
     }
 
     setTimeout(() => {
@@ -300,33 +255,32 @@ async function autoLoadAllFeeds() {
     }
 }
 
-// --- MODIFIED: autoLoad function (Using extractOptionNumberId for hash lookup, but passing full ID for display) ---
+// --- MODIFIED: autoLoad function ---
 function autoLoad() {
     var wlh = window.location.href;
     if (wlh.search("#") > 0) {
         var ixo = wlh.indexOf("#");
-        var selectedHashId = wlh.substring(ixo + 1); // This will be "1", "2", etc., from the URL hash
+        var selectedHashId = wlh.substring(ixo + 1);
 
-        console.log("autoLoad: Hash detected:", selectedHashId); // DEBUG LOG
+        console.log("autoLoad: Hash detected:", selectedHashId);
 
         const selectElement = document.getElementById('Choice');
         let optionElement = null;
 
-        // Loop through options to find the one whose extracted number ID matches the hash
         for (let i = 1; i < selectElement.options.length; i++) {
             const option = selectElement.options[i];
-            const extractedIdFromOption = extractOptionNumberId(option.id); // Extract number from option's ID
+            const extractedIdFromOption = extractOptionNumberId(option.id);
             if (extractedIdFromOption === selectedHashId) {
-                optionElement = option; // Found the matching option
+                optionElement = option;
                 break;
             }
         }
 
         if (optionElement && optionElement.tagName === 'OPTION') {
-            const fullOptionIdToDisplay = optionElement.id; // Get the full ID string from the found option
-            console.log(`autoLoad (hash): Found option element for hash "${selectedHashId}", Full ID to display: "${fullOptionIdToDisplay}"`); // DEBUG LOG
+            const fullOptionIdToDisplay = optionElement.id;
+            console.log(`autoLoad (hash): Found option element for hash "${selectedHashId}", Full ID to display: "${fullOptionIdToDisplay}"`);
 
-            selectElement.value = optionElement.value; // Set the select dropdown to this option
+            selectElement.value = optionElement.value;
             const selectedOptionText = optionElement.textContent;
 
             const container = document.getElementById('rss-feed-container');
@@ -335,37 +289,28 @@ function autoLoad() {
             loadingDiv.textContent = `Loading feed for ${selectedOptionText}...`;
             loadingDiv.style.display = 'block';
             container.innerHTML = '';
-            // Pass the full ID string to display
             fetchAndDisplayFeed(optionElement.value, selectedOptionText, container, true, fullOptionIdToDisplay);
         } else {
             console.warn("AutoLoad: Could not find option element for hash:", selectedHashId);
-            autoLoadAllFeeds(); // Fallback to loading all if hash doesn't match an option
+            autoLoadAllFeeds();
         }
     } else {
         console.log("AutoLoad: No hash in URL, loading all feeds concurrently.");
         autoLoadAllFeeds();
     }
 }
-// ... (all of your existing JavaScript functions and code) ...
 
-// Add this code at the end of your JavaScript file
+// ** NEW CODE FOR FAVICON CHANGES **
+function changeFavicon(status) {
+    if (status === 'success') {
+        const favicon = document.getElementById('favicon');
+        if (favicon) {
+            favicon.href = 'path/to/success-favicon.png'; // Path to your success favicon image
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM is fully loaded and parsed');
     autoLoad();
 });
-
-// A new global flag to track user interaction
-document.hasUserInteraction = false;
-
-// Listen for the first user interaction
-document.addEventListener('click', () => {
-    document.hasUserInteraction = true;
-}, { once: true });
-
-// Function to play the sound
-function playSound() {
-    const audio = document.getElementById('notificationSound');
-    if (audio) {
-        audio.play().catch(e => console.error("Sound playback failed:", e));
-    }
-}
