@@ -342,3 +342,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM is fully loaded and parsed');
     autoLoad();
 });
+// Function to play the sound
+function playSound() {
+  const audio = document.getElementById('notificationSound');
+  if (audio) {
+    audio.play().catch(e => console.error("Sound playback failed:", e));
+  }
+}
