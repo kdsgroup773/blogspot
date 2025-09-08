@@ -242,7 +242,6 @@ async function autoLoadAllFeeds() {
         const fullOptionId = option.id;
 
         // Create a promise for each feed and push it to the array
-        // We pass the parameters needed by fetchAndDisplayFeed
         feedPromises.push(
             fetchAndDisplayFeed(feedUrl, sourceText, container, false, fullOptionId)
         );
@@ -252,17 +251,14 @@ async function autoLoadAllFeeds() {
     console.log(`Starting to fetch ${feedPromises.length} feeds concurrently.`);
 
     // Use Promise.allSettled to wait for all promises to settle (either fulfill or reject)
-    // This ensures that even if some fail, the others continue and we get results for all.
     const results = await Promise.allSettled(feedPromises);
 
     console.log('All feed promises have settled:', results);
 
-    // Optionally, update a final message based on overall success/failure
     let allSucceeded = true;
     results.forEach((result, index) => {
         if (result.status === 'rejected') {
             allSucceeded = false;
-            // The error message is already appended by fetchAndDisplayFeed's catch block
             console.error(`Feed ${feedDetails[index].sourceText} failed:`, result.reason);
         } else {
             console.log(`Feed ${feedDetails[index].sourceText} succeeded.`);
@@ -271,23 +267,23 @@ async function autoLoadAllFeeds() {
 
     if (allSucceeded) {
         loadingDiv.textContent = 'All feeds loaded successfully!';
-        loadingDiv.style.color = 'green'; // Optional: visual feedback
+        loadingDiv.style.color = 'green';
+        playSound(); // <--- NEW LINE: Plays a sound on success
     } else {
         loadingDiv.textContent = 'Some feeds could not be loaded. Please check the console for details.';
-        loadingDiv.style.color = 'orange'; // Optional: visual feedback
+        loadingDiv.style.color = 'orange';
+        // You could add playSound() here as well if you want a sound for failure
     }
 
-    // Hide the loading message after a short delay so the user can see the final status
     setTimeout(() => {
         loadingDiv.style.display = 'none';
-        loadingDiv.style.color = ''; // Reset color
-    }, 3000); // Hide after 3 seconds
+        loadingDiv.style.color = '';
+    }, 3000);
 
     if (container.innerHTML === '') {
         container.innerHTML = '<p>No feeds could be loaded or displayed.</p>';
     }
 }
-
 
 // --- MODIFIED: autoLoad function (Using extractOptionNumberId for hash lookup, but passing full ID for display) ---
 function autoLoad() {
