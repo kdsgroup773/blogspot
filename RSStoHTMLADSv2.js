@@ -1,8 +1,4 @@
-// --- RSS to HTML Script v3.0 ---
-// Designed for robust RSS feed fetching with a proxy fallback system.
-// Addresses duplicate error messages and improves overall logic.
-
-// --- Global Constants ---
+// Define proxyList globally, as it's a constant list
 const proxyList = [
     'https://api.allorigins.win?url=',
     'https://corsproxy.io/?url=',
@@ -12,11 +8,11 @@ const proxyList = [
     'https://cors.x2u.in/?url=',
     'https://thingproxy.freeboard.io/fetch/',
     'https://cors-proxy.htmldriven.com/?url=',
-    'https://crossorigin.me/',
+    'https://crossorigin.me/', // This one is often down or slow
     'https://yacdn.org/proxy/',
 ];
 
-// --- Core Fetching Logic with Retry ---
+// --- fetchWithRetry function (moved to global scope) ---
 async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
     try {
         const response = await fetch(url, options);
@@ -41,11 +37,14 @@ async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
     }
 }
 
-// --- Proxy Fallback and Parsing ---
+// --- fetchWithProxyFallback Function (No changes) ---
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
+    const loadingDiv = document.getElementById('rss-feed-message');
     let lastError = null;
-    for (const proxyBaseUrl of proxies) {
+    for (let i = 0; i < proxies.length; i++) {
+        const proxyBaseUrl = proxies[i];
         let proxiedUrl;
+
         if (proxyBaseUrl.includes('codetabs.com')) {
             proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
         } else if (proxyBaseUrl.includes('crossorigin.me')) {
@@ -56,9 +55,15 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
             proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
         }
 
-        console.log(`Attempting with proxy: ${proxyBaseUrl}`);
+        console.log(`Attempting with proxy ${i + 1}/${proxies.length}: ${proxyBaseUrl}`);
         try {
             const response = await fetchWithRetry(proxiedUrl);
+            if (!response.ok) {
+                lastError = new Error(`Proxy ${proxyBaseUrl} returned non-OK status: ${response.status} ${response.statusText}`);
+                console.warn(lastError.message);
+                continue;
+            }
+
             const xmlString = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
@@ -85,8 +90,10 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
             console.error(`Failed with proxy ${proxyBaseUrl}:`, error);
         }
     }
+    console.log("All proxy attempts failed.");
     throw new Error(`All proxy attempts failed to fetch the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
 }
+
 
 // --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
@@ -153,7 +160,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         }
     }
 }
-
 // --- Helper function to extract the number from the option ID ---
 function extractOptionNumberId(fullOptionId) {
     if (fullOptionId) {
@@ -308,7 +314,3 @@ document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM is fully loaded and parsed');
     autoLoad();
 });
-
-[Common JavaScript Errors and How to Fix Them](https://www.youtube.com/watch?v=KuEbGvrU2cY)
-This video explains how to debug and fix common JavaScript errors, which is relevant to troubleshooting the logic error in the provided script.
-http://googleusercontent.com/youtube_content/0
