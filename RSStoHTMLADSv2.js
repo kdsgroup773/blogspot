@@ -32,6 +32,7 @@ async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
     } catch (error) {
         if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('Network request failed') || error.message.includes('timeout') || error.message.includes('ERR_CONNECTION_REFUSED'))) {
             console.warn(`Fetch failed (network/timeout error for ${url}), retrying in ${delay / 1000}s... (${retries} retries left)`);
+            document.getElementById('rss-feed-message').textContent = `Retrying in ${delay / 1000}s... (${retries} retries left)`;
             await new Promise(res => setTimeout(res, delay));
             return fetchWithRetry(url, options, retries - 1, delay);
         } else {
@@ -45,9 +46,11 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
     for (const proxyBaseUrl of proxies) {
         let proxiedUrl;
-        if (proxyBaseUrl.includes('codetabs.com') || proxyBaseUrl.includes('cors.lol') || proxyBaseUrl.includes('allorigins.win') || proxyBaseUrl.includes('corsproxy.io')) {
+        if (proxyBaseUrl.includes('codetabs.com')) {
             proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
-        } else if (proxyBaseUrl.includes('crossorigin.me') || proxyBaseUrl.includes('thingproxy.freeboard.io') || proxyBaseUrl.includes('cors-anywhere.herokuapp.com') || proxyBaseUrl.includes('yacdn.org') || proxyBaseUrl.includes('cors.x2u.in')) {
+        } else if (proxyBaseUrl.includes('crossorigin.me')) {
+            proxiedUrl = proxyBaseUrl + targetFeedUrl;
+        } else if (proxyBaseUrl.includes('thingproxy.freeboard.io')) {
             proxiedUrl = proxyBaseUrl + targetFeedUrl;
         } else {
             proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
@@ -70,7 +73,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
 
             const items = xmlDoc.querySelectorAll('item');
             if (items.length === 0) {
-                lastError = new Error(`No RSS items found in feed using ${proxyBaseUrl}.`);
+                lastError = new Error(`No RSS items found in feed using ${proxyBaseUrl}. Feed might be empty or structured differently.`);
                 console.warn(lastError.message);
                 continue;
             }
@@ -85,49 +88,69 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     throw new Error(`All proxy attempts failed to fetch the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
 }
 
-// --- Display Function (Now only handles display, not errors) ---
-function displayFeedContent(xmlDoc, sourceText, displayContainer, optionId = '') {
-    const items = xmlDoc.querySelectorAll('item');
-    let sectionHtml = '';
-    sectionHtml += `<h3 class="feed-source-header">${sourceText}</h3>`;
-    sectionHtml += '<ul class="feed-list">';
-
-    items.forEach(item => {
-        const title = item.querySelector('title')?.textContent || 'No Title';
-        const pubDateStr = item.querySelector('pubDate')?.textContent;
-        const link = item.querySelector('link')?.textContent || '#';
-
-        const date = pubDateStr ? new Date(pubDateStr) : null;
-        const formattedDate = date && !isNaN(date.getTime()) ? date.toLocaleDateString() : '';
-
-        sectionHtml += `
-            <li class="feed-item">
-                <a href="${link}" target="_blank" rel="noopener noreferrer" class="feed-link">
-                    <p class="feed-title">${title}</p>
-                    <p class="feed-meta">
-                        <span class="feed-source-name">${sourceText}</span>
-                        ${optionId ? `<span class="feed-option-id">#${extractOptionNumberId(optionId)}</span>` : ''}
-                        <span class="feed-date">${formattedDate}</span>
-                    </p>
-                </a>
-            </li>
-        `;
-    });
-
-    sectionHtml += '</ul>';
-    displayContainer.innerHTML += sectionHtml;
-}
-
-// --- Main Function to Fetch and Display (now returns status) ---
+// --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
+    console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
-        displayFeedContent(xmlDoc, sourceText, displayContainer, optionId);
-        return { status: 'fulfilled' };
+        if (isSingleFeed) {
+            document.getElementById('rss-feed-message').style.display = 'none';
+            displayContainer.innerHTML = '';
+        }
+
+        const items = xmlDoc.querySelectorAll('item');
+        let sectionHtml = '';
+        sectionHtml += `<h3>${sourceText}</h3>`;
+        sectionHtml += '<ul style="list-style: none; padding: 0;">';
+
+        items.forEach(item => {
+            let title = item.querySelector('title')?.textContent || 'No Title';
+            const pubDateStr = item.querySelector('pubDate')?.textContent;
+
+            if (title.length > 50) {
+                title = title.substring(0, 50);
+            }
+
+            let date = null;
+            if (pubDateStr) {
+                try {
+                    date = new Date(pubDateStr);
+                    if (isNaN(date.getTime())) {
+                        console.warn("Invalid date string for new Date():", pubDateStr);
+                        date = null;
+                    }
+                } catch (e) {
+                    console.error("Error parsing date:", pubDateStr, e);
+                    date = null;
+                }
+            }
+
+            sectionHtml += `<li>`;
+            sectionHtml += `<p>`;
+            if (date) {
+                sectionHtml += `${date.toLocaleDateString()} `;
+            }
+            sectionHtml += `<strong>${sourceText}</strong>: `;
+            sectionHtml += `${title}`;
+
+            if (optionId) {
+                sectionHtml += ` ${optionId}`;
+            }
+            sectionHtml += `</p>`;
+            sectionHtml += `</li>`;
+        });
+
+        sectionHtml += '</ul>';
+        displayContainer.innerHTML += sectionHtml;
+
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
-        // Return a rejected status to the caller
-        return { status: 'rejected', reason: error.message, sourceText: sourceText, isSingleFeed: isSingleFeed };
+        if (isSingleFeed) {
+            document.getElementById('rss-feed-message').style.display = 'none';
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed: ${error.message}</p>`;
+        } else {
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${error.message.substring(0, 100)}...</p>`;
+        }
     }
 }
 
@@ -142,13 +165,16 @@ function extractOptionNumberId(fullOptionId) {
     return '';
 }
 
-// --- Manual Load Function ---
+
+// --- MODIFIED: manualLoad function ---
 function manualLoad() {
     const selectElement = document.getElementById('Choice');
     const rssFeedUrl = selectElement.value;
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const selectedOptionText = selectedOption.textContent;
     const fullOptionId = selectedOption.id;
+
+    console.log(`manualLoad called. Selected URL: ${rssFeedUrl}, Full Option ID: "${fullOptionId}"`);
 
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
@@ -163,25 +189,17 @@ function manualLoad() {
     loadingDiv.style.display = 'block';
     container.innerHTML = '';
     
-    // Call the single-feed handler and display its status
-    fetchAndDisplayFeed(rssFeedUrl, selectedOptionText, container, true, fullOptionId)
-        .then(result => {
-            if (result.status === 'fulfilled') {
-                loadingDiv.style.display = 'none';
-            } else {
-                loadingDiv.style.display = 'none';
-                container.innerHTML = `<p style="color: red;">Failed to load '${selectedOptionText}' feed: ${result.reason}</p>`;
-            }
-        });
+    fetchAndDisplayFeed(rssFeedUrl, selectedOptionText, container, true, fullOptionId);
 }
 
-// --- Auto Load All Feeds Function ---
+
+// --- MODIFIED: autoLoadAllFeeds function to change favicon ---
 async function autoLoadAllFeeds() {
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
 
-    loadingDiv.textContent = 'Loading all RSS feeds...';
+    loadingDiv.textContent = 'Loading all RSS feeds concurrently...';
     loadingDiv.style.display = 'block';
     container.innerHTML = '';
 
@@ -198,71 +216,99 @@ async function autoLoadAllFeeds() {
         feedDetails.push({ sourceText: sourceText, index: i });
     }
 
-    const results = await Promise.all(feedPromises.map(p => p.catch(e => e)));
-    
-    let allSucceeded = true;
-    let successfulLoads = 0;
+    console.log(`Starting to fetch ${feedPromises.length} feeds concurrently.`);
+    const results = await Promise.allSettled(feedPromises);
+    console.log('All feed promises have settled:', results);
 
+    let allSucceeded = true;
     results.forEach((result, index) => {
         if (result.status === 'rejected') {
             allSucceeded = false;
-            const sourceText = result.sourceText;
-            const error = result.reason;
-            container.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${error.substring(0, 100)}...</p>`;
+            console.error(`Feed ${feedDetails[index].sourceText} failed:`, result.reason);
         } else {
-            successfulLoads++;
+            console.log(`Feed ${feedDetails[index].sourceText} succeeded.`);
         }
     });
 
-    if (successfulLoads > 0) {
-        loadingDiv.textContent = `Loaded ${successfulLoads} feeds.`;
+    if (allSucceeded) {
+        loadingDiv.textContent = 'All feeds loaded successfully! ✓';
         loadingDiv.style.color = 'green';
-        changeFavicon('success');
+        changeFavicon('success'); // Call function to change favicon
     } else {
-        loadingDiv.textContent = 'No feeds could be loaded.';
-        loadingDiv.style.color = 'red';
+        loadingDiv.textContent = 'Some feeds could not be loaded. Please check the console for details.';
+        loadingDiv.style.color = 'orange';
     }
 
     setTimeout(() => {
         loadingDiv.style.display = 'none';
         loadingDiv.style.color = '';
-    }, 5000);
+    }, 3000);
 
     if (container.innerHTML === '') {
         container.innerHTML = '<p>No feeds could be loaded or displayed.</p>';
     }
 }
 
-// --- Auto Load on Page Start ---
+// --- MODIFIED: autoLoad function ---
 function autoLoad() {
-    const wlh = window.location.href;
+    var wlh = window.location.href;
     if (wlh.search("#") > 0) {
-        const ixo = wlh.indexOf("#");
-        const selectedHashId = wlh.substring(ixo + 1);
+        var ixo = wlh.indexOf("#");
+        var selectedHashId = wlh.substring(ixo + 1);
+
+        console.log("autoLoad: Hash detected:", selectedHashId);
 
         const selectElement = document.getElementById('Choice');
-        const optionElement = Array.from(selectElement.options).find(option => extractOptionNumberId(option.id) === selectedHashId);
+        let optionElement = null;
 
-        if (optionElement) {
+        for (let i = 1; i < selectElement.options.length; i++) {
+            const option = selectElement.options[i];
+            const extractedIdFromOption = extractOptionNumberId(option.id);
+            if (extractedIdFromOption === selectedHashId) {
+                optionElement = option;
+                break;
+            }
+        }
+
+        if (optionElement && optionElement.tagName === 'OPTION') {
+            const fullOptionIdToDisplay = optionElement.id;
+            console.log(`autoLoad (hash): Found option element for hash "${selectedHashId}", Full ID to display: "${fullOptionIdToDisplay}"`);
+
             selectElement.value = optionElement.value;
-            manualLoad();
+            const selectedOptionText = optionElement.textContent;
+
+            const container = document.getElementById('rss-feed-container');
+            const loadingDiv = document.getElementById('rss-feed-message');
+
+            loadingDiv.textContent = `Loading feed for ${selectedOptionText}...`;
+            loadingDiv.style.display = 'block';
+            container.innerHTML = '';
+            fetchAndDisplayFeed(optionElement.value, selectedOptionText, container, true, fullOptionIdToDisplay);
         } else {
+            console.warn("AutoLoad: Could not find option element for hash:", selectedHashId);
             autoLoadAllFeeds();
         }
     } else {
+        console.log("AutoLoad: No hash in URL, loading all feeds concurrently.");
         autoLoadAllFeeds();
     }
 }
 
 // ** NEW CODE FOR FAVICON CHANGES **
 function changeFavicon(status) {
-    const favicon = document.getElementById('favicon');
-    if (!favicon) return;
     if (status === 'success') {
-        favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg';
-    } else if (status === 'error') {
-        favicon.href = 'https://kdsgroup773.github.io/blogspot/error.jpeg';
+        const favicon = document.getElementById('favicon');
+        if (favicon) {
+            favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg'; // Path to your success favicon image
+        }
     }
 }
 
-document.addEventListener('DOMContentLoaded', autoLoad);
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM is fully loaded and parsed');
+    autoLoad();
+});
+
+[Common JavaScript Errors and How to Fix Them](https://www.youtube.com/watch?v=KuEbGvrU2cY)
+This video explains how to debug and fix common JavaScript errors, which is relevant to troubleshooting the logic error in the provided script.
+http://googleusercontent.com/youtube_content/0
