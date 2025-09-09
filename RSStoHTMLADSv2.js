@@ -1,8 +1,4 @@
-// --- RSS to HTML Script v3.0 ---
-// Designed for robust RSS feed fetching with a proxy fallback system.
-// Addresses duplicate error messages and improves overall logic.
-
-// --- Global Constants ---
+// Define proxyList globally, as it's a constant list
 const proxyList = [
     'https://api.allorigins.win?url=',
     'https://corsproxy.io/?url=',
@@ -12,11 +8,11 @@ const proxyList = [
     'https://cors.x2u.in/?url=',
     'https://thingproxy.freeboard.io/fetch/',
     'https://cors-proxy.htmldriven.com/?url=',
-    'https://crossorigin.me/',
+    'https://crossorigin.me/', // This one is often down or slow
     'https://yacdn.org/proxy/',
 ];
 
-// --- Core Fetching Logic with Retry ---
+// --- fetchWithRetry function (moved to global scope) ---
 async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
     try {
         const response = await fetch(url, options);
@@ -41,7 +37,7 @@ async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
     }
 }
 
-// --- Proxy Fallback and Parsing ---
+// --- fetchWithProxyFallback Function (No changes) ---
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     const loadingDiv = document.getElementById('rss-feed-message');
     let lastError = null;
@@ -97,6 +93,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     console.log("All proxy attempts failed.");
     throw new Error(`All proxy attempts failed to fetch the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
 }
+
 
 // --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
@@ -279,4 +276,41 @@ function autoLoad() {
             }
         }
 
-        if (optionElement && optionElement.tagName
+        if (optionElement && optionElement.tagName === 'OPTION') {
+            const fullOptionIdToDisplay = optionElement.id;
+            console.log(`autoLoad (hash): Found option element for hash "${selectedHashId}", Full ID to display: "${fullOptionIdToDisplay}"`);
+
+            selectElement.value = optionElement.value;
+            const selectedOptionText = optionElement.textContent;
+
+            const container = document.getElementById('rss-feed-container');
+            const loadingDiv = document.getElementById('rss-feed-message');
+
+            loadingDiv.textContent = `Loading feed for ${selectedOptionText}...`;
+            loadingDiv.style.display = 'block';
+            container.innerHTML = '';
+            fetchAndDisplayFeed(optionElement.value, selectedOptionText, container, true, fullOptionIdToDisplay);
+        } else {
+            console.warn("AutoLoad: Could not find option element for hash:", selectedHashId);
+            autoLoadAllFeeds();
+        }
+    } else {
+        console.log("AutoLoad: No hash in URL, loading all feeds concurrently.");
+        autoLoadAllFeeds();
+    }
+}
+
+// ** NEW CODE FOR FAVICON CHANGES **
+function changeFavicon(status) {
+    if (status === 'success') {
+        const favicon = document.getElementById('favicon');
+        if (favicon) {
+            favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg'; // Path to your success favicon image
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM is fully loaded and parsed');
+    autoLoad();
+});
