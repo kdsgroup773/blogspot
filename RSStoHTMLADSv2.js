@@ -152,11 +152,14 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
 
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
+        // This is the updated section to display feedUrl on the screen
+        const errorMessage = error.message.substring(0, 100);
         if (isSingleFeed) {
             document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed: ${error.message}</p>`;
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed from URL:<br> ${feedUrl}<br>Reason: ${error.message}</p>`;
         } else {
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${error.message.substring(0, 100)}... '${feedUrl}' </p>`;
+            // This part is for the autoLoadAllFeeds case
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${errorMessage}... URL: ${feedUrl}</p>`;
         }
     }
 }
