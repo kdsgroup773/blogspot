@@ -156,7 +156,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             document.getElementById('rss-feed-message').style.display = 'none';
             displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed: ${error.message}</p>`;
         } else {
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${error.message.substring(0, 100)}...</p>`;
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${error.message.substring(0, 100)}... '${feedUrl}' </p>`;
         }
     }
 }
