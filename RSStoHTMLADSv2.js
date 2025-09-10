@@ -199,52 +199,71 @@ function manualLoad() {
 }
 
 
-// --- MODIFIED: autoLoadAllFeeds function to change favicon and log option.value on error ---
-async function autoLoadAllFeeds() {
-    const selectElement = document.getElementById('Choice');
-    const container = document.getElementById('rss-feed-container');
-    const loadingDiv = document.getElementById('rss-feed-message');
-
-    loadingDiv.textContent = 'Loading all RSS feeds concurrently...';
-    loadingDiv.style.display = 'block';
-    container.innerHTML = '';
-
-    const feedPromises = [];
-    const feedDetails = [];
-    for (let i = 1; i < selectElement.options.length; i++) {
-        const option = selectElement.options[i];
-        const feedUrl = option.value;
-        const sourceText = option.textContent;
-        const fullOptionId = option.id;
-        feedPromises.push(
-            fetchAndDisplayFeed(feedUrl, sourceText, container, false, fullOptionId)
-        );
-        feedDetails.push({ 
-            sourceText: sourceText, 
-            index: i, 
-            optionValue: option.value // Store the option.value here
-        });
-    }
-
-    console.log(`Starting to fetch ${feedPromises.length} feeds concurrently.`);
-    const results = await Promise.allSettled(feedPromises);
-    console.log('All feed promises have settled:', results);
-
-    let allSucceeded = true;
-    results.forEach((result, index) => {
-        const feedInfo = feedDetails[index];
-        if (result.status === 'rejected') {
-            allSucceeded = false;
-            console.error(
-                `Feed ${feedInfo.sourceText} failed. ` +
-                `URL (option.value): ${feedInfo.optionValue}. ` + // Log the URL
-                `Reason: ${result.reason}`
-            );
-        } else {
-            console.log(`Feed ${feedInfo.sourceText} succeeded.`);
+async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
+    console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
+    try {
+        const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
+        if (isSingleFeed) {
+            document.getElementById('rss-feed-message').style.display = 'none';
+            displayContainer.innerHTML = '';
         }
-    });
 
+        const items = xmlDoc.querySelectorAll('item');
+        let sectionHtml = '';
+        sectionHtml += `<h3>${sourceText}</h3>`;
+        sectionHtml += '<ul style="list-style: none; padding: 0;">';
+
+        items.forEach(item => {
+            let title = item.querySelector('title')?.textContent || 'No Title';
+            const pubDateStr = item.querySelector('pubDate')?.textContent;
+
+            if (title.length > 50) {
+                title = title.substring(0, 50);
+            }
+
+            let date = null;
+            if (pubDateStr) {
+                try {
+                    date = new Date(pubDateStr);
+                    if (isNaN(date.getTime())) {
+                        console.warn("Invalid date string for new Date():", pubDateStr);
+                        date = null;
+                    }
+                } catch (e) {
+                    console.error("Error parsing date:", pubDateStr, e);
+                    date = null;
+                }
+            }
+
+            sectionHtml += `<li>`;
+            sectionHtml += `<p>`;
+            if (date) {
+                sectionHtml += `${date.toLocaleDateString()} `;
+            }
+            sectionHtml += `<strong>${sourceText}</strong>: `;
+            sectionHtml += `${title}`;
+
+            if (optionId) {
+                sectionHtml += ` ${optionId}`;
+            }
+            sectionHtml += `</p>`;
+            sectionHtml += `</li>`;
+        });
+
+        sectionHtml += '</ul>';
+        displayContainer.innerHTML += sectionHtml;
+
+    } catch (error) {
+        console.error(`Error loading feed for ${sourceText}:`, error);
+        // This is the key change to display the option.value (which is feedUrl)
+        if (isSingleFeed) {
+            document.getElementById('rss-feed-message').style.display = 'none';
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed from URL:<br> ${feedUrl}<br>Reason: ${error.message}</p>`;
+        } else {
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed from URL: ${feedUrl}. Error: ${error.message.substring(0, 100)}...</p>`;
+        }
+    }
+}
     if (allSucceeded) {
         loadingDiv.textContent = 'All feeds loaded successfully! ✓';
         loadingDiv.style.color = 'green';
