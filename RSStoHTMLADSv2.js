@@ -3,16 +3,16 @@ const proxyList = [
     'https://api.allorigins.win?url=',
     'https://corsproxy.io/?url=',
     'https://api.codetabs.com/v1/proxy?quest=',
-    'https://cors-anywhere.herokuapp.com/',
+    'https://cors-anywhere.herokuapp.com/', // Note: this proxy often requires a click-through on its site
     'https://cors.lol/?url=',
     'https://cors.x2u.in/?url=',
     'https://thingproxy.freeboard.io/fetch/',
     'https://cors-proxy.htmldriven.com/?url=',
-    'https://crossorigin.me/',
+    'https://crossorigin.me/', // This one is often down or slow
     'https://yacdn.org/proxy/',
 ];
 
-// --- fetchWithRetry function ---
+// --- fetchWithRetry function (moved to global scope) ---
 async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
     try {
         const response = await fetch(url, options);
@@ -37,12 +37,14 @@ async function fetchWithRetry(url, options = {}, retries = 4, delay = 7500) {
     }
 }
 
-// --- fetchWithProxyFallback Function ---
+// --- fetchWithProxyFallback Function (No changes) ---
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
+    const loadingDiv = document.getElementById('rss-feed-message');
     let lastError = null;
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
         let proxiedUrl;
+
         if (proxyBaseUrl.includes('codetabs.com')) {
             proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
         } else if (proxyBaseUrl.includes('crossorigin.me')) {
@@ -52,6 +54,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
         } else {
             proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
         }
+
         console.log(`Attempting with proxy ${i + 1}/${proxies.length}: ${proxyBaseUrl}`);
         try {
             const response = await fetchWithRetry(proxiedUrl);
@@ -60,9 +63,11 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 console.warn(lastError.message);
                 continue;
             }
+
             const xmlString = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+
             const errorNode = xmlDoc.querySelector("parsererror");
             if (errorNode) {
                 const errorText = errorNode.textContent;
@@ -70,12 +75,14 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 console.error(lastError.message);
                 continue;
             }
+
             const items = xmlDoc.querySelectorAll('item');
             if (items.length === 0) {
                 lastError = new Error(`No RSS items found in feed using ${proxyBaseUrl}. Feed might be empty or structured differently.`);
                 console.warn(lastError.message);
                 continue;
             }
+
             console.log(`Successfully parsed feed with ${items.length} items using proxy: ${proxyBaseUrl}`);
             return xmlDoc;
         } catch (error) {
@@ -87,6 +94,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     throw new Error(`All proxy attempts failed to fetch the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
 }
 
+
 // --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
     console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
@@ -96,16 +104,20 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             document.getElementById('rss-feed-message').style.display = 'none';
             displayContainer.innerHTML = '';
         }
+
         const items = xmlDoc.querySelectorAll('item');
         let sectionHtml = '';
         sectionHtml += `<h3>${sourceText}</h3>`;
         sectionHtml += '<ul style="list-style: none; padding: 0;">';
+
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
+
             if (title.length > 50) {
                 title = title.substring(0, 50);
             }
+
             let date = null;
             if (pubDateStr) {
                 try {
@@ -119,6 +131,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
                     date = null;
                 }
             }
+
             sectionHtml += `<li>`;
             sectionHtml += `<p>`;
             if (date) {
@@ -126,12 +139,14 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             }
             sectionHtml += `<strong>${sourceText}</strong>: `;
             sectionHtml += `${title}`;
+
             if (optionId) {
                 sectionHtml += ` ${optionId}`;
             }
             sectionHtml += `</p>`;
             sectionHtml += `</li>`;
         });
+
         sectionHtml += '</ul>';
         displayContainer.innerHTML += sectionHtml;
 
@@ -139,13 +154,12 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         console.error(`Error loading feed for ${sourceText}:`, error);
         if (isSingleFeed) {
             document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed from URL:<br> ${feedUrl}<br>Reason: ${error.message}</p>`;
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed: ${error.message}</p>`;
         } else {
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed from URL: ${feedUrl}. Error: ${error.message.substring(0, 100)}...</p>`;
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${error.message.substring(0, 100)}...</p>`;
         }
     }
 }
-
 // --- Helper function to extract the number from the option ID ---
 function extractOptionNumberId(fullOptionId) {
     if (fullOptionId) {
@@ -157,35 +171,44 @@ function extractOptionNumberId(fullOptionId) {
     return '';
 }
 
-// --- manualLoad function ---
+
+// --- MODIFIED: manualLoad function ---
 function manualLoad() {
     const selectElement = document.getElementById('Choice');
     const rssFeedUrl = selectElement.value;
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     const selectedOptionText = selectedOption.textContent;
     const fullOptionId = selectedOption.id;
+
     console.log(`manualLoad called. Selected URL: ${rssFeedUrl}, Full Option ID: "${fullOptionId}"`);
+
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
+
     if (selectElement.selectedIndex === 0) {
         container.innerHTML = '<p>Please select an interest to load the feed.</p>';
         loadingDiv.style.display = 'none';
         return;
     }
+
     loadingDiv.textContent = 'Loading RSS feed...';
     loadingDiv.style.display = 'block';
     container.innerHTML = '';
+    
     fetchAndDisplayFeed(rssFeedUrl, selectedOptionText, container, true, fullOptionId);
 }
 
-// --- autoLoadAllFeeds function to change favicon and log option.value on error ---
+
+// --- MODIFIED: autoLoadAllFeeds function to change favicon ---
 async function autoLoadAllFeeds() {
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
+
     loadingDiv.textContent = 'Loading all RSS feeds concurrently...';
     loadingDiv.style.display = 'block';
     container.innerHTML = '';
+
     const feedPromises = [];
     const feedDetails = [];
     for (let i = 1; i < selectElement.options.length; i++) {
@@ -196,55 +219,54 @@ async function autoLoadAllFeeds() {
         feedPromises.push(
             fetchAndDisplayFeed(feedUrl, sourceText, container, false, fullOptionId)
         );
-        feedDetails.push({
-            sourceText: sourceText,
-            index: i,
-            optionValue: option.value
-        });
+        feedDetails.push({ sourceText: sourceText, index: i });
     }
+
     console.log(`Starting to fetch ${feedPromises.length} feeds concurrently.`);
     const results = await Promise.allSettled(feedPromises);
     console.log('All feed promises have settled:', results);
+
     let allSucceeded = true;
     results.forEach((result, index) => {
-        const feedInfo = feedDetails[index];
         if (result.status === 'rejected') {
             allSucceeded = false;
-            console.error(
-                `Feed ${feedInfo.sourceText} failed. ` +
-                `URL (option.value): ${feedInfo.optionValue}. ` +
-                `Reason: ${result.reason}`
-            );
+            console.error(`Feed ${feedDetails[index].sourceText} failed:`, result.reason);
         } else {
-            console.log(`Feed ${feedInfo.sourceText} succeeded.`);
+            console.log(`Feed ${feedDetails[index].sourceText} succeeded.`);
         }
     });
+
     if (allSucceeded) {
         loadingDiv.textContent = 'All feeds loaded successfully! ✓';
         loadingDiv.style.color = 'green';
-        changeFavicon('success');
+        changeFavicon('success'); // Call function to change favicon
     } else {
         loadingDiv.textContent = 'Some feeds could not be loaded. Please check the console for details.';
         loadingDiv.style.color = 'orange';
     }
+
     setTimeout(() => {
         loadingDiv.style.display = 'none';
         loadingDiv.style.color = '';
     }, 3000);
+
     if (container.innerHTML === '') {
         container.innerHTML = '<p>No feeds could be loaded or displayed.</p>';
     }
 }
 
-// --- autoLoad function ---
+// --- MODIFIED: autoLoad function ---
 function autoLoad() {
-    const wlh = window.location.href;
+    var wlh = window.location.href;
     if (wlh.search("#") > 0) {
-        const ixo = wlh.indexOf("#");
-        const selectedHashId = wlh.substring(ixo + 1);
+        var ixo = wlh.indexOf("#");
+        var selectedHashId = wlh.substring(ixo + 1);
+
         console.log("autoLoad: Hash detected:", selectedHashId);
+
         const selectElement = document.getElementById('Choice');
         let optionElement = null;
+
         for (let i = 1; i < selectElement.options.length; i++) {
             const option = selectElement.options[i];
             const extractedIdFromOption = extractOptionNumberId(option.id);
@@ -253,13 +275,17 @@ function autoLoad() {
                 break;
             }
         }
+
         if (optionElement && optionElement.tagName === 'OPTION') {
             const fullOptionIdToDisplay = optionElement.id;
             console.log(`autoLoad (hash): Found option element for hash "${selectedHashId}", Full ID to display: "${fullOptionIdToDisplay}"`);
+
             selectElement.value = optionElement.value;
             const selectedOptionText = optionElement.textContent;
+
             const container = document.getElementById('rss-feed-container');
             const loadingDiv = document.getElementById('rss-feed-message');
+
             loadingDiv.textContent = `Loading feed for ${selectedOptionText}...`;
             loadingDiv.style.display = 'block';
             container.innerHTML = '';
@@ -279,12 +305,11 @@ function changeFavicon(status) {
     if (status === 'success') {
         const favicon = document.getElementById('favicon');
         if (favicon) {
-            favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg';
+            favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg'; // Path to your success favicon image
         }
     }
 }
 
-// This event listener ensures the script runs only after the page is fully loaded.
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM is fully loaded and parsed');
     autoLoad();
