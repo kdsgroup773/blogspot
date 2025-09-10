@@ -199,7 +199,7 @@ function manualLoad() {
 }
 
 
-// --- MODIFIED: autoLoadAllFeeds function to change favicon ---
+// --- MODIFIED: autoLoadAllFeeds function to change favicon and log option.value on error ---
 async function autoLoadAllFeeds() {
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
@@ -219,7 +219,11 @@ async function autoLoadAllFeeds() {
         feedPromises.push(
             fetchAndDisplayFeed(feedUrl, sourceText, container, false, fullOptionId)
         );
-        feedDetails.push({ sourceText: sourceText, index: i });
+        feedDetails.push({ 
+            sourceText: sourceText, 
+            index: i, 
+            optionValue: option.value // Store the option.value here
+        });
     }
 
     console.log(`Starting to fetch ${feedPromises.length} feeds concurrently.`);
@@ -228,18 +232,23 @@ async function autoLoadAllFeeds() {
 
     let allSucceeded = true;
     results.forEach((result, index) => {
+        const feedInfo = feedDetails[index];
         if (result.status === 'rejected') {
             allSucceeded = false;
-            console.error(`Feed ${feedDetails[index].sourceText} failed:`, result.reason);
+            console.error(
+                `Feed ${feedInfo.sourceText} failed. ` +
+                `URL (option.value): ${feedInfo.optionValue}. ` + // Log the URL
+                `Reason: ${result.reason}`
+            );
         } else {
-            console.log(`Feed ${feedDetails[index].sourceText} succeeded.`);
+            console.log(`Feed ${feedInfo.sourceText} succeeded.`);
         }
     });
 
     if (allSucceeded) {
         loadingDiv.textContent = 'All feeds loaded successfully! ✓';
         loadingDiv.style.color = 'green';
-        changeFavicon('success'); // Call function to change favicon
+        changeFavicon('success');
     } else {
         loadingDiv.textContent = 'Some feeds could not be loaded. Please check the console for details.';
         loadingDiv.style.color = 'orange';
@@ -252,51 +261,6 @@ async function autoLoadAllFeeds() {
 
     if (container.innerHTML === '') {
         container.innerHTML = '<p>No feeds could be loaded or displayed.</p>';
-    }
-}
-
-// --- MODIFIED: autoLoad function ---
-function autoLoad() {
-    var wlh = window.location.href;
-    if (wlh.search("#") > 0) {
-        var ixo = wlh.indexOf("#");
-        var selectedHashId = wlh.substring(ixo + 1);
-
-        console.log("autoLoad: Hash detected:", selectedHashId);
-
-        const selectElement = document.getElementById('Choice');
-        let optionElement = null;
-
-        for (let i = 1; i < selectElement.options.length; i++) {
-            const option = selectElement.options[i];
-            const extractedIdFromOption = extractOptionNumberId(option.id);
-            if (extractedIdFromOption === selectedHashId) {
-                optionElement = option;
-                break;
-            }
-        }
-
-        if (optionElement && optionElement.tagName === 'OPTION') {
-            const fullOptionIdToDisplay = optionElement.id;
-            console.log(`autoLoad (hash): Found option element for hash "${selectedHashId}", Full ID to display: "${fullOptionIdToDisplay}"`);
-
-            selectElement.value = optionElement.value;
-            const selectedOptionText = optionElement.textContent;
-
-            const container = document.getElementById('rss-feed-container');
-            const loadingDiv = document.getElementById('rss-feed-message');
-
-            loadingDiv.textContent = `Loading feed for ${selectedOptionText}...`;
-            loadingDiv.style.display = 'block';
-            container.innerHTML = '';
-            fetchAndDisplayFeed(optionElement.value, selectedOptionText, container, true, fullOptionIdToDisplay);
-        } else {
-            console.warn("AutoLoad: Could not find option element for hash:", selectedHashId);
-            autoLoadAllFeeds();
-        }
-    } else {
-        console.log("AutoLoad: No hash in URL, loading all feeds concurrently.");
-        autoLoadAllFeeds();
     }
 }
 
