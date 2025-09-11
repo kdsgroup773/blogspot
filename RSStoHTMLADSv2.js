@@ -159,7 +159,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed from URL:<br> ${feedUrl}<br>Reason: ${error.message}</p>`;
         } else {
             // This part is for the autoLoadAllFeeds case
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${errorMessage}... URL: <span id="https://kensbookinfo.blogspot.com">${feedUrl}</span></p>`;          
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${errorMessage}... URL: https://kensbookinfo.blogspot.com ${feedUrl}</p>`;          
         }
     }
 }
