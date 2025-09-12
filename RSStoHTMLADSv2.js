@@ -134,8 +134,25 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
 
             sectionHtml += `<li>`;
             sectionHtml += `<p>`;
+
+
+if (date) {
+    // If a date is provided, use it
+    sectionHtml += `${date.toLocaleDateString()} `;
+} else {
+    // If no date is provided, use today's date
+    const today = new Date();
+    sectionHtml += `${today.toLocaleDateString()} `;
+}
+
+
+            
             if (date) {
                 sectionHtml += `${date.toLocaleDateString()} `;
+            } else {
+                // If no date is provided, use today's date
+                const today = new Date();
+                sectionHtml += `${today.toLocaleDateString()} `;
             }
             sectionHtml += `<strong>${sourceText}</strong>: `;
             sectionHtml += `${title}`;
