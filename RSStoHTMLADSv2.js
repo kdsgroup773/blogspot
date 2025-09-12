@@ -133,7 +133,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             }
 
             sectionHtml += `<li>`;
-            sectionHtml += `<p>`;
 
             if (date) {
                 sectionHtml += `${date.toLocaleDateString()} `;
@@ -148,7 +147,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             if (optionId) {
                 sectionHtml += ` ${optionId}`;
             }
-            sectionHtml += `</p>`;
             sectionHtml += `</li>`;
         });
 
