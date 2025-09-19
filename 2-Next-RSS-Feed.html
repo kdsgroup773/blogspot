@@ -1,0 +1,22 @@
+<html>
+  <haed>
+    <script>
+  // Get the URL of the referring page
+const callingPage = document.referrer;
+
+// Check if the referrer is not an empty string (meaning the page was not directly entered)
+if (callingPage) {
+    console.log("This page was called by: " + callingPage);
+    
+    // You can also perform conditional logic based on the referrer
+    if (callingPage.includes('page1.html')) {
+        console.log("The calling program was page1.html!");
+    }
+} else {
+    console.log("This page was directly opened or is the first page in the session.");
+}
+</script>
+    </haed>
+  <body>
+    </body>
+</html>
