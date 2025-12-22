@@ -1,0 +1,169 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Webcam Demo</title>
+    <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEirhTlEB7oDHID2L0Wp9QOVfhwykLNVVcARpu8gydNBsfQ3fuBmjpGlHXT4EpmXB7zTrLa5z6VzE4votCKwBr_Nj20-kUyRASALTxFQF0roWU_t67fL3qX-uCHyZOdq0cN5oaiLv7JwCkgvkKLw98Sh3YTlc4ZqzC2iRhOPq-MJmWB2kxReVz9sMRsVo9U/s320/security-camera-icon-video-surveillance-600nw-2498783595.webp">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the video container */
+        .video-container {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 4/3; /* Common webcam aspect ratio */
+            background-color: #333;
+            border: 4px solid #4f46e5;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        #video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the video fills the container */
+            border-radius: 0.75rem;
+        }
+        /* Style for the message box, replacing alert() */
+        #message-box {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f87171;
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Webcam Access Demo (JavaScript)</h1>
+
+    <div id="status" class="text-center text-lg mb-8 p-3 rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-300">
+        Click the button below to start the camera feed.
+    </div>
+
+    <div class="video-container rounded-xl overflow-hidden mb-8">
+        <!-- The video element where the live stream will be displayed -->
+        <video id="video-feed" autoplay playsinline></video>
+    </div>
+
+    <button id="start-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-full shadow-lg transition duration-300 transform hover:scale-105 active:scale-95">
+        Start Webcam
+    </button>
+    
+    <!-- Message Box for errors/status (replaces alert()) -->
+    <div id="message-box" role="alert"></div>
+
+    <script>
+        // References to DOM elements
+        const video = document.getElementById('video-feed');
+        const startButton = document.getElementById('start-button');
+        const statusElement = document.getElementById('status');
+        const messageBox = document.getElementById('message-box');
+        let stream = null; // To hold the MediaStream object
+
+        // Function to display messages gracefully
+        function displayMessage(text, isError = false) {
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+            messageBox.className = 'fixed top-20 right-20 p-3 rounded-lg text-white z-10 shadow-lg';
+            
+            if (isError) {
+                messageBox.style.backgroundColor = '#dc2626'; // Red for error
+                statusElement.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
+                statusElement.classList.add('bg-red-100', 'text-red-800');
+                statusElement.textContent = `Error: ${text}`;
+            } else {
+                messageBox.style.backgroundColor = '#10b981'; // Green for success
+            }
+            
+            // Auto-hide the message after 5 seconds
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
+
+
+        // Function to start the webcam stream
+        async function startWebcam() {
+            // Prevent multiple streams if already running
+            if (stream) {
+                displayMessage("Webcam is already running!", false);
+                return;
+            }
+
+            // Configuration for what media to request (video only in this case)
+            const constraints = {
+                video: true,
+                audio: false
+            };
+
+            statusElement.textContent = "Requesting camera permission...";
+            
+            try {
+                // 1. Request access to media devices
+                const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                stream = mediaStream;
+                video.srcObject = stream;
+                
+                // 2. Play the video
+                await video.play();
+
+                statusElement.classList.remove('bg-yellow-100', 'text-yellow-800');
+                statusElement.classList.add('bg-green-100', 'text-green-800');
+                statusElement.textContent = "Camera access granted! Live feed active.";
+                startButton.textContent = "Webcam Running";
+                startButton.disabled = true;
+
+                displayMessage("Webcam successfully started!", false);
+
+            } catch (err) {
+                // 3. Handle errors (e.g., user denied permission)
+                let errorMsg;
+                if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+                    errorMsg = "Permission denied. Please check your browser/system camera settings and refresh the page.";
+                } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+                    errorMsg = "No camera found. Please ensure your webcam is connected and enabled.";
+                } else {
+                    errorMsg = `An error occurred: ${err.name} - ${err.message}`;
+                }
+                
+                displayMessage(errorMsg, true);
+                
+                // Clean up in case of failure
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+            }
+        }
+
+        // Attach the function to the button click event
+        startButton.addEventListener('click', startWebcam);
+
+        // Best practice cleanup when the page is closed/navigated away
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+    </script>
+</body>
+</html>
