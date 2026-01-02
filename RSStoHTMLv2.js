@@ -21,14 +21,16 @@ function getRssFeed() {
     console.log("Attempting to get RSS feed from:", rssFeedUrl);
 
     const proxyList = [
-        'https://corsproxy.io/?url=',
-        'https://api.allorigins.win?url=',
-        'https://api.codetabs.com/v1/proxy?quest=',
-        'https://cors-anywhere.herokuapp.com/',
-        'https://cors.lol/?url=',
-        'https://cors.x2u.in/?url=',
-        'https://thingproxy.freeboard.io/fetch/',
-        'https://cors-proxy.htmldriven.com/?url=',
+        'https://corsproxy.io/?url=',                // 1. Fastest, raw XML
+        'https://api.allorigins.win/get?url=',       // 2. Most stable backup (requires JSON unwrapping)
+        'https://api.codetabs.com/v1/proxy?quest=',  // 3. Very reliable
+        'https://cors-proxy.htmldriven.com/?url=',   // 4. Specifically good for RSS feeds
+        'https://cors.lol/?url=',                    // 5. Community-driven, fast
+        'https://api.allorigins.io/get?url=',        // 6. Mirror of AllOrigins
+        'https://thingproxy.freeboard.io/fetch/',    // 7. Long-standing proxy (limit: 100,000 requests/mo)
+        'https://api.proxyscrape.com/v2/?request=get&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all&url=', // 8. Aggregator proxy
+        'https://b-cors-proxy.herokuapp.com/',      // 9. Backup instance (use as fallback)
+        'https://cors-anywhere.azm.workers.dev/'     // 10. Cloudflare Worker based (very fast)
     ];
 
     const container = document.getElementById('rss-feed-container');
@@ -72,29 +74,21 @@ async function fetchWithRetry(url, options = {}, retries = 4, delay = 6000) {
             }
 
             try {
-                const response = await fetchWithRetry(proxiedUrl);
-                let xmlString;
-
-                if (proxyBaseUrl.includes('allorigins')) {
-                    const json = await response.json();
-                    xmlString = json.contents;
-                } else {
-                    xmlString = await response.text();
-                }
-
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-                
-                if (xmlDoc.querySelector("parsererror")) throw new Error("XML Parse Error");
-                
-                const items = xmlDoc.querySelectorAll('item');
-                if (items.length === 0) throw new Error("No items found");
-
-                return xmlDoc; 
-            } catch (error) {
-                lastError = error;
-                console.warn(`Proxy ${i+1} failed, trying next...`);
-            }
+                 const response = await fetchWithRetry(proxiedUrl);
+    
+    // If the proxy itself is broken or blocked (403, 404, 500), 
+    // don't wait 6 seconds—just jump to the next proxy immediately.
+    if (!response.ok && response.status !== 408) {
+        console.warn(`Proxy ${i + 1} failed with status ${response.status}. Skipping...`);
+        continue; 
+    }
+    
+    // ... rest of your parsing logic ...
+} catch (error) {
+    // If it's a hard network failure, skip to next proxy
+    console.warn(`Proxy ${i + 1} network error. Skipping...`);
+    continue;
+}
         }
         throw new Error(`All proxies failed. Last error: ${lastError.message}`);
     }
@@ -134,4 +128,3 @@ async function fetchWithRetry(url, options = {}, retries = 4, delay = 6000) {
             container.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
         });
 }
-
