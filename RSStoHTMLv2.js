@@ -7,8 +7,8 @@ var rssFeedUrl;
         const urlParams = new URLSearchParams(window.location.search);
         
         // 1. First, check for ?city= (Your new footer format)
-        if (urlParams.has('city')) {
-            return urlParams.get('city');
+        if (urlParams.has('navid')) {
+            return urlParams.get('navid');
         }
         
         // 2. Fallback: Check for the old #Boise format
@@ -233,6 +233,7 @@ function getRssFeed() {
             container.innerHTML = '<p style="color: red;">Failed to load RSS feed after multiple attempts. Please check your internet connection, verify the RSS feed URL, or try again later. See console for details.</p>';
         });
 }
+
 
 
 
