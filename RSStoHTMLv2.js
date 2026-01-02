@@ -2,32 +2,25 @@ var rssFeedUrl;
 
 // NEW: URL Parameter Listener (Centralized Version)
 (function() {
-    function processCityLink() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const cityId = urlParams.get('city');
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityId = urlParams.get('city');
 
-        if (cityId) {
+    if (cityId) {
+        // We wait just a split second for the page elements to exist
+        window.addEventListener('DOMContentLoaded', function() {
             const selectMenu = document.getElementById('Choice');
-            // We search for the option by ID (e.g., id="Albany")
             const targetOption = document.getElementById(cityId);
 
             if (selectMenu && targetOption) {
-                // Set the dropdown to the correct value
+                // Set the dropdown to the city from the URL
                 selectMenu.value = targetOption.value;
                 
-                // Fire the change event to run your loading logic
-                setTimeout(function() {
-                    selectMenu.dispatchEvent(new Event('change'));
-                }, 200); // 200ms delay ensures other scripts are ready
+                // Force your existing code to run
+                if (typeof manualLoad === "function") {
+                    manualLoad();
+                }
             }
-        }
-    }
-
-    // Run this if the DOM is already ready, otherwise wait for it
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', processCityLink);
-    } else {
-        processCityLink();
+        });
     }
 })();
 
@@ -229,4 +222,5 @@ function getRssFeed() {
             container.innerHTML = '<p style="color: red;">Failed to load RSS feed after multiple attempts. Please check your internet connection, verify the RSS feed URL, or try again later. See console for details.</p>';
         });
 }
+
 
