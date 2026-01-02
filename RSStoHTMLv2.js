@@ -3,28 +3,38 @@ var rssFeedUrl;
 // NEW: URL Parameter Listener (Centralized Version)
 // UNIVERSAL URL PARAMETER HANDLER
 (function() {
-    // This looks at the entire search string (e.g., ?city=Atlanta or ?id=101)
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // This loop checks every parameter in the URL automatically
-    urlParams.forEach((value) => {
-        window.addEventListener('DOMContentLoaded', function() {
+    function getTarget() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // 1. First, check for ?city= (Your new footer format)
+        if (urlParams.has('city')) {
+            return urlParams.get('city');
+        }
+        
+        // 2. Fallback: Check for the old #Boise format
+        if (window.location.hash) {
+            return window.location.hash.substring(1);
+        }
+        return null;
+    }
+
+    const targetId = getTarget();
+
+    if (targetId) {
+        // Use 'load' to ensure the dropdown options exist before we select one
+        window.addEventListener('load', function() {
             const selectMenu = document.getElementById('Choice');
-            // It tries to find a match for the VALUE (e.g., Atlanta or 101)
-            const targetOption = document.getElementById(value);
+            const targetOption = document.getElementById(targetId);
 
             if (selectMenu && targetOption) {
                 selectMenu.value = targetOption.value;
-                
-                // Triggers your loading logic
                 if (typeof manualLoad === "function") {
                     manualLoad();
                 }
             }
         });
-    });
+    }
 })();
-
 function manualLoad() {
     const select = document.getElementById('Choice');
     rssFeedUrl = select.value;
@@ -223,6 +233,7 @@ function getRssFeed() {
             container.innerHTML = '<p style="color: red;">Failed to load RSS feed after multiple attempts. Please check your internet connection, verify the RSS feed URL, or try again later. See console for details.</p>';
         });
 }
+
 
 
 
