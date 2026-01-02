@@ -1,27 +1,28 @@
 var rssFeedUrl;
 
 // NEW: URL Parameter Listener (Centralized Version)
+// UNIVERSAL URL PARAMETER HANDLER
 (function() {
+    // This looks at the entire search string (e.g., ?city=Atlanta or ?id=101)
     const urlParams = new URLSearchParams(window.location.search);
-    const cityId = urlParams.get('city');
-
-    if (cityId) {
-        // We wait just a split second for the page elements to exist
+    
+    // This loop checks every parameter in the URL automatically
+    urlParams.forEach((value) => {
         window.addEventListener('DOMContentLoaded', function() {
             const selectMenu = document.getElementById('Choice');
-            const targetOption = document.getElementById(cityId);
+            // It tries to find a match for the VALUE (e.g., Atlanta or 101)
+            const targetOption = document.getElementById(value);
 
             if (selectMenu && targetOption) {
-                // Set the dropdown to the city from the URL
                 selectMenu.value = targetOption.value;
                 
-                // Force your existing code to run
+                // Triggers your loading logic
                 if (typeof manualLoad === "function") {
                     manualLoad();
                 }
             }
         });
-    }
+    });
 })();
 
 function manualLoad() {
@@ -222,5 +223,6 @@ function getRssFeed() {
             container.innerHTML = '<p style="color: red;">Failed to load RSS feed after multiple attempts. Please check your internet connection, verify the RSS feed URL, or try again later. See console for details.</p>';
         });
 }
+
 
 
