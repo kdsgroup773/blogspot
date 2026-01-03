@@ -1,11 +1,9 @@
 var rssFeedUrl;
-
 function manualLoad() {
     const select = document.getElementById('Choice');
     rssFeedUrl = select.value;
     getRssFeed();
 }
-
 function autoLoad() {
     var wlh = window.location.href;
     if (wlh.indexOf("#") > 0) {
@@ -19,10 +17,8 @@ function autoLoad() {
         }
     }
 }
-
 function getRssFeed() {
     console.log("Attempting to get RSS feed from:", rssFeedUrl);
-
     const proxyList = [
         'https://corsproxy.io/?url=',
         'https://api.allorigins.win/get?url=',
@@ -35,13 +31,10 @@ function getRssFeed() {
         'https://b-cors-proxy.herokuapp.com/',
         'https://cors-anywhere.azm.workers.dev/'
     ];
-
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
-
     loadingDiv.textContent = 'Loading RSS feed...';
     container.innerHTML = '';
-
     async function fetchWithRetry(url, options = {}, retries = 3, delay = 2000) {
         try {
             const response = await fetch(url, options);
@@ -61,7 +54,6 @@ function getRssFeed() {
             throw error;
         }
     }
-
     async function fetchWithProxyFallback(targetFeedUrl, proxies) {
         let lastError = new Error("Initialization failed"); 
         
@@ -72,10 +64,8 @@ function getRssFeed() {
             if (proxyBaseUrl.includes('allorigins')) {
                 proxiedUrl += `&_=${Date.now()}`;
             }
-
             console.log(`Trying Proxy ${i + 1}/${proxies.length}`);
             loadingDiv.textContent = `Trying source ${i + 1}/${proxies.length}...`;
-
             try {
                 // Fetch with shorter timeout per proxy to keep UX fast
                 const response = await fetchWithRetry(proxiedUrl, {}, 1, 1000);
@@ -88,7 +78,6 @@ function getRssFeed() {
                 } else {
                     xmlString = await response.text();
                 }
-
                 // Parse XML
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
@@ -96,12 +85,10 @@ function getRssFeed() {
                 if (xmlDoc.querySelector("parsererror")) {
                     throw new Error("Invalid XML received");
                 }
-
                 const items = xmlDoc.querySelectorAll('item');
                 if (items.length === 0) {
                     throw new Error("Empty feed");
                 }
-
                 return xmlDoc; 
             } catch (error) {
                 lastError = error;
@@ -112,25 +99,20 @@ function getRssFeed() {
         }
         throw lastError;
     }
-
     fetchWithProxyFallback(rssFeedUrl, proxyList)
         .then(xmlDoc => {
             loadingDiv.textContent = '';
             const items = xmlDoc.querySelectorAll('item');
             let htmlContent = '<h2>Latest News</h2><ul style="list-style: none; padding: 0;">';
-
             items.forEach(item => {
                 const title = item.querySelector('title')?.textContent || 'No Title';
                 const link = item.querySelector('link')?.textContent || '#';
                 const description = item.querySelector('description')?.textContent || '';
                 const pubDate = item.querySelector('pubDate')?.textContent;
-
                 let imageUrl = '';
                 const media = item.getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content');
                 if (media.length > 0) imageUrl = media[0].getAttribute('url');
-                
                 const cleanDescription = description.replace(/(<([^>]+)>)/gi, "").substring(0, 200) + '...';
-
                 htmlContent += `
                     <li style="margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
                         <h3 style="margin: 0 0 10px 0;"><a href="${link}" target="_blank" style="color:#0056b3; text-decoration:none;">${title}</a></h3>
@@ -139,7 +121,6 @@ function getRssFeed() {
                         <p style="font-size: 0.95em; line-height:1.5;">${cleanDescription}</p>
                     </li>`;
             });
-
             htmlContent += '</ul>';
             container.innerHTML = htmlContent;
         })
