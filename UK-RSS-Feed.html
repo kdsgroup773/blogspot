@@ -1,76 +1,62 @@
 <html>
-  <head>
+<head>
     <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png">
-    <img alt="" border="0"  height="160" width="160" data-original-height="800" data-original-width="800" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
+    <img alt="RSS Feed Logo" border="0" height="160" width="160" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
     <script src="https://kdsgroup773.github.io/blogspot/RSStoHTMLADSv2.js"></script>
-  </head>
+</head>
 <body>
-    <select style="display: none;" id="Choice" name="Choice" onchange="manualLoad();" class="bg-white text-black">
-          <option selected disabled>Choose an Interest</option>
-          <!--option id="https://kensbookinfo.blogspot.com/p/uk.html#1" value="https://feeds.bbci.co.uk/news/uk/rss.xml">BBC News</option-->
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#2" value="https://feeds.feedburner.com/daily-express-uk-news">Daily Express News</option>
-          <!--option id="https://kensbookinfo.blogspot.com/p/uk.html#3" value="https://www.channel4.com/news/uk/rss">Channel 4 News</option-->
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#4" value="https://www.dailymail.co.uk/news/index.rss">Daily Mail News</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#5" value="https://www.ft.com/rss/world/uk">Financial Times News</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#6" value="https://www.manchestereveningnews.co.uk/rss.xml">Manchester Evening News</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#7" value="https://www.oxfordmail.co.uk/news/rss/">Oxford Mail News</option>
-          <!-- Duplicate option id="https://kensbookinfo.blogspot.com/p/uk.html#8" value="https://feeds.feedburner.com/daily-express-uk-news">Daily Express News</option> -->
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#9" value="https://www.theguardian.com/uk/rss">The Guardian News</option> 
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#10" value="https://www.dailyrecord.co.uk/news/?service=rss">The Daily Record</option> 
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#11" value="https://feeds.skynews.com/feeds/rss/politics.xml">Sky News Politics</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#12" value="https://www.ft.com/rss/world/uk/politics">Financial Times Politics</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#13" value="https://feeds.bbci.co.uk/news/politics/rss.xml">BBC Politics</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#14" value="https://feeds.theguardian.com/theguardian/politics/rss">The Guardian Politics</option> 
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#15" value="https://www.economist.com/blogs/blighty/index.xml">The Economist Politics</option> 
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#16" value="https://www.standard.co.uk/news/politics/rss">The Standard Politics</option>   
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#17" value="https://www.mirror.co.uk/?service=rss">Daily Mirror</option>   
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#18" value="https://www.deadlinenews.co.uk/feed/">Deadline News</option>   
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#19" value="https://www.huffingtonpost.co.uk/feeds/index.xml">Huffington Post</option>           
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#irishnews" value="https://www.irishnews.com/arc/outboundfeeds/rss/">irishnews</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#dublinnews" value="http://www.feeds.dublinnews.com/rss/7344653b7bc16d1e">feeds.dublinnews.com/rss/734..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#techcentral" value="http://www.techcentral.ie/feed/">techcentral.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#adworld" value="https://www.adworld.ie/feed/">adworld.ie/feed</option>
-          <!-- option id="https://kensbookinfo.blogspot.com/p/uk.html#agriland" value="https://www.agriland.ie/feed/">agriland.ie/feed</option -->
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#anphoblacht" value="https://www.anphoblacht.com/feed">anphoblacht.com/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#connachttribune" value="https://www.connachttribune.ie/feed/">connachttribune.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#cricketireland" value="https://www.cricketireland.ie/feed/">cricketireland.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#derryjournal" value="https://www.derryjournal.com/rss">derryjournal.com/rss</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#donegaldaily" value="https://www.donegaldaily.com/feed/">donegaldaily.com/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#electric" value="https://www.electric.ie/feed/">electric.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#engineersireland" value="https://www.engineersireland.ie/Engineers-Journal/rss/10357">engineersireland.ie/Engineer..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#evoke" value="https://www.evoke.ie/feed">evoke.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#breakingnews" value="https://www.feeds.breakingnews.ie/bntopstories?format=xml">feeds.breakingnews.ie/bntops..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#fleet" value="https://www.fleet.ie/feed/">fleet.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#gcn" value="https://www.gcn.ie/feed/">gcn.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#hgvireland" value="https://www.hgvireland.com/feed/">hgvireland.com/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#imt" value="https://www.imt.ie/feed/">imt.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#irish-boxing" value="https://www.irish-boxing.com/feed/">irish-boxing.com/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#irishcentral" value="https://www.irishcentral.com/feeds/section-articles.atom">irishcentral.com/feeds/secti..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#irishexaminer" value="https://www.irishexaminer.com/feed/35-top_news.xml">irishexaminer.com/feed/35-to..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#irishmirror" value="https://www.irishmirror.ie/?service=rss">irishmirror.ie/?service=rss</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#irishnews" value="https://www.irishnews.com/arc/outboundfeeds/rss/">irishnews.com/arc/outboundfe..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#irishtechnews" value="https://www.irishtechnews.ie/feed/">irishtechnews.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#ittn" value="https://www.ittn.ie/feed/">ittn.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#kilkennypeople" value="https://www.kilkennypeople.ie/rss.jsp?sezione=92">kilkennypeople.ie/rss.jsp?se..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#limerickleader" value="https://www.limerickleader.ie/rss.jsp?sezione=1">limerickleader.ie/rss.jsp?se..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#manufacturing" value="https://www.manufacturing-supply-chain.com/feed/">manufacturing-supply-chain.c..</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#meanwhileinireland" value="https://www.meanwhileinireland.com/feed/">meanwhileinireland.com/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#newsletter" value="https://www.newsletter.co.uk/rss">newsletter.co.uk/rss</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#rsvplive" value="https://www.rsvplive.ie/?service=rss">rsvplive.ie/?service=rss</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#rte" value="https://www.rte.ie/feeds/rss/?index=/news/">rte.ie/feeds/rss/?index=/news</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#sluggerotoole" value="https://www.sluggerotoole.com/feed/">sluggerotoole.com/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#the42" value="https://www.the42.ie/feed/">the42.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#theirishworld" value="https://www.theirishworld.com/feed/">theirishworld.com/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#thejournal" value="https://www.thejournal.ie/feed/">thejournal.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#thesun" value="https://www.thesun.ie/feed/">thesun.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#trinitynews" value="https://www.trinitynews.ie/feed/">trinitynews.ie/feed</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#warnermusic" value="https://www.warnermusic.ie/news/feed/">warnermusic.ie/news/feed<</option>
-          <option id="https://kensbookinfo.blogspot.com/p/uk.html#scotsman" value="https://www.scotsman.com/rss">scotsman</option>
+    <select id="Choice" name="Choice" onchange="manualLoad();" class="bg-white text-black" style="padding: 5px; font-size: 16px;">
+        <option selected disabled>Choose a News Feed</option>
+
+        <optgroup label="UK National News">
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#1" value="https://feeds.bbci.co.uk/news/uk/rss.xml">BBC News - UK</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#13" value="https://feeds.bbci.co.uk/news/politics/rss.xml">BBC Politics</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#11" value="https://feeds.skynews.com/feeds/rss/politics.xml">Sky News Politics</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#9" value="https://www.theguardian.com/uk/rss">The Guardian</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#5" value="https://www.ft.com/rss/world/uk">Financial Times</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#2" value="https://feeds.feedburner.com/daily-express-uk-news">Daily Express</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#4" value="https://www.dailymail.co.uk/news/index.rss">Daily Mail</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html17" value="https://www.mirror.co.uk/?service=rss">Daily Mirror</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#15" value="https://www.economist.com/britain/rss.xml">The Economist - Britain</option>
+        </optgroup>
+
+        <optgroup label="Wales">
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#walesonline" value="https://www.walesonline.co.uk/news/wales-news/?service=rss">WalesOnline</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#bbcwales" value="https://feeds.bbci.co.uk/news/wales/rss.xml">BBC News - Wales</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#northwaleslive" value="https://www.dailypost.co.uk/news/north-wales-news/?service=rss">North Wales Live</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#southwalesargus" value="https://www.southwalesargus.co.uk/news/rss/">South Wales Argus</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html18" value="https://www.deadlinenews.co.uk/feed/">Deadline News</option>
+        </optgroup>
+        <optgroup label="Scotland">
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#scotsman" value="https://www.scotsman.com/rss">The Scotsman</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#daily_record" value="https://www.dailyrecord.co.uk/?service=rss">Daily Record</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#stv_news" value="https://news.stv.tv/feed">STV News</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#bbcscotland" value="https://feeds.bbci.co.uk/news/scotland/rss.xml">BBC News - Scotland</option>
+        </optgroup>
+
+        <optgroup label="Northern Ireland">
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#belfast_live" value="https://www.belfastlive.co.uk/news/?service=rss">Belfast Live</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#newsletter" value="https://www.newsletter.co.uk/rss">The Newsletter (Belfast)</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#derryjournal" value="https://www.derryjournal.com/rss">Derry Journal</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#sluggerotoole" value="https://www.sluggerotoole.com/feed/">Slugger O'Toole (NI Politics)</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#irishnews" value="https://www.irishnews.com/arc/outboundfeeds/rss/">The Irish News</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#derryjournal" value="https://www.derryjournal.com/rss">Derry Journal</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#rte" value="https://www.rte.ie/feeds/rss/?index=/news/">RTE</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#thejournal" value="https://www.thejournal.ie/feed/">The Journal.ie</option>
+        </optgroup>
+
+        <optgroup label="England Regional">
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#6" value="https://www.manchestereveningnews.co.uk/rss.xml">Manchester Evening News</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#bhamlive" value="https://www.birminghammail.co.uk/?service=rss">Birmingham Live</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#lpool_echo" value="https://www.liverpoolecho.co.uk/news/?service=rss">Liverpool Echo</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#16" value="https://www.standard.co.uk/news/politics/rss">London - Evening Standard</option>
+            <option id="https://kensbookinfo.blogspot.com/p/uk.html#7" value="https://www.oxfordmail.co.uk/news/rss/">Oxford Mail</option>
+        </optgroup>
+      
     </select>
-<br /><br />
-<div id="rss-feed-container">
-      </div>
-<div id="rss-feed-message">
-      </div>
-</body>      
+
+    <br /><br />
+    <div id="rss-feed-container"></div>
+    <div id="rss-feed-message"></div>
+</body>
 </html>
