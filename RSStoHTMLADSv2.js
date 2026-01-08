@@ -103,8 +103,9 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
-            if (title.length > 50) {
-                title = title.substring(0, 50);
+            if (title.length > 85) { 
+                title = title.substring(0, 85);
+                title = title.substring(0, Math.min(title.length, title.lastIndexOf(" "))) + "...";
             }
             let date = null;
             if (pubDateStr) {
