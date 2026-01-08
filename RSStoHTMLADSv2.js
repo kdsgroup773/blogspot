@@ -103,9 +103,14 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
-            if (title.length > 85) { 
-                title = title.substring(0, 85);
-                title = title.substring(0, Math.min(title.length, title.lastIndexOf(" "))) + "...";
+            let maxLen = 65; 
+            if (title.length > maxLen) {
+                // 1. Cut the string to the max length
+                title = title.substring(0, maxLen);
+                // 2. Trim it back to the last space so words aren't broken
+                title = title.substring(0, Math.min(title.length, title.lastIndexOf(" ")));
+                // 3. Add dots so people know there is more to read
+                title += "...";
             }
             let date = null;
             if (pubDateStr) {
