@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://kdsgroup773.github.io/blogspot/batcher.png">
     <title>Universal News Batcher</title>
-    <style>
+<style>
         :root {
             --x-blue: #1DA1F2; --m-purple: #6364ff; --sub-orange: #ff6719;
             --t-blue: #35465c; --p-orange: #ff4500; --li-blue: #0077b5;
@@ -16,7 +16,9 @@
             margin: 0; padding: 0; height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #f0f2f5;
-            overflow: hidden;
+            /* Allow the page to scroll horizontally if content exceeds width */
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         /* STATIC TOP HEADER */
@@ -35,7 +37,7 @@
         .plain-text-display {
             font-family: "Courier New", Courier, monospace;
             font-size: 13px;
-            line-height: .75; /* Added space between lines as requested */
+            line-height: .75;
             color: #000;
             margin-bottom: 12px;
             white-space: pre-wrap;
@@ -55,19 +57,26 @@
 
         /* SCROLLABLE DASHBOARD AREA */
         .dashboard-wrapper {
-            margin-top: 220px; /* Adjusted offset for roomier header */
+            margin-top: 220px; 
             height: calc(100vh - 220px);
+            /* Enable the horizontal scrollbar here */
             overflow-x: auto;
             overflow-y: hidden;
             padding: 20px;
-            display: flex;
+            display: block; /* Allows internal content to define the width */
         }
 
-        .dashboard { display: flex; gap: 20px; align-items: flex-start; }
+        .dashboard { 
+            display: inline-flex; /* Key: prevents columns from wrapping or shrinking */
+            gap: 20px; 
+            align-items: flex-start; 
+            padding-bottom: 15px; /* Space for the scrollbar */
+        }
 
         .column {
             background: #fff; border-radius: 12px; padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); width: 350px; flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); width: 350px; 
+            flex-shrink: 0; /* Ensures columns stay 350px wide */
             display: flex; flex-direction: column;
             max-height: calc(100vh - 260px);
         }
@@ -91,9 +100,17 @@
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
 
         /* Custom Scrollbars */
-        ::-webkit-scrollbar { height: 12px; width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        ::-webkit-scrollbar { 
+            height: 12px; /* Height for horizontal scrollbars */
+            width: 8px;   /* Width for vertical scrollbars */
+        }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { 
+            background: #bbb; 
+            border-radius: 10px; 
+            border: 2px solid #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #888; }
     </style>
 </head>
 <body>
