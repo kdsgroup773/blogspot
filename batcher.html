@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://kdsgroup773.github.io/blogspot/batcher.png">
     <title>Universal News Batcher</title>
-<style>
+    <style>
         :root {
             --x-blue: #1DA1F2; --m-purple: #6364ff; --sub-orange: #ff6719;
             --t-blue: #35465c; --p-orange: #ff4500; --li-blue: #0077b5;
             --long-dark: #2c3e50; --success: #27ae60;
         }
 
+        /* 1. ALLOW THE BODY TO SHOW OVERFLOW */
         body, html {
             margin: 0; padding: 0; 
             height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #f0f2f5;
-            /* Prevent the whole page from bouncing, let the wrapper handle it */
-            overflow: hidden; 
+            overflow: hidden; /* We want the wrapper to handle the scroll, not the body */
         }
 
         /* STATIC TOP HEADER */
@@ -55,41 +55,44 @@
         .btn-generate { background: var(--long-dark); color: white; }
         .btn-clear { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* SCROLLABLE DASHBOARD AREA */
+        /* 2. THE SCROLLABLE WRAPPER (HORIZONTAL) */
         .dashboard-wrapper {
-            margin-top: 220px; 
+            margin-top: 220px;
             height: calc(100vh - 220px);
-            /* THIS ENABLES THE MAIN HORIZONTAL SCROLLBAR */
-            overflow-x: auto; 
+            overflow-x: auto !important; /* Forces horizontal scrollbar */
             overflow-y: hidden;
             padding: 20px;
-            display: block; 
-            white-space: nowrap; /* Keeps everything on one line */
+            display: block;
+            box-sizing: border-box;
         }
 
+        /* 3. THE FLEX CONTAINER (FORCE WIDTH) */
         .dashboard { 
-            display: inline-flex; /* Allows the container to be wider than the screen */
+            display: inline-flex; /* Changed to inline-flex to expand width */
+            width: max-content;   /* CRITICAL: Forces width to be as wide as all columns */
             gap: 20px; 
             align-items: flex-start;
             height: 100%;
+            padding-bottom: 10px; /* Room for the scrollbar */
         }
 
+        /* 4. THE COLUMNS */
         .column {
             background: #fff; border-radius: 12px; padding: 15px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
             width: 350px; 
-            flex-shrink: 0; /* Prevents columns from getting squished */
+            flex-shrink: 0; /* Prevents columns from shrinking */
             display: flex; 
             flex-direction: column;
-            max-height: 90%; /* Leaves room for the horizontal scrollbar below it */
-            white-space: normal; /* Resets text wrapping inside columns */
+            max-height: 100%; /* Relative to dashboard height */
+            box-sizing: border-box;
         }
 
-        /* THIS ENABLES VERTICAL SCROLLING INSIDE COLUMNS */
+        /* 5. VERTICAL SCROLL INSIDE COLUMNS */
         .column-content { 
-            overflow-y: auto; 
+            overflow-y: auto !important; 
             flex-grow: 1; 
-            padding-right: 5px; 
+            padding-right: 5px;
         }
 
         .column-header {
@@ -108,24 +111,20 @@
         .btn-copy { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
 
-        /* Custom Scrollbars - Making them visible and styled */
+        /* 6. CUSTOM SCROLLBARS (STYLING) */
         ::-webkit-scrollbar { 
-            height: 14px; /* Horizontal scrollbar thickness */
+            height: 12px; /* Horizontal scrollbar thickness */
             width: 8px;   /* Vertical scrollbar thickness */
         }
-        ::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { 
-            background: #888; 
-            border-radius: 10px; 
-            border: 3px solid #e0e0e0; 
-        }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; border: 2px solid #f1f1f1; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
     </style>
 </head>
 <body>
-<div class="static-header">
 
-<div style="font-size: 20px;">Universal News Batcher</h>
+<div class="static-header">
+    <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">Universal News Batcher</div>
     <div class="plain-text-display">https://kensbookinfo.blogspot.com/p/home_5.html
 
 ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
