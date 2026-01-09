@@ -13,12 +13,12 @@
         }
 
         body, html {
-            margin: 0; padding: 0; height: 100%;
+            margin: 0; padding: 0; 
+            height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #f0f2f5;
-            /* Allow the page to scroll horizontally if content exceeds width */
-            overflow-x: auto;
-            overflow-y: hidden;
+            /* Prevent the whole page from bouncing, let the wrapper handle it */
+            overflow: hidden; 
         }
 
         /* STATIC TOP HEADER */
@@ -59,29 +59,38 @@
         .dashboard-wrapper {
             margin-top: 220px; 
             height: calc(100vh - 220px);
-            /* Enable the horizontal scrollbar here */
-            overflow-x: auto;
+            /* THIS ENABLES THE MAIN HORIZONTAL SCROLLBAR */
+            overflow-x: auto; 
             overflow-y: hidden;
             padding: 20px;
-            display: block; /* Allows internal content to define the width */
+            display: block; 
+            white-space: nowrap; /* Keeps everything on one line */
         }
 
         .dashboard { 
-            display: inline-flex; /* Key: prevents columns from wrapping or shrinking */
+            display: inline-flex; /* Allows the container to be wider than the screen */
             gap: 20px; 
-            align-items: flex-start; 
-            padding-bottom: 15px; /* Space for the scrollbar */
+            align-items: flex-start;
+            height: 100%;
         }
 
         .column {
             background: #fff; border-radius: 12px; padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); width: 350px; 
-            flex-shrink: 0; /* Ensures columns stay 350px wide */
-            display: flex; flex-direction: column;
-            max-height: calc(100vh - 260px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            width: 350px; 
+            flex-shrink: 0; /* Prevents columns from getting squished */
+            display: flex; 
+            flex-direction: column;
+            max-height: 90%; /* Leaves room for the horizontal scrollbar below it */
+            white-space: normal; /* Resets text wrapping inside columns */
         }
 
-        .column-content { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
+        /* THIS ENABLES VERTICAL SCROLLING INSIDE COLUMNS */
+        .column-content { 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            padding-right: 5px; 
+        }
 
         .column-header {
             margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;
@@ -99,18 +108,18 @@
         .btn-copy { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
 
-        /* Custom Scrollbars */
+        /* Custom Scrollbars - Making them visible and styled */
         ::-webkit-scrollbar { 
-            height: 12px; /* Height for horizontal scrollbars */
-            width: 8px;   /* Width for vertical scrollbars */
+            height: 14px; /* Horizontal scrollbar thickness */
+            width: 8px;   /* Vertical scrollbar thickness */
         }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { 
-            background: #bbb; 
+            background: #888; 
             border-radius: 10px; 
-            border: 2px solid #f1f1f1; 
+            border: 3px solid #e0e0e0; 
         }
-        ::-webkit-scrollbar-thumb:hover { background: #888; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
     </style>
 </head>
 <body>
