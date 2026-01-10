@@ -103,14 +103,19 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
-            let maxLen = 65; 
+            let maxLen = 50; 
             if (title.length > maxLen) {
-                // 1. Cut the string to the max length
-                title = title.substring(0, maxLen);
-                // 2. Trim it back to the last space so words aren't broken
-                title = title.substring(0, Math.min(title.length, title.lastIndexOf(" ")));
-                // 3. Add dots so people know there is more to read
-                title += "...";
+                // 1. Find the first space starting from maxLen
+                let nextSpace = title.indexOf(" ", maxLen);
+                // 2. If a space exists, cut there and add dots
+                if (nextSpace !== -1) {
+                    title = title.substring(0, nextSpace) + "...";
+                } 
+                // 3. OPTIONAL: If no space is found, but it's still way too long, 
+                // you might want to force a hard cut at maxLen so it doesn't break your layout.
+                else if (title.length > (maxLen + 20)) { 
+                         title = title.substring(0, maxLen) + "...";
+                }
             }
             let date = null;
             if (pubDateStr) {
