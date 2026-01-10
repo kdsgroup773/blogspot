@@ -104,15 +104,18 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
             let maxLen = 50; 
+            // 1. Find the first colon and start the title AFTER it
+            if (title.includes(":")) {
+                // Slice starting from the index of the first colon + 1 (to skip the colon itself)
+                title = title.substring(title.indexOf(":") + 1).trim();
+            }
+            // 2. Now apply your "Move Forward" trimming logic to the cleaned title
             if (title.length > maxLen) {
-                // 1. Find the first space starting from maxLen
+                // Find the first space starting from maxLen
                 let nextSpace = title.indexOf(" ", maxLen);
-                // 2. If a space exists, cut there and add dots
                 if (nextSpace !== -1) {
                     title = title.substring(0, nextSpace) + "...";
                 } 
-                // 3. OPTIONAL: If no space is found, but it's still way too long, 
-                // you might want to force a hard cut at maxLen so it doesn't break your layout.
                 else if (title.length > (maxLen + 20)) { 
                          title = title.substring(0, maxLen) + "...";
                 }
