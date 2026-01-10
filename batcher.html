@@ -184,12 +184,15 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
     function clearInput() { document.getElementById('rawInput').value = ""; }
 
     function cleanLine(line) {
-        const urlMatch = line.match(/https?:\/\/\S+$/);
-        const url = urlMatch ? urlMatch[0] : "https://kensbookinfo.blogspot.com";
-        let title = line.replace(url, "").trim();
-        title = title.replace(/^(#?\w+:\s*)+/, "").replace(/#/g, "").trim();
-        return { title, url };
-    }
+       // Finds the URL at the end of the line
+       const urlMatch = line.match(/https?:\/\/\S+$/);
+       const url = urlMatch ? urlMatch[0] : "https://kensbookinfo.blogspot.com";
+       // Removes the URL from the text to get the title
+       let title = line.replace(url, "").trim();
+       // We removed the line that was stripping hashtags (#)
+       // This now preserves all symbols within your text.
+       return { title, url };
+}
 
     function generateAll() {
         const input = document.getElementById('rawInput').value;
