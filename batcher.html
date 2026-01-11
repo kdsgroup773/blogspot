@@ -210,17 +210,19 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                 let textEntry = "";
                 let htmlEntry = "";
 
+                // Icons removed, added \n\n for blank line spacing
                 if (p.format === 'masto-clean') {
-                    textEntry = `${title}\n${url}\n\n`;
+                    textEntry = `${title}\n${url}\n\n`; 
                 } else if (p.format === 'rich') {
-                    textEntry = `🔹 ${title}\n`;
-                    htmlEntry = `<p>🔹 <a href="${url}">${title}</a></p>`;
+                    textEntry = `${title}\n\n`;
+                    htmlEntry = `<p><a href="${url}">${title}</a></p><br>`;
                 } else if (p.format === 'markdown') {
-                    textEntry = `🔹 [${title}](${url})\n`;
+                    textEntry = `[${title}](${url})\n\n`;
                 } else if (p.format === 'tab') {
                     textEntry = `${title}\t${url}\n`;
                 } else {
-                    textEntry = `🔹 ${title}\n🔗 ${url}\n\n`;
+                    // This handles LinkedIn and X/Twitter
+                    textEntry = `${title}\n${url}\n\n`;
                 }
 
                 if ((currentBatch + textEntry).length > p.limit && currentBatch !== BRANDING_HEADER && currentBatch !== "") {
