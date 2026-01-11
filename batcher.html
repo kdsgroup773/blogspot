@@ -173,7 +173,7 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
     const BRANDING_HEADER = "🗞️ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
 
     const config = [
-        { id: 'm-area', countId: 'm-count', limit: 500, label: 'Mastodon', format: 'masto-clean' },
+        { id: 'm-area', countId: 'm-count', limit: 4000, label: 'Mastodon', format: 'masto-clean' },
         { id: 'sub-area', countId: 'sub-count', limit: 4000, label: 'Substack', format: 'rich' },
         { id: 't-area', countId: 't-count', limit: 4000, label: 'Tumblr', format: 'markdown' },
         { id: 'p-area', countId: 'p-count', limit: 4000, label: 'Paragraph', format: 'tab' },
@@ -194,15 +194,19 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
        return { title, url };
 }
 
-    function generateAll() {
+function generateAll() {
         const input = document.getElementById('rawInput').value;
         const lines = input.split('\n').filter(l => l.trim().length > 5);
 
         config.forEach(p => {
             const container = document.getElementById(p.id);
             container.innerHTML = "";
-            let currentBatch = (p.format === 'tab') ? "" : BRANDING_HEADER;
-            let htmlBatch = (p.format === 'rich') ? `<strong>${BRANDING_HEADER.replace('\n\n', '')}</strong><br><br>` : "";
+            
+            // Step 1: Determine if this specific platform gets a header
+            const needsHeader = (p.format === 'masto-clean' || p.format === 'markdown' || p.label === 'LinkedIn');
+            
+            let currentBatch = (needsHeader) ? BRANDING_HEADER : "";
+            let htmlBatch = ""; // Substack (rich) no longer needs the branding header
             let batchCounter = 0;
 
             lines.forEach((rawLine, index) => {
@@ -210,7 +214,7 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                 let textEntry = "";
                 let htmlEntry = "";
 
-                // Icons removed, added \n\n for blank line spacing
+                // Formats with NO icons and double newlines for spacing
                 if (p.format === 'masto-clean') {
                     textEntry = `${title}\n${url}\n\n`; 
                 } else if (p.format === 'rich') {
@@ -221,21 +225,25 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                 } else if (p.format === 'tab') {
                     textEntry = `${title}\t${url}\n`;
                 } else {
-                    // This handles LinkedIn and X/Twitter
+                    // LinkedIn and X/Twitter
                     textEntry = `${title}\n${url}\n\n`;
                 }
 
-                if ((currentBatch + textEntry).length > p.limit && currentBatch !== BRANDING_HEADER && currentBatch !== "") {
+                // Check for character limit
+                if ((currentBatch + textEntry).length > p.limit && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
                     batchCounter++;
                     addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
-                    currentBatch = textEntry;
-                    htmlBatch = htmlEntry;
+                    
+                    // Reset new window: Only add header if platform needs it
+                    currentBatch = (needsHeader) ? BRANDING_HEADER + textEntry : textEntry;
+                    htmlBatch = (p.format === 'rich') ? htmlEntry : "";
                 } else {
                     currentBatch += textEntry;
                     htmlBatch += htmlEntry;
                 }
 
-                if (index === lines.length - 1 && currentBatch !== "") {
+                // Final batch handling
+                if (index === lines.length - 1 && currentBatch.trim() !== "") {
                     batchCounter++;
                     addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
                 }
@@ -243,7 +251,29 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
             document.getElementById(p.countId).innerText = batchCounter;
         });
     }
+                // Check if adding this entry exceeds the character limit
+                if ((currentBatch + textEntry).length > p.limit && currentBatch !== BRANDING_HEADER && currentBatch !== "") {
+                    batchCounter++;
+                    addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                    
+                    // START NEW WINDOW: Reset with the Branding Header
+                    currentBatch = (p.format === 'tab') ? textEntry : BRANDING_HEADER + textEntry;
+                    htmlBatch = (p.format === 'rich') ? `<strong>${BRANDING_HEADER.replace('\n\n', '')}</strong><br><br>${htmlEntry}` : "";
+                } else {
+                    currentBatch += textEntry;
+                    htmlBatch += htmlEntry;
+                }
 
+                // Final batch handling
+                if (index === lines.length - 1 && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
+                    batchCounter++;
+                    addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                }
+            });
+            document.getElementById(p.countId).innerText = batchCounter;
+        });
+    }
+    
     function addCard(container, content, title, htmlContent, format) {
         const card = document.createElement('div');
         card.className = 'batch-card';
