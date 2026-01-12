@@ -181,7 +181,9 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
         { id: 'x-area', countId: 'x-count', limit: 4000, label: 'X/Twitter', format: 'plain' }
     ];
 
-    function clearInput() { document.getElementById('rawInput').value = ""; }
+    function clearInput() { 
+        document.getElementById('rawInput').value = ""; 
+    }
 
     function cleanLine(line) {
         const urlMatch = line.match(/https?:\/\/\S+$/);
@@ -209,6 +211,7 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                 let textEntry = "";
                 let htmlEntry = "";
 
+                // Formatting logic
                 if (p.format === 'masto-clean') {
                     textEntry = `${title}\n${url}\n\n`; 
                 } else if (p.format === 'rich') {
@@ -227,6 +230,7 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                     batchCounter++;
                     addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
                     
+                    // Reset for next batch
                     currentBatch = (needsHeader) ? BRANDING_HEADER + textEntry : textEntry;
                     htmlBatch = (p.format === 'rich') ? htmlEntry : "";
                 } else {
@@ -234,7 +238,7 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                     htmlBatch += htmlEntry;
                 }
 
-                // Final batch handling
+                // Final batch handling at the end of the loop
                 if (index === lines.length - 1 && currentBatch.trim() !== "") {
                     batchCounter++;
                     addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
@@ -262,7 +266,11 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
         const text = btn.parentElement.nextElementSibling.innerText;
         const html = btn.parentElement.parentElement.querySelector('.hidden-html').innerHTML;
         const card = btn.closest('.batch-card');
-        const markAsDone = () => { btn.innerText = "✓"; btn.classList.add('active-copy'); card.classList.add('copied'); };
+        const markAsDone = () => { 
+            btn.innerText = "✓"; 
+            btn.classList.add('active-copy'); 
+            card.classList.add('copied'); 
+        };
 
         if (format === 'rich') {
             const blobText = new Blob([text], { type: 'text/plain' });
