@@ -184,17 +184,13 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
     function clearInput() { document.getElementById('rawInput').value = ""; }
 
     function cleanLine(line) {
-       // Finds the URL at the end of the line
-       const urlMatch = line.match(/https?:\/\/\S+$/);
-       const url = urlMatch ? urlMatch[0] : "https://kensbookinfo.blogspot.com";
-       // Removes the URL from the text to get the title
-       let title = line.replace(url, "").trim();
-       // We removed the line that was stripping hashtags (#)
-       // This now preserves all symbols within your text.
-       return { title, url };
-}
+        const urlMatch = line.match(/https?:\/\/\S+$/);
+        const url = urlMatch ? urlMatch[0] : "https://kensbookinfo.blogspot.com";
+        let title = line.replace(url, "").trim();
+        return { title, url };
+    }
 
-function generateAll() {
+    function generateAll() {
         const input = document.getElementById('rawInput').value;
         const lines = input.split('\n').filter(l => l.trim().length > 5);
 
@@ -202,11 +198,10 @@ function generateAll() {
             const container = document.getElementById(p.id);
             container.innerHTML = "";
             
-            // Step 1: Determine if this specific platform gets a header
             const needsHeader = (p.format === 'masto-clean' || p.format === 'markdown' || p.label === 'LinkedIn');
             
             let currentBatch = (needsHeader) ? BRANDING_HEADER : "";
-            let htmlBatch = ""; // Substack (rich) no longer needs the branding header
+            let htmlBatch = ""; 
             let batchCounter = 0;
 
             lines.forEach((rawLine, index) => {
@@ -214,7 +209,6 @@ function generateAll() {
                 let textEntry = "";
                 let htmlEntry = "";
 
-                // Formats with NO icons and double newlines for spacing
                 if (p.format === 'masto-clean') {
                     textEntry = `${title}\n${url}\n\n`; 
                 } else if (p.format === 'rich') {
@@ -225,7 +219,6 @@ function generateAll() {
                 } else if (p.format === 'tab') {
                     textEntry = `${title}\t${url}\n`;
                 } else {
-                    // LinkedIn and X/Twitter
                     textEntry = `${title}\n${url}\n\n`;
                 }
 
@@ -234,7 +227,6 @@ function generateAll() {
                     batchCounter++;
                     addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
                     
-                    // Reset new window: Only add header if platform needs it
                     currentBatch = (needsHeader) ? BRANDING_HEADER + textEntry : textEntry;
                     htmlBatch = (p.format === 'rich') ? htmlEntry : "";
                 } else {
@@ -244,28 +236,6 @@ function generateAll() {
 
                 // Final batch handling
                 if (index === lines.length - 1 && currentBatch.trim() !== "") {
-                    batchCounter++;
-                    addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
-                }
-            });
-            document.getElementById(p.countId).innerText = batchCounter;
-        });
-    }
-                // Check if adding this entry exceeds the character limit
-                if ((currentBatch + textEntry).length > p.limit && currentBatch !== BRANDING_HEADER && currentBatch !== "") {
-                    batchCounter++;
-                    addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
-                    
-                    // START NEW WINDOW: Reset with the Branding Header
-                    currentBatch = (p.format === 'tab') ? textEntry : BRANDING_HEADER + textEntry;
-                    htmlBatch = (p.format === 'rich') ? `<strong>${BRANDING_HEADER.replace('\n\n', '')}</strong><br><br>${htmlEntry}` : "";
-                } else {
-                    currentBatch += textEntry;
-                    htmlBatch += htmlEntry;
-                }
-
-                // Final batch handling
-                if (index === lines.length - 1 && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
                     batchCounter++;
                     addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
                 }
