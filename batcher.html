@@ -12,16 +12,14 @@
             --long-dark: #2c3e50; --success: #27ae60;
         }
 
-        /* 1. ALLOW THE BODY TO SHOW OVERFLOW */
         body, html {
             margin: 0; padding: 0; 
             height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: #f0f2f5;
-            overflow: hidden; /* We want the wrapper to handle the scroll, not the body */
+            overflow: hidden;
         }
 
-        /* STATIC TOP HEADER */
         .static-header {
             background: white;
             padding: 15px 20px;
@@ -55,40 +53,36 @@
         .btn-generate { background: var(--long-dark); color: white; }
         .btn-clear { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* 2. THE SCROLLABLE WRAPPER (HORIZONTAL) */
         .dashboard-wrapper {
             margin-top: 220px;
             height: calc(100vh - 220px);
-            overflow-x: auto !important; /* Forces horizontal scrollbar */
+            overflow-x: auto !important;
             overflow-y: hidden;
             padding: 20px;
             display: block;
             box-sizing: border-box;
         }
 
-        /* 3. THE FLEX CONTAINER (FORCE WIDTH) */
         .dashboard { 
-            display: inline-flex; /* Changed to inline-flex to expand width */
-            width: max-content;   /* CRITICAL: Forces width to be as wide as all columns */
+            display: inline-flex;
+            width: max-content;
             gap: 20px; 
             align-items: flex-start;
             height: 100%;
-            padding-bottom: 10px; /* Room for the scrollbar */
+            padding-bottom: 10px;
         }
 
-        /* 4. THE COLUMNS */
         .column {
             background: #fff; border-radius: 12px; padding: 15px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
             width: 350px; 
-            flex-shrink: 0; /* Prevents columns from shrinking */
+            flex-shrink: 0;
             display: flex; 
             flex-direction: column;
-            max-height: 100%; /* Relative to dashboard height */
+            max-height: 100%;
             box-sizing: border-box;
         }
 
-        /* 5. VERTICAL SCROLL INSIDE COLUMNS */
         .column-content { 
             overflow-y: auto !important; 
             flex-grow: 1; 
@@ -111,11 +105,7 @@
         .btn-copy { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
 
-        /* 6. CUSTOM SCROLLBARS (STYLING) */
-        ::-webkit-scrollbar { 
-            height: 12px; /* Horizontal scrollbar thickness */
-            width: 8px;   /* Vertical scrollbar thickness */
-        }
+        ::-webkit-scrollbar { height: 12px; width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; border: 2px solid #f1f1f1; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
@@ -170,7 +160,8 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
 </div>
 
 <script>
-    const BRANDING_HEADER = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n#News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending\n\n";
+    const BRANDING_HEADER = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n";
+    const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
 
     const config = [
         { id: 'm-area', countId: 'm-count', limit: 4000, label: 'Mastodon', format: 'masto-clean' },
@@ -201,6 +192,7 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
             container.innerHTML = "";
             
             const needsHeader = (p.format === 'masto-clean' || p.format === 'markdown' || p.label === 'LinkedIn');
+            const isTumblr = (p.format === 'markdown');
             
             let currentBatch = (needsHeader) ? BRANDING_HEADER : "";
             let htmlBatch = ""; 
@@ -211,7 +203,6 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                 let textEntry = "";
                 let htmlEntry = "";
 
-                // Formatting logic
                 if (p.format === 'masto-clean') {
                     textEntry = `${title}\n${url}\n\n`; 
                 } else if (p.format === 'rich') {
@@ -225,12 +216,13 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                     textEntry = `${title}\n${url}\n\n`;
                 }
 
-                // Check for character limit
-                if ((currentBatch + textEntry).length > p.limit && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
+                // Check limit (Tumblr includes footer in calculation)
+                const footerLength = isTumblr ? BRANDING_FOOTER.length : 0;
+                if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
                     batchCounter++;
-                    addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                    let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
                     
-                    // Reset for next batch
                     currentBatch = (needsHeader) ? BRANDING_HEADER + textEntry : textEntry;
                     htmlBatch = (p.format === 'rich') ? htmlEntry : "";
                 } else {
@@ -238,10 +230,10 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
                     htmlBatch += htmlEntry;
                 }
 
-                // Final batch handling at the end of the loop
                 if (index === lines.length - 1 && currentBatch.trim() !== "") {
                     batchCounter++;
-                    addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                    let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
                 }
             });
             document.getElementById(p.countId).innerText = batchCounter;
