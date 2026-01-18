@@ -160,127 +160,132 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
 </div>
 
 <script>
-    const BRANDING_HEADER = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n";
-    const BRANDING_FOOTER = "\n\n #News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
+    // 1. Define the two different header types
+const HEADER_URL = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n";
+const HEADER_TEXT = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
+const BRANDING_FOOTER = "\n\n #News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
 
-    const config = [
-        { id: 'm-area', countId: 'm-count', limit: 4000, label: 'Mastodon', format: 'masto-clean' },
-        { id: 'sub-area', countId: 'sub-count', limit: 4000, label: 'Substack', format: 'rich' },
-        { id: 't-area', countId: 't-count', limit: 4000, label: 'Tumblr', format: 'markdown' },
-        { id: 'p-area', countId: 'p-count', limit: 4000, label: 'Paragraph', format: 'tab' },
-        { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain' },
-        { id: 'x-area', countId: 'x-count', limit: 4000, label: 'X/Twitter', format: 'plain' }
-    ];
+const config = [
+    { id: 'm-area', countId: 'm-count', limit: 4000, label: 'Mastodon', format: 'masto-clean' },
+    { id: 'sub-area', countId: 'sub-count', limit: 4000, label: 'Substack', format: 'rich' },
+    { id: 't-area', countId: 't-count', limit: 4000, label: 'Tumblr', format: 'markdown' },
+    { id: 'p-area', countId: 'p-count', limit: 4000, label: 'Paragraph', format: 'tab' },
+    { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain' },
+    { id: 'x-area', countId: 'x-count', limit: 4000, label: 'X/Twitter', format: 'plain' }
+];
 
-    function clearInput() { 
-        document.getElementById('rawInput').value = ""; 
-    }
+function clearInput() { 
+    document.getElementById('rawInput').value = ""; 
+}
 
-    function cleanLine(line) {
-        const urlMatch = line.match(/https?:\/\/\S+$/);
-        const url = urlMatch ? urlMatch[0] : "https://kensbookinfo.blogspot.com";
-        let title = line.replace(url, "").trim();
-        return { title, url };
-    }
+function cleanLine(line) {
+    const urlMatch = line.match(/https?:\/\/\S+$/);
+    const url = urlMatch ? urlMatch[0] : "https://kensbookinfo.blogspot.com";
+    let title = line.replace(url, "").trim();
+    return { title, url };
+}
 
-// Define the new specific branding text
-    const BRANDING_HEADER = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
-    const BRANDING_FOOTER = "\n\n #News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
+function generateAll() {
+    const input = document.getElementById('rawInput').value;
+    const lines = input.split('\n').filter(l => l.trim().length > 5);
 
-    function generateAll() {
-        const input = document.getElementById('rawInput').value;
-        const lines = input.split('\n').filter(l => l.trim().length > 5);
-
-        config.forEach(p => {
-            const container = document.getElementById(p.id);
-            container.innerHTML = "";
-            
-            // Check if current platform is Substack or Paragraph
-            const isBrandedPlatform = (p.label === 'Substack' || p.label === 'Paragraph');
-            const isTumblr = (p.format === 'markdown');
-            
-            // Apply header ONLY to Substack and Paragraph
-            let currentBatch = isBrandedPlatform ? BRANDING_HEADER : "";
-            let htmlBatch = ""; 
-            let batchCounter = 0;
-
-            lines.forEach((rawLine, index) => {
-                const { title, url } = cleanLine(rawLine);
-                let textEntry = "";
-                let htmlEntry = "";
-
-                // Format selection
-                if (p.format === 'masto-clean') {
-                    textEntry = `${title}\n${url}\n\n`; 
-                } else if (p.format === 'rich') {
-                    textEntry = `${title}\n\n`;
-                    htmlEntry = `<p><a href="${url}">${title}</a></p><br>`;
-                } else if (p.format === 'markdown') {
-                    textEntry = `[${title}](${url})\n\n`;
-                } else if (p.format === 'tab') {
-                    textEntry = `${title}\t${url}\n`;
-                } else {
-                    textEntry = `${title}\n${url}\n\n`;
-                }
-
-                const footerLength = isTumblr ? BRANDING_FOOTER.length : 0;
-                
-                if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
-                    batchCounter++;
-                    let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-                    
-                    // Reset: Apply header for new batch if it's Substack or Paragraph
-                    currentBatch = isBrandedPlatform ? BRANDING_HEADER + textEntry : textEntry;
-                    htmlBatch = (p.format === 'rich') ? htmlEntry : "";
-                } else {
-                    currentBatch += textEntry;
-                    htmlBatch += htmlEntry;
-                }
-
-                if (index === lines.length - 1 && currentBatch.trim() !== "") {
-                    batchCounter++;
-                    let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-                }
-            });
-            document.getElementById(p.countId).innerText = batchCounter;
-        });
-    }
-    
-    function addCard(container, content, title, htmlContent, format) {
-        const card = document.createElement('div');
-        card.className = 'batch-card';
-        card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <small><b>${title}</b></small>
-                <button class="btn-copy" onclick="copyDynamic(this, '${format}')">Copy</button>
-            </div>
-            <div class="batch-text">${content}</div>
-            <div class="hidden-html">${htmlContent || ''}</div>
-        `;
-        container.appendChild(card);
-    }
-
-    function copyDynamic(btn, format) {
-        const text = btn.parentElement.nextElementSibling.innerText;
-        const html = btn.parentElement.parentElement.querySelector('.hidden-html').innerHTML;
-        const card = btn.closest('.batch-card');
-        const markAsDone = () => { 
-            btn.innerText = "✓"; 
-            btn.classList.add('active-copy'); 
-            card.classList.add('copied'); 
-        };
-
-        if (format === 'rich') {
-            const blobText = new Blob([text], { type: 'text/plain' });
-            const blobHtml = new Blob([html], { type: 'text/html' });
-            const data = [new ClipboardItem({ 'text/plain': blobText, 'text/html': blobHtml })];
-            navigator.clipboard.write(data).then(markAsDone);
+    config.forEach(p => {
+        const container = document.getElementById(p.id);
+        container.innerHTML = "";
+        
+        // --- LOGIC TO SELECT THE CORRECT HEADER ---
+        let selectedHeader = "";
+        
+        if (p.label === 'Substack' || p.label === 'Paragraph') {
+            selectedHeader = HEADER_TEXT; // Use the Uppercase text
+        } else if (p.label === 'Tumblr') {
+            selectedHeader = HEADER_URL;  // Use the URL link
         } else {
-            navigator.clipboard.writeText(text).then(markAsDone);
+            selectedHeader = "";          // LinkedIn, Mastodon, X get NO header
         }
+        // ------------------------------------------
+
+        const isTumblr = (p.format === 'markdown');
+        let currentBatch = selectedHeader;
+        let htmlBatch = ""; 
+        let batchCounter = 0;
+
+        lines.forEach((rawLine, index) => {
+            const { title, url } = cleanLine(rawLine);
+            let textEntry = "";
+            let htmlEntry = "";
+
+            if (p.format === 'masto-clean') {
+                textEntry = `${title}\n${url}\n\n`; 
+            } else if (p.format === 'rich') {
+                textEntry = `${title}\n\n`;
+                htmlEntry = `<p><a href="${url}">${title}</a></p><br>`;
+            } else if (p.format === 'markdown') {
+                textEntry = `[${title}](${url})\n\n`;
+            } else if (p.format === 'tab') {
+                textEntry = `${title}\t${url}\n`;
+            } else {
+                textEntry = `${title}\n${url}\n\n`;
+            }
+
+            const footerLength = isTumblr ? BRANDING_FOOTER.length : 0;
+            
+            // Limit check: Ensure we don't count the header as "content" alone
+            if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
+                batchCounter++;
+                let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                
+                currentBatch = selectedHeader + textEntry;
+                htmlBatch = (p.format === 'rich') ? htmlEntry : "";
+            } else {
+                currentBatch += textEntry;
+                htmlBatch += htmlEntry;
+            }
+
+            if (index === lines.length - 1 && currentBatch.trim() !== "") {
+                batchCounter++;
+                let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+            }
+        });
+        document.getElementById(p.countId).innerText = batchCounter;
+    });
+}
+
+function addCard(container, content, title, htmlContent, format) {
+    const card = document.createElement('div');
+    card.className = 'batch-card';
+    card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <small><b>${title}</b></small>
+            <button class="btn-copy" onclick="copyDynamic(this, '${format}')">Copy</button>
+        </div>
+        <div class="batch-text">${content}</div>
+        <div class="hidden-html">${htmlContent || ''}</div>
+    `;
+    container.appendChild(card);
+}
+
+function copyDynamic(btn, format) {
+    const text = btn.parentElement.nextElementSibling.innerText;
+    const html = btn.parentElement.parentElement.querySelector('.hidden-html').innerHTML;
+    const card = btn.closest('.batch-card');
+    const markAsDone = () => { 
+        btn.innerText = "✓"; 
+        btn.classList.add('active-copy'); 
+        card.classList.add('copied'); 
+    };
+
+    if (format === 'rich') {
+        const blobText = new Blob([text], { type: 'text/plain' });
+        const blobHtml = new Blob([html], { type: 'text/html' });
+        const data = [new ClipboardItem({ 'text/plain': blobText, 'text/html': blobHtml })];
+        navigator.clipboard.write(data).then(markAsDone);
+    } else {
+        navigator.clipboard.writeText(text).then(markAsDone);
     }
+}
 </script>
 </body>
 </html>
