@@ -193,7 +193,6 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
         
-        // Header Logic
         let selectedHeader = "";
         if (p.label === 'Substack' || p.label === 'Paragraph') {
             selectedHeader = HEADER_TEXT; 
@@ -213,11 +212,24 @@ function generateAll() {
 
             if (p.format === 'masto-clean') {
                 textEntry = `${title}\n${url}\n\n`; 
-            } else if (p.format === 'rich') {
-                // MODIFIED: This now adds the URL as plain text below the title for Substack
+            } 
+            else if (p.format === 'rich') {
+                // --- SMART RICH LINK FORMATTING FOR SUBSTACK ---
                 textEntry = `${title}\n${url}\n\n`;
-                htmlEntry = `<p><strong>${title}</strong><br><a href="${url}">${url}</a></p><br>`;
-            } else if (p.format === 'markdown') {
+                
+                // This creates a bold title with a clickable, clean URL underneath
+                htmlEntry = `
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 16px; font-weight: bold; color: #000000; line-height: 1.4;">
+                            ${title}
+                        </div>
+                        <div style="font-size: 14px; color: #666666;">
+                            <a href="${url}" style="color: #0077b5; text-decoration: none;">${url}</a>
+                        </div>
+                    </div>
+                `.replace(/\s+/g, ' ').trim(); // Keeps HTML compact
+            } 
+            else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
             } else if (p.format === 'tab') {
                 textEntry = `${title}\t${url}\n`;
@@ -248,7 +260,7 @@ function generateAll() {
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-function addCard(container, content, title, htmlContent, format) {
+    function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
     card.innerHTML = `
