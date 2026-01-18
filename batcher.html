@@ -184,66 +184,66 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
     }
 
 function generateAll() {
-    const input = document.getElementById('rawInput').value;
-    const lines = input.split('\n').filter(l => l.trim().length > 5);
+        const input = document.getElementById('rawInput').value;
+        const lines = input.split('\n').filter(l => l.trim().length > 5);
 
-    config.forEach(p => {
-        const container = document.getElementById(p.id);
-        container.innerHTML = "";
-        
-        // UPDATED LOGIC: Check if it's LinkedIn to exclude header
-        const isLinkedIn = (p.label === 'LinkedIn');
-        const needsHeader = (p.format === 'masto-clean' || p.format === 'markdown' || isLinkedIn);
-        const isTumblr = (p.format === 'markdown');
-        
-        // If it's LinkedIn, we force the starting point to be empty
-        let currentBatch = (needsHeader && !isLinkedIn) ? BRANDING_HEADER : "";
-        let htmlBatch = ""; 
-        let batchCounter = 0;
-
-        lines.forEach((rawLine, index) => {
-            const { title, url } = cleanLine(rawLine);
-            let textEntry = "";
-            let htmlEntry = "";
-
-            if (p.format === 'masto-clean') {
-                textEntry = `${title}\n${url}\n\n`; 
-            } else if (p.format === 'rich') {
-                textEntry = `${title}\n\n`;
-                htmlEntry = `<p><a href="${url}">${title}</a></p><br>`;
-            } else if (p.format === 'markdown') {
-                textEntry = `[${title}](${url})\n\n`;
-            } else if (p.format === 'tab') {
-                textEntry = `${title}\t${url}\n`;
-            } else {
-                textEntry = `${title}\n${url}\n\n`;
-            }
-
-            const footerLength = isTumblr ? BRANDING_FOOTER.length : 0;
+        config.forEach(p => {
+            const container = document.getElementById(p.id);
+            container.innerHTML = "";
             
-            // Limit check
-            if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
-                batchCounter++;
-                let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-                
-                // Reset for next batch: skip header if LinkedIn
-                currentBatch = (needsHeader && !isLinkedIn) ? BRANDING_HEADER + textEntry : textEntry;
-                htmlBatch = (p.format === 'rich') ? htmlEntry : "";
-            } else {
-                currentBatch += textEntry;
-                htmlBatch += htmlEntry;
-            }
+            // Identify platforms that should NOT have the header
+            const isNoHeaderPlatform = (p.label === 'LinkedIn' || p.label === 'Mastodon');
+            const isTumblr = (p.format === 'markdown');
+            
+            // Logic: Needs header if it's Markdown (Tumblr) but NOT if it's LinkedIn/Mastodon
+            // This leaves the header active for Tumblr/Markdown by default.
+            let currentBatch = (p.format === 'markdown' && !isNoHeaderPlatform) ? BRANDING_HEADER : "";
+            let htmlBatch = ""; 
+            let batchCounter = 0;
 
-            if (index === lines.length - 1 && currentBatch.trim() !== "") {
-                batchCounter++;
-                let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-            }
+            lines.forEach((rawLine, index) => {
+                const { title, url } = cleanLine(rawLine);
+                let textEntry = "";
+                let htmlEntry = "";
+
+                if (p.format === 'masto-clean') {
+                    textEntry = `${title}\n${url}\n\n`; 
+                } else if (p.format === 'rich') {
+                    textEntry = `${title}\n\n`;
+                    htmlEntry = `<p><a href="${url}">${title}</a></p><br>`;
+                } else if (p.format === 'markdown') {
+                    textEntry = `[${title}](${url})\n\n`;
+                } else if (p.format === 'tab') {
+                    textEntry = `${title}\t${url}\n`;
+                } else {
+                    textEntry = `${title}\n${url}\n\n`;
+                }
+
+                const footerLength = isTumblr ? BRANDING_FOOTER.length : 0;
+                
+                if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== BRANDING_HEADER) {
+                    batchCounter++;
+                    let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                    
+                    // Reset: Apply header only if NOT Mastodon/LinkedIn
+                    currentBatch = (p.format === 'markdown' && !isNoHeaderPlatform) ? BRANDING_HEADER + textEntry : textEntry;
+                    htmlBatch = (p.format === 'rich') ? htmlEntry : "";
+                } else {
+                    currentBatch += textEntry;
+                    htmlBatch += htmlEntry;
+                }
+
+                if (index === lines.length - 1 && currentBatch.trim() !== "") {
+                    batchCounter++;
+                    let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                }
+            });
+            document.getElementById(p.countId).innerText = batchCounter;
         });
-        document.getElementById(p.countId).innerText = batchCounter;
-    });
-}    
+    }
+    
     function addCard(container, content, title, htmlContent, format) {
         const card = document.createElement('div');
         card.className = 'batch-card';
