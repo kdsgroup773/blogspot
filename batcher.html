@@ -193,17 +193,13 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
         
-        // --- LOGIC TO SELECT THE CORRECT HEADER ---
+        // Header Logic
         let selectedHeader = "";
-        
         if (p.label === 'Substack' || p.label === 'Paragraph') {
-            selectedHeader = HEADER_TEXT; // Use the Uppercase text
+            selectedHeader = HEADER_TEXT; 
         } else if (p.label === 'Tumblr') {
-            selectedHeader = HEADER_URL;  // Use the URL link
-        } else {
-            selectedHeader = "";          // LinkedIn, Mastodon, X get NO header
+            selectedHeader = HEADER_URL;  
         }
-        // ------------------------------------------
 
         const isTumblr = (p.format === 'markdown');
         let currentBatch = selectedHeader;
@@ -218,8 +214,9 @@ function generateAll() {
             if (p.format === 'masto-clean') {
                 textEntry = `${title}\n${url}\n\n`; 
             } else if (p.format === 'rich') {
-                textEntry = `${title}\n\n`;
-                htmlEntry = `<p><a href="${url}">${title}</a></p><br>`;
+                // MODIFIED: This now adds the URL as plain text below the title for Substack
+                textEntry = `${title}\n${url}\n\n`;
+                htmlEntry = `<p><strong>${title}</strong><br><a href="${url}">${url}</a></p><br>`;
             } else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
             } else if (p.format === 'tab') {
@@ -230,7 +227,6 @@ function generateAll() {
 
             const footerLength = isTumblr ? BRANDING_FOOTER.length : 0;
             
-            // Limit check: Ensure we don't count the header as "content" alone
             if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
                 batchCounter++;
                 let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
@@ -252,7 +248,6 @@ function generateAll() {
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-
 function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
