@@ -206,18 +206,22 @@ function generateAll() {
 
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
+            
+            // Text version (still needs URL for Mastodon/X/etc)
             let textEntry = `${title}\n${url}\n\n`;
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                // Using the specific Substack-friendly link format
-                htmlEntry = `<div><strong><a href="${url}" rel="nofollow ugc noopener">${title}</a></strong><br>${url}</div><br>`;
+                // ONLY the linked text displays here
+                // Removed the extra ${url} text from the display
+                htmlEntry = `<p><strong><a href="${url}" rel="nofollow ugc noopener">${title}</a></strong></p>`;
+                
+                // For the "Copy" visual preview in the dashboard card
+                textEntry = `${title}\n\n`; 
             } else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
             } else if (p.format === 'tab') {
                 textEntry = `${title}\t${url}\n`;
-            } else {
-                textEntry = `${title}\n${url}\n\n`;
             }
 
             const isMarkdown = (p.format === 'markdown');
@@ -244,7 +248,7 @@ function generateAll() {
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-function copyDynamic(btn, format) {
+    function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
     const text = card.querySelector('.batch-text').innerText;
     const html = card.querySelector('.hidden-html').innerHTML;
