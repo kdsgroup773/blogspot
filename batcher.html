@@ -183,7 +183,11 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
         return { title, url };
     }
 
-function generateAll() {
+// Define the new specific branding text
+    const BRANDING_HEADER = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
+    const BRANDING_FOOTER = "\n\n #News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
+
+    function generateAll() {
         const input = document.getElementById('rawInput').value;
         const lines = input.split('\n').filter(l => l.trim().length > 5);
 
@@ -191,13 +195,12 @@ function generateAll() {
             const container = document.getElementById(p.id);
             container.innerHTML = "";
             
-            // Identify platforms that should NOT have the header
-            const isNoHeaderPlatform = (p.label === 'LinkedIn' || p.label === 'Mastodon');
+            // Check if current platform is Substack or Paragraph
+            const isBrandedPlatform = (p.label === 'Substack' || p.label === 'Paragraph');
             const isTumblr = (p.format === 'markdown');
             
-            // Logic: Needs header if it's Markdown (Tumblr) but NOT if it's LinkedIn/Mastodon
-            // This leaves the header active for Tumblr/Markdown by default.
-            let currentBatch = (p.format === 'markdown' && !isNoHeaderPlatform) ? BRANDING_HEADER : "";
+            // Apply header ONLY to Substack and Paragraph
+            let currentBatch = isBrandedPlatform ? BRANDING_HEADER : "";
             let htmlBatch = ""; 
             let batchCounter = 0;
 
@@ -206,6 +209,7 @@ function generateAll() {
                 let textEntry = "";
                 let htmlEntry = "";
 
+                // Format selection
                 if (p.format === 'masto-clean') {
                     textEntry = `${title}\n${url}\n\n`; 
                 } else if (p.format === 'rich') {
@@ -226,8 +230,8 @@ function generateAll() {
                     let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
                     addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
                     
-                    // Reset: Apply header only if NOT Mastodon/LinkedIn
-                    currentBatch = (p.format === 'markdown' && !isNoHeaderPlatform) ? BRANDING_HEADER + textEntry : textEntry;
+                    // Reset: Apply header for new batch if it's Substack or Paragraph
+                    currentBatch = isBrandedPlatform ? BRANDING_HEADER + textEntry : textEntry;
                     htmlBatch = (p.format === 'rich') ? htmlEntry : "";
                 } else {
                     currentBatch += textEntry;
