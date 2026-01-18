@@ -210,19 +210,22 @@ function generateAll() {
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                // Simplified HTML that Substack recognizes easily
-                htmlEntry = `<div><strong>${title}</strong><br><a href="${url}">${url}</a></div><br>`;
+                // Using the specific Substack-friendly link format
+                htmlEntry = `<div><strong><a href="${url}" rel="nofollow ugc noopener">${title}</a></strong><br>${url}</div><br>`;
             } else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
             } else if (p.format === 'tab') {
                 textEntry = `${title}\t${url}\n`;
+            } else {
+                textEntry = `${title}\n${url}\n\n`;
             }
 
-            const footerLength = (p.format === 'markdown') ? BRANDING_FOOTER.length : 0;
+            const isMarkdown = (p.format === 'markdown');
+            const footerLength = isMarkdown ? BRANDING_FOOTER.length : 0;
             
             if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
                 batchCounter++;
-                let finalContent = (p.format === 'markdown') ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
                 
                 currentBatch = selectedHeader + textEntry;
@@ -234,14 +237,13 @@ function generateAll() {
 
             if (index === lines.length - 1 && currentBatch.trim() !== "") {
                 batchCounter++;
-                let finalContent = (p.format === 'markdown') ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-
 function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
     const text = card.querySelector('.batch-text').innerText;
