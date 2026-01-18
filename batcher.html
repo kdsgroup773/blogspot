@@ -200,48 +200,29 @@ function generateAll() {
             selectedHeader = HEADER_URL;  
         }
 
-        const isTumblr = (p.format === 'markdown');
         let currentBatch = selectedHeader;
         let htmlBatch = ""; 
         let batchCounter = 0;
 
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            let textEntry = "";
+            let textEntry = `${title}\n${url}\n\n`;
             let htmlEntry = "";
 
-            if (p.format === 'masto-clean') {
-                textEntry = `${title}\n${url}\n\n`; 
-            } 
-            else if (p.format === 'rich') {
-                // --- SMART RICH LINK FORMATTING FOR SUBSTACK ---
-                textEntry = `${title}\n${url}\n\n`;
-                
-                // This creates a bold title with a clickable, clean URL underneath
-                htmlEntry = `
-                    <div style="margin-bottom: 16px;">
-                        <div style="font-size: 16px; font-weight: bold; color: #000000; line-height: 1.4;">
-                            ${title}
-                        </div>
-                        <div style="font-size: 14px; color: #666666;">
-                            <a href="${url}" style="color: #0077b5; text-decoration: none;">${url}</a>
-                        </div>
-                    </div>
-                `.replace(/\s+/g, ' ').trim(); // Keeps HTML compact
-            } 
-            else if (p.format === 'markdown') {
+            if (p.format === 'rich') {
+                // Simplified HTML that Substack recognizes easily
+                htmlEntry = `<div><strong>${title}</strong><br><a href="${url}">${url}</a></div><br>`;
+            } else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
             } else if (p.format === 'tab') {
                 textEntry = `${title}\t${url}\n`;
-            } else {
-                textEntry = `${title}\n${url}\n\n`;
             }
 
-            const footerLength = isTumblr ? BRANDING_FOOTER.length : 0;
+            const footerLength = (p.format === 'markdown') ? BRANDING_FOOTER.length : 0;
             
             if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
                 batchCounter++;
-                let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                let finalContent = (p.format === 'markdown') ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
                 
                 currentBatch = selectedHeader + textEntry;
@@ -253,12 +234,41 @@ function generateAll() {
 
             if (index === lines.length - 1 && currentBatch.trim() !== "") {
                 batchCounter++;
-                let finalContent = isTumblr ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                let finalContent = (p.format === 'markdown') ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
+}
+
+function copyDynamic(btn, format) {
+    const card = btn.closest('.batch-card');
+    const text = card.querySelector('.batch-text').innerText;
+    const html = card.querySelector('.hidden-html').innerHTML;
+    
+    const markAsDone = () => { 
+        btn.innerText = "✓"; 
+        btn.classList.add('active-copy'); 
+        card.classList.add('copied'); 
+    };
+
+    if (format === 'rich') {
+        // We create a proper HTML blob so Substack sees it as a "Rich" object
+        const type = "text/html";
+        const blob = new Blob([html], { type });
+        const data = [new ClipboardItem({ 
+            [type]: blob,
+            "text/plain": new Blob([text], { type: "text/plain" }) 
+        })];
+
+        navigator.clipboard.write(data).then(markAsDone).catch(err => {
+            console.error("Rich copy failed, falling back to text", err);
+            navigator.clipboard.writeText(text).then(markAsDone);
+        });
+    } else {
+        navigator.clipboard.writeText(text).then(markAsDone);
+    }
 }
     function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
