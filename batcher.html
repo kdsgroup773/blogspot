@@ -215,27 +215,25 @@ function generateAll() {
 
             const isParagraphRich = (p.label === 'Paragraph');
             const isMarkdown = (p.format === 'markdown');
-            if ((currentBatch + textEntry).length > p.limit && currentBatch !== selectedHeader) {
-                batchCounter++;
-                let finalContent = currentBatch.trim();
-                
-                // Add hashtags for Paragraph
-                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER.replace(/\n/g, '<br>')}</p>` : htmlBatch;
-                
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, finalHtml, p.format);
-                
-                currentBatch = selectedHeader + textEntry;
-                htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>${htmlEntry}` : "";
-            } else {
-                currentBatch += textEntry;
-                htmlBatch += htmlEntry;
-            }
-
-            if (index === lines.length - 1 && currentBatch.trim() !== "") {
-                batchCounter++;
-                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER.replace(/\n/g, '<br>')}</p>` : htmlBatch;
-                addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, finalHtml, p.format);
-            }
+if ((currentBatch + textEntry).length > p.limit && currentBatch !== selectedHeader) {
+    batchCounter++;
+    
+    // Specifically for Tumblr/Markdown: Add the footer text
+    let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+    
+    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+    
+    // Reset for next batch
+    currentBatch = selectedHeader + textEntry;
+    // ... rest of reset logic ...
+} else {
+    currentBatch += textEntry;
+}
+ if (index === lines.length - 1 && currentBatch.trim() !== "") {
+    batchCounter++;
+    let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+}
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
