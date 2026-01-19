@@ -160,23 +160,20 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
 </div>
 
 <script>
-    // 1. Define the two different header types
 const HEADER_URL = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n";
 const HEADER_TEXT = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
-const BRANDING_FOOTER = "\n\n #News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
+const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
 
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 4000, label: 'Mastodon', format: 'masto-clean' },
     { id: 'sub-area', countId: 'sub-count', limit: 4000, label: 'Substack', format: 'rich' },
     { id: 't-area', countId: 't-count', limit: 4000, label: 'Tumblr', format: 'markdown' },
-    { id: 'p-area', countId: 'p-count', limit: 4000, label: 'Paragraph', format: 'tab' },
+    { id: 'p-area', countId: 'p-count', limit: 4000, label: 'Paragraph', format: 'rich' }, // Changed to rich
     { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain' },
     { id: 'x-area', countId: 'x-count', limit: 4000, label: 'X/Twitter', format: 'plain' }
 ];
 
-function clearInput() { 
-    document.getElementById('rawInput').value = ""; 
-}
+function clearInput() { document.getElementById('rawInput').value = ""; }
 
 function cleanLine(line) {
     const urlMatch = line.match(/https?:\/\/\S+$/);
@@ -193,99 +190,58 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
         
-        let selectedHeader = "";
-        if (p.label === 'Substack' || p.label === 'Paragraph') {
-            selectedHeader = HEADER_TEXT; 
-        } else if (p.label === 'Tumblr') {
-            selectedHeader = HEADER_URL;  
-        }
+        let selectedHeader = (p.label === 'Substack' || p.label === 'Paragraph') ? HEADER_TEXT : (p.label === 'Tumblr' ? HEADER_URL : "");
 
-// ... existing code ...
         let currentBatch = selectedHeader;
-        
-        // Ensure the HTML version also starts with the header for batch #1
-        let htmlBatch = (p.format === 'rich') 
-            ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` 
-            : ""; 
-            
+        // Rich Header Setup
+        let htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` : "";
         let batchCounter = 0;
 
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            
             let textEntry = `${title}\n${url}\n\n`;
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                htmlEntry = `<p><strong><a href="${url}" rel="nofollow ugc noopener">${title}</a></strong></p>`;
+                htmlEntry = `<p><strong><a href="${url}">${title}</a></strong></p>`;
                 textEntry = `${title}\n\n`; 
             } else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
-            } else if (p.format === 'tab') {
-                textEntry = `[${title}](${url})\n\n`;
             }
 
-const needsFooter = (p.format === 'markdown' || p.format === 'tab');
-const footerLength = needsFooter ? BRANDING_FOOTER.length : 0;
+            const isMarkdown = (p.format === 'markdown');
+            const isParagraphRich = (p.label === 'Paragraph');
+            
+            // Logic to check if we need to split the batch
+            if ((currentBatch + textEntry).length > p.limit && currentBatch !== selectedHeader) {
+                batchCounter++;
+                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER}</p>` : htmlBatch;
+                
+                addCard(container, finalContent, `${p.label} #${batchCounter}`, finalHtml, p.format);
+                
+                // Reset for next batch
+                currentBatch = selectedHeader + textEntry;
+                htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>${htmlEntry}` : "";
+            } else {
+                currentBatch += textEntry;
+                htmlBatch += htmlEntry;
+            }
 
-if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
-    batchCounter++;
-    
-    // This ensures Paragraph (tab) and Tumblr (markdown) get the hashtags
-    let finalContent = needsFooter ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-    
-    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-    
-    // Reset for next batch
-    currentBatch = selectedHeader + textEntry;
-    htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>${htmlEntry}` : "";
-} else {
-    currentBatch += textEntry;
-    htmlBatch += htmlEntry;
-}
-// ... rest of code ...
-            // Final batch handling
+            // End of input handling
             if (index === lines.length - 1 && currentBatch.trim() !== "") {
                 batchCounter++;
+                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER}</p>` : htmlBatch;
                 
-                // Add footer if it's Tumblr OR Paragraph
-                let finalContent = needsFooter ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+                addCard(container, finalContent, `${p.label} #${batchCounter}`, finalHtml, p.format);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-    function copyDynamic(btn, format) {
-    const card = btn.closest('.batch-card');
-    const text = card.querySelector('.batch-text').innerText;
-    const html = card.querySelector('.hidden-html').innerHTML;
-    
-    const markAsDone = () => { 
-        btn.innerText = "✓"; 
-        btn.classList.add('active-copy'); 
-        card.classList.add('copied'); 
-    };
 
-    if (format === 'rich') {
-        // We create a proper HTML blob so Substack sees it as a "Rich" object
-        const type = "text/html";
-        const blob = new Blob([html], { type });
-        const data = [new ClipboardItem({ 
-            [type]: blob,
-            "text/plain": new Blob([text], { type: "text/plain" }) 
-        })];
-
-        navigator.clipboard.write(data).then(markAsDone).catch(err => {
-            console.error("Rich copy failed, falling back to text", err);
-            navigator.clipboard.writeText(text).then(markAsDone);
-        });
-    } else {
-        navigator.clipboard.writeText(text).then(markAsDone);
-    }
-}
-    function addCard(container, content, title, htmlContent, format) {
+function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
     card.innerHTML = `
@@ -300,9 +256,10 @@ if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !
 }
 
 function copyDynamic(btn, format) {
-    const text = btn.parentElement.nextElementSibling.innerText;
-    const html = btn.parentElement.parentElement.querySelector('.hidden-html').innerHTML;
     const card = btn.closest('.batch-card');
+    const text = card.querySelector('.batch-text').innerText;
+    const html = card.querySelector('.hidden-html').innerHTML;
+    
     const markAsDone = () => { 
         btn.innerText = "✓"; 
         btn.classList.add('active-copy'); 
@@ -310,9 +267,10 @@ function copyDynamic(btn, format) {
     };
 
     if (format === 'rich') {
-        const blobText = new Blob([text], { type: 'text/plain' });
-        const blobHtml = new Blob([html], { type: 'text/html' });
-        const data = [new ClipboardItem({ 'text/plain': blobText, 'text/html': blobHtml })];
+        const data = [new ClipboardItem({ 
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([text], { type: "text/plain" }) 
+        })];
         navigator.clipboard.write(data).then(markAsDone);
     } else {
         navigator.clipboard.writeText(text).then(markAsDone);
