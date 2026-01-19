@@ -200,7 +200,8 @@ function generateAll() {
             selectedHeader = HEADER_URL;  
         }
 
-let currentBatch = selectedHeader;
+// ... existing code ...
+        let currentBatch = selectedHeader;
         
         // Ensure the HTML version also starts with the header for batch #1
         let htmlBatch = (p.format === 'rich') 
@@ -243,7 +244,7 @@ let currentBatch = selectedHeader;
                 currentBatch += textEntry;
                 htmlBatch += htmlEntry;
             }
-
+// ... rest of code ...
             // Final batch handling
             if (index === lines.length - 1 && currentBatch.trim() !== "") {
                 batchCounter++;
