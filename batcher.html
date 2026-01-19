@@ -185,7 +185,7 @@ function cleanLine(line) {
 function generateAll() {
     const input = document.getElementById('rawInput').value;
     const lines = input.split('\n').filter(l => l.trim().length > 5);
-
+    const isMarkdown = (p.format === 'markdown');
     config.forEach(p => {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
