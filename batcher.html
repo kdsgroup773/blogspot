@@ -228,12 +228,15 @@ let currentBatch = selectedHeader;
                 textEntry = `${title}\t${url}\n`;
             }
 
-            const isMarkdown = (p.format === 'markdown');
-            const footerLength = isMarkdown ? BRANDING_FOOTER.length : 0;
+const needsFooter = (p.format === 'markdown' || p.format === 'tab');
+            const footerLength = needsFooter ? BRANDING_FOOTER.length : 0;
             
             if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
                 batchCounter++;
-                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                
+                // Add footer if it's Tumblr OR Paragraph
+                let finalContent = needsFooter ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
                 
                 currentBatch = selectedHeader + textEntry;
@@ -243,9 +246,13 @@ let currentBatch = selectedHeader;
                 htmlBatch += htmlEntry;
             }
 
+            // Final batch handling
             if (index === lines.length - 1 && currentBatch.trim() !== "") {
                 batchCounter++;
-                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                
+                // Add footer if it's Tumblr OR Paragraph
+                let finalContent = needsFooter ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+                
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
             }
         });
