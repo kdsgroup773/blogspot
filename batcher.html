@@ -200,10 +200,14 @@ function generateAll() {
             selectedHeader = HEADER_URL;  
         }
 
-        let currentBatch = selectedHeader;
-        let htmlBatch = ""; 
+let currentBatch = selectedHeader;
+        
+        // FIX: If it's Substack (rich), initialize htmlBatch with the header text
+        let htmlBatch = (p.format === 'rich') 
+            ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` 
+            : ""; 
+            
         let batchCounter = 0;
-
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
             
