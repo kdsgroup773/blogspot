@@ -193,34 +193,37 @@ function generateAll() {
         let selectedHeader = (p.label === 'Substack' || p.label === 'Paragraph') ? HEADER_TEXT : (p.label === 'Tumblr' ? HEADER_URL : "");
 
         let currentBatch = selectedHeader;
-        // Rich Header Setup
         let htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` : "";
         let batchCounter = 0;
 
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            let textEntry = `${title}\n${url}\n\n`;
+            
+            let textEntry = "";
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                htmlEntry = `<p><strong><a href="${url}">${title}</a></strong></p>`;
-                textEntry = `${title}\n\n`; 
+                // Headline is plain bold text, URL is the clickable part
+                htmlEntry = `<p><strong>${title}</strong> <a href="${url}">${url}</a></p>`;
+                textEntry = `${title} ${url}\n\n`; 
             } else if (p.format === 'markdown') {
-                textEntry = `[${title}](${url})\n\n`;
+                textEntry = `${title} [${url}](${url})\n\n`;
+            } else {
+                // Plain text for X, LinkedIn, Mastodon
+                textEntry = `${title}\n${url}\n\n`;
             }
 
-            const isMarkdown = (p.format === 'markdown');
             const isParagraphRich = (p.label === 'Paragraph');
             
-            // Logic to check if we need to split the batch
             if ((currentBatch + textEntry).length > p.limit && currentBatch !== selectedHeader) {
                 batchCounter++;
-                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER}</p>` : htmlBatch;
+                let finalContent = currentBatch.trim();
+                
+                // Add hashtags for Paragraph
+                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER.replace(/\n/g, '<br>')}</p>` : htmlBatch;
                 
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, finalHtml, p.format);
                 
-                // Reset for next batch
                 currentBatch = selectedHeader + textEntry;
                 htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>${htmlEntry}` : "";
             } else {
@@ -228,19 +231,15 @@ function generateAll() {
                 htmlBatch += htmlEntry;
             }
 
-            // End of input handling
             if (index === lines.length - 1 && currentBatch.trim() !== "") {
                 batchCounter++;
-                let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER}</p>` : htmlBatch;
-                
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, finalHtml, p.format);
+                let finalHtml = isParagraphRich ? htmlBatch + `<br><p>${BRANDING_FOOTER.replace(/\n/g, '<br>')}</p>` : htmlBatch;
+                addCard(container, currentBatch.trim(), `${p.label} #${batchCounter}`, finalHtml, p.format);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-
 function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
