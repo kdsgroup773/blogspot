@@ -222,28 +222,27 @@ function generateAll() {
             } else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
             } else if (p.format === 'tab') {
-                textEntry = `${title}\t${url}\n`;
+                textEntry = `[${title}](${url})\n\n`;
             }
 
-            const needsFooter = (p.format === 'markdown' || p.format === 'tab');
-            const footerLength = needsFooter ? BRANDING_FOOTER.length : 0;
-            
-            if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
-                batchCounter++;
-                let finalContent = needsFooter ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-                
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-                
-                // RESET FOR NEXT BATCH
-                currentBatch = selectedHeader + textEntry;
-                // IMPORTANT: Re-add the header to the HTML batch here too!
-                htmlBatch = (p.format === 'rich') 
-                    ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>${htmlEntry}` 
-                    : "";
-            } else {
-                currentBatch += textEntry;
-                htmlBatch += htmlEntry;
-            }
+const needsFooter = (p.format === 'markdown' || p.format === 'tab');
+const footerLength = needsFooter ? BRANDING_FOOTER.length : 0;
+
+if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
+    batchCounter++;
+    
+    // This ensures Paragraph (tab) and Tumblr (markdown) get the hashtags
+    let finalContent = needsFooter ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
+    
+    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
+    
+    // Reset for next batch
+    currentBatch = selectedHeader + textEntry;
+    htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>${htmlEntry}` : "";
+} else {
+    currentBatch += textEntry;
+    htmlBatch += htmlEntry;
+}
 // ... rest of code ...
             // Final batch handling
             if (index === lines.length - 1 && currentBatch.trim() !== "") {
