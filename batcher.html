@@ -202,25 +202,21 @@ function generateAll() {
 
 let currentBatch = selectedHeader;
         
-        // FIX: If it's Substack (rich), initialize htmlBatch with the header text
+        // Ensure the HTML version also starts with the header for batch #1
         let htmlBatch = (p.format === 'rich') 
             ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` 
             : ""; 
             
         let batchCounter = 0;
+
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
             
-            // Text version (still needs URL for Mastodon/X/etc)
             let textEntry = `${title}\n${url}\n\n`;
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                // ONLY the linked text displays here
-                // Removed the extra ${url} text from the display
                 htmlEntry = `<p><strong><a href="${url}" rel="nofollow ugc noopener">${title}</a></strong></p>`;
-                
-                // For the "Copy" visual preview in the dashboard card
                 textEntry = `${title}\n\n`; 
             } else if (p.format === 'markdown') {
                 textEntry = `[${title}](${url})\n\n`;
@@ -228,19 +224,21 @@ let currentBatch = selectedHeader;
                 textEntry = `${title}\t${url}\n`;
             }
 
-const needsFooter = (p.format === 'markdown' || p.format === 'tab');
+            const needsFooter = (p.format === 'markdown' || p.format === 'tab');
             const footerLength = needsFooter ? BRANDING_FOOTER.length : 0;
             
             if ((currentBatch + textEntry).length + footerLength > p.limit && currentBatch !== "" && currentBatch !== selectedHeader) {
                 batchCounter++;
-                
-                // Add footer if it's Tumblr OR Paragraph
                 let finalContent = needsFooter ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
                 
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
                 
+                // RESET FOR NEXT BATCH
                 currentBatch = selectedHeader + textEntry;
-                htmlBatch = (p.format === 'rich') ? htmlEntry : "";
+                // IMPORTANT: Re-add the header to the HTML batch here too!
+                htmlBatch = (p.format === 'rich') 
+                    ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>${htmlEntry}` 
+                    : "";
             } else {
                 currentBatch += textEntry;
                 htmlBatch += htmlEntry;
