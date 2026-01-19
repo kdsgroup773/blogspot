@@ -193,6 +193,7 @@ function generateAll() {
         let selectedHeader = (p.label === 'Substack' || p.label === 'Paragraph') ? HEADER_TEXT : (p.label === 'Tumblr' ? HEADER_URL : "");
 
         let currentBatch = selectedHeader;
+        // Header for Rich Text
         let htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` : "";
         let batchCounter = 0;
 
@@ -203,13 +204,12 @@ function generateAll() {
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                // Headline is plain bold text, URL is the clickable part
-                htmlEntry = `<p><strong>${title}</strong> <a href="${url}">${url}</a></p>`;
+                // FIXED: Added target="_blank" and rel attribute to help Paragraph recognize it as a "Live" link
+                htmlEntry = `<p><strong>${title}</strong> <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a></p>`;
                 textEntry = `${title} ${url}\n\n`; 
             } else if (p.format === 'markdown') {
                 textEntry = `${title} [${url}](${url})\n\n`;
             } else {
-                // Plain text for X, LinkedIn, Mastodon
                 textEntry = `${title}\n${url}\n\n`;
             }
 
@@ -240,7 +240,7 @@ function generateAll() {
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-function addCard(container, content, title, htmlContent, format) {
+    function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
     card.innerHTML = `
