@@ -194,38 +194,33 @@ function generateAll() {
         
         let selectedHeader = (p.format === 'rich') ? HEADER_TEXT : HEADER_URL;
         let currentBatchText = selectedHeader;
-        let currentBatchHtml = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` : "";
+        let currentBatchHtml = (p.format === 'rich') ? `<b>${HEADER_TEXT.trim()}</b><br><br>` : "";
         let batchCounter = 0;
 
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            let textEntry = "";
-            let htmlEntry = "";
+            let textEntry = `${title}\n${url}\n\n`;
+            let htmlEntry = `<b>${title}</b><br><a href="${url}">${url}</a><br><br>`;
 
-            if (p.format === 'rich') {
-                htmlEntry = `<p><strong>${title}</strong><br><a href="${url}">${url}</a></p><br>`;
-                textEntry = `${title}\n${url}\n\n`;
-            } else if (p.format === 'markdown') {
+            if (p.format === 'markdown') {
                 textEntry = `### ${title}\n[${url}](${url})\n\n`;
-            } else {
-                textEntry = `${title}\n${url}\n\n`;
             }
 
-            // Check limits
+            // Check if adding this exceeds limit
             if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
                 batchCounter++;
                 const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
                 
-                // Reset for next batch
+                // Start new batch
                 currentBatchText = selectedHeader + textEntry;
-                currentBatchHtml = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` + htmlEntry : "";
+                currentBatchHtml = (p.format === 'rich') ? `<b>${HEADER_TEXT.trim()}</b><br><br>` + htmlEntry : "";
             } else {
                 currentBatchText += textEntry;
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
-            // Final card
+            // End of lines? Add the final card.
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
                 const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
@@ -250,7 +245,7 @@ function addCard(container, content, title, htmlContent, format) {
     container.appendChild(card);
 }
 
-function copyDynamic(btn, format) {
+async function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
     const text = card.querySelector('.batch-text').innerText;
     const html = card.querySelector('.hidden-html').innerHTML;
@@ -259,23 +254,30 @@ function copyDynamic(btn, format) {
         btn.innerText = "✓"; 
         btn.classList.add('active-copy'); 
         card.classList.add('copied'); 
+        setTimeout(() => { btn.innerText = "Copy"; btn.classList.remove('active-copy'); }, 2000);
     };
 
-    if (format === 'rich') {
-        // This creates a special clipboard item that apps like Substack recognize as formatted text
-        const typeHtml = "text/html";
-        const typeText = "text/plain";
-        const blobHtml = new Blob([html], { type: typeHtml });
-        const blobText = new Blob([text], { type: typeText });
-        const data = [new ClipboardItem({ [typeHtml]: blobHtml, [typeText]: blobText })];
-        
-        navigator.clipboard.write(data).then(markAsDone).catch(err => {
-            console.error("Rich copy failed, falling back to text", err);
-            navigator.clipboard.writeText(text).then(markAsDone);
-        });
-    } else {
-        navigator.clipboard.writeText(text).then(markAsDone);
+    try {
+        if (format === 'rich') {
+            // We create a Blob for both HTML and Plain text so the receiving app can choose
+            const blobHtml = new Blob([html], { type: "text/html" });
+            const blobText = new Blob([text], { type: "text/plain" });
+            const data = [new ClipboardItem({
+                ["text/html"]: blobHtml,
+                ["text/plain"]: blobText
+            })];
+            await navigator.clipboard.write(data);
+        } else {
+            await navigator.clipboard.writeText(text);
+        }
+        markAsDone();
+    } catch (err) {
+        console.error("Copy failed", err);
+        // Fallback for browsers that block Rich Text clipboard
+        await navigator.clipboard.writeText(text);
+        markAsDone();
     }
-}</script>
+}
+</script>
 </body>
 </html>
