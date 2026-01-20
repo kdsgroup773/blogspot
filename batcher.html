@@ -194,25 +194,32 @@ function generateAll() {
         
         let selectedHeader = (p.format === 'rich') ? HEADER_TEXT : HEADER_URL;
         let currentBatchText = selectedHeader;
+        // The Rich HTML Header
         let currentBatchHtml = (p.format === 'rich') ? `<b>${HEADER_TEXT.trim()}</b><br><br>` : "";
         let batchCounter = 0;
 
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            let textEntry = `${title}\n${url}\n\n`;
-            let htmlEntry = `<b>${title}</b><br><a href="${url}">${url}</a><br><br>`;
+            let textEntry = "";
+            let htmlEntry = "";
 
-            if (p.format === 'markdown') {
-                textEntry = `### ${title}\n[${url}](${url})\n\n`;
+            if (p.format === 'rich') {
+                // FORMAT: [Headline](URL) -> Making the text itself the link
+                htmlEntry = `<a href="${url}">${title}</a><br><br>`;
+                textEntry = `${title}: ${url}\n\n`;
+            } else if (p.format === 'markdown') {
+                textEntry = `### [${title}](${url})\n\n`;
+            } else {
+                textEntry = `${title}\n${url}\n\n`;
             }
 
-            // Check if adding this exceeds limit
+            // Check if adding this exceeds character limit
             if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
                 batchCounter++;
                 const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
                 
-                // Start new batch
+                // Reset for next batch
                 currentBatchText = selectedHeader + textEntry;
                 currentBatchHtml = (p.format === 'rich') ? `<b>${HEADER_TEXT.trim()}</b><br><br>` + htmlEntry : "";
             } else {
@@ -220,7 +227,7 @@ function generateAll() {
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
-            // End of lines? Add the final card.
+            // End of list? Add final card
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
                 const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
@@ -259,7 +266,6 @@ async function copyDynamic(btn, format) {
 
     try {
         if (format === 'rich') {
-            // We create a Blob for both HTML and Plain text so the receiving app can choose
             const blobHtml = new Blob([html], { type: "text/html" });
             const blobText = new Blob([text], { type: "text/plain" });
             const data = [new ClipboardItem({
@@ -273,7 +279,6 @@ async function copyDynamic(btn, format) {
         markAsDone();
     } catch (err) {
         console.error("Copy failed", err);
-        // Fallback for browsers that block Rich Text clipboard
         await navigator.clipboard.writeText(text);
         markAsDone();
     }
