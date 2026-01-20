@@ -192,7 +192,7 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
         
-        let selectedHeader = (p.label === 'Substack' || p.label === 'Paragraph') ? HEADER_TEXT : HEADER_URL;
+        let selectedHeader = (p.format === 'rich') ? HEADER_TEXT : HEADER_URL;
         let currentBatchText = selectedHeader;
         let currentBatchHtml = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` : "";
         let batchCounter = 0;
@@ -203,22 +203,21 @@ function generateAll() {
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                htmlEntry = `<p><strong>${title}</strong><br><a href="${url}" target="_blank">${url}</a></p><br>`;
+                htmlEntry = `<p><strong>${title}</strong><br><a href="${url}">${url}</a></p><br>`;
                 textEntry = `${title}\n${url}\n\n`;
             } else if (p.format === 'markdown') {
                 textEntry = `### ${title}\n[${url}](${url})\n\n`;
             } else {
-                // MASTODON & PLAIN FORMAT
                 textEntry = `${title}\n${url}\n\n`;
             }
 
-            // Check if adding this line exceeds the limit
+            // Check limits
             if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
                 batchCounter++;
-                const finalContent = p.label === 'Mastodon' || p.format === 'markdown' ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
                 
-                // Start new batch
+                // Reset for next batch
                 currentBatchText = selectedHeader + textEntry;
                 currentBatchHtml = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` + htmlEntry : "";
             } else {
@@ -226,10 +225,10 @@ function generateAll() {
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
-            // End of lines? Add the final card.
+            // Final card
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                const finalContent = p.label === 'Mastodon' || p.format === 'markdown' ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
             }
         });
@@ -263,15 +262,20 @@ function copyDynamic(btn, format) {
     };
 
     if (format === 'rich') {
-        const data = [new ClipboardItem({ 
-            "text/html": new Blob([html], { type: "text/html" }),
-            "text/plain": new Blob([text], { type: "text/plain" }) 
-        })];
-        navigator.clipboard.write(data).then(markAsDone);
+        // This creates a special clipboard item that apps like Substack recognize as formatted text
+        const typeHtml = "text/html";
+        const typeText = "text/plain";
+        const blobHtml = new Blob([html], { type: typeHtml });
+        const blobText = new Blob([text], { type: typeText });
+        const data = [new ClipboardItem({ [typeHtml]: blobHtml, [typeText]: blobText })];
+        
+        navigator.clipboard.write(data).then(markAsDone).catch(err => {
+            console.error("Rich copy failed, falling back to text", err);
+            navigator.clipboard.writeText(text).then(markAsDone);
+        });
     } else {
         navigator.clipboard.writeText(text).then(markAsDone);
     }
-}
-</script>
+}</script>
 </body>
 </html>
