@@ -164,13 +164,13 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
 <script>
 const HEADER_URL = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n";
 const HEADER_TEXT = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
-const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
+const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
 
 const config = [
-    { id: 'm-area', countId: 'm-count', limit: 4000, label: 'Mastodon', format: 'masto-clean' },
+    { id: 'm-area', countId: 'm-count', limit: 4500, label: 'Mastodon', format: 'plain' },
     { id: 'sub-area', countId: 'sub-count', limit: 4000, label: 'Substack', format: 'rich' },
     { id: 't-area', countId: 't-count', limit: 4000, label: 'Tumblr', format: 'markdown' },
-    { id: 'p-area', countId: 'p-count', limit: 4000, label: 'Paragraph', format: 'rich' }, // Changed to rich
+    { id: 'p-area', countId: 'p-count', limit: 4000, label: 'Paragraph', format: 'rich' },
     { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain' },
     { id: 'x-area', countId: 'x-count', limit: 4000, label: 'X/Twitter', format: 'plain' }
 ];
@@ -192,55 +192,52 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
         
-        let selectedHeader = (p.label === 'Substack' || p.label === 'Paragraph') ? HEADER_TEXT : (p.label === 'Tumblr' ? HEADER_URL : "");
-
-        let currentBatch = selectedHeader;
-        // Header for Rich Text
-        let htmlBatch = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` : "";
+        let selectedHeader = (p.label === 'Substack' || p.label === 'Paragraph') ? HEADER_TEXT : HEADER_URL;
+        let currentBatchText = selectedHeader;
+        let currentBatchHtml = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` : "";
         let batchCounter = 0;
 
         lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            
             let textEntry = "";
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                // FIXED: Added target="_blank" and rel attribute to help Paragraph recognize it as a "Live" link
-                htmlEntry = `<p><strong>${title}</strong> <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a></p>`;
-                textEntry = `${title} ${url}\n\n`; 
+                htmlEntry = `<p><strong>${title}</strong><br><a href="${url}" target="_blank">${url}</a></p><br>`;
+                textEntry = `${title}\n${url}\n\n`;
             } else if (p.format === 'markdown') {
-                textEntry = `${title} [${url}](${url})\n\n`;
+                textEntry = `### ${title}\n[${url}](${url})\n\n`;
             } else {
+                // MASTODON & PLAIN FORMAT
                 textEntry = `${title}\n${url}\n\n`;
             }
 
-            const isParagraphRich = (p.label === 'Paragraph');
-            const isMarkdown = (p.format === 'markdown');
-if ((currentBatch + textEntry).length > p.limit && currentBatch !== selectedHeader) {
-    batchCounter++;
-    
-    // Specifically for Tumblr/Markdown: Add the footer text
-    let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-    
-    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-    
-    // Reset for next batch
-    currentBatch = selectedHeader + textEntry;
-    // ... rest of reset logic ...
-} else {
-    currentBatch += textEntry;
-}
- if (index === lines.length - 1 && currentBatch.trim() !== "") {
-    batchCounter++;
-    let finalContent = isMarkdown ? currentBatch.trim() + BRANDING_FOOTER : currentBatch.trim();
-    addCard(container, finalContent, `${p.label} #${batchCounter}`, htmlBatch, p.format);
-}
+            // Check if adding this line exceeds the limit
+            if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
+                batchCounter++;
+                const finalContent = p.label === 'Mastodon' || p.format === 'markdown' ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
+                
+                // Start new batch
+                currentBatchText = selectedHeader + textEntry;
+                currentBatchHtml = (p.format === 'rich') ? `<p><strong>${HEADER_TEXT.trim()}</strong></p><br>` + htmlEntry : "";
+            } else {
+                currentBatchText += textEntry;
+                if (p.format === 'rich') currentBatchHtml += htmlEntry;
+            }
+
+            // End of lines? Add the final card.
+            if (index === lines.length - 1 && currentBatchText.trim() !== "") {
+                batchCounter++;
+                const finalContent = p.label === 'Mastodon' || p.format === 'markdown' ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
+            }
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-    function addCard(container, content, title, htmlContent, format) {
+
+function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
     card.innerHTML = `
