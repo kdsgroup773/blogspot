@@ -230,7 +230,7 @@ function generateAll() {
             // End of list? Add final card
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                const finalContent = (p.label === 'XMastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
             }
         });
