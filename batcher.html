@@ -163,7 +163,6 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
 
 <script>
 const HEADER_URL = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n";
-const HEADER_URL2 = "";
 const HEADER_TEXT = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
 const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
 
@@ -193,7 +192,7 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
 
-        let selectedHeader = (p.label === 'Mastodon') (p.format === 'rich') ? HEADER_TEXT;
+        let selectedHeader = (p.label === 'Mastodon' && p.format === 'rich') ? HEADER_TEXT : '';
 
         let currentBatchText = selectedHeader;
         // The Rich HTML Header
