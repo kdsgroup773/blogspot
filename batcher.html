@@ -216,7 +216,7 @@ function generateAll() {
             // Check if adding this exceeds character limit
             if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
                 batchCounter++;
-                const finalContent = (p.label === 'Mastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                const finalContent = (p.label === 'XMastodon' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
                 
                 // Reset for next batch
