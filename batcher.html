@@ -192,8 +192,10 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
 
-        if (p.label != 'Mastodon') {
-        let selectedHeader = (p.format === 'rich') ? HEADER_TEXT : HEADER_URL;
+        if (p.label === 'Mastodon') {
+        let selectedHeader = ' ';
+        } else {
+            let selectedHeader = (p.format === 'rich') ? HEADER_TEXT : HEADER_URL;
         }
         let currentBatchText = selectedHeader;
         // The Rich HTML Header
