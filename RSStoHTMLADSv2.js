@@ -9,7 +9,7 @@ const proxyList = [
         'https://thingproxy.freeboard.io/fetch/',
         'https://api.proxyscrape.com/v2/?request=get&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all&url=',
         'https://b-cors-proxy.herokuapp.com/',
-        'https://cors-anywhere.azm.workers.dev/',
+        'https://cors-anywhere.azm.workers.dev/'
 ];
 // --- fetchWithRetry function (moved to global scope) ---
 async function fetchWithRetry(url, options = {}, retries = 4, delay = 6000) {
