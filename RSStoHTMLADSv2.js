@@ -1,6 +1,6 @@
 // Define proxyList globally, as it's a constant list
 const proxyList = [
-        'https://script.google.com/macros/s/PASTE_YOUR_ID_HERE/exec?url=',
+        'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
         'https://corsproxy.io/?url=',
         'https://api.allorigins.win/get?url=',
         'https://api.codetabs.com/v1/proxy?quest=',
