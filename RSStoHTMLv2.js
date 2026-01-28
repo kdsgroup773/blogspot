@@ -20,6 +20,8 @@ function autoLoad() {
 function getRssFeed() {
     console.log("Attempting to get RSS feed from:", rssFeedUrl);
     const proxyList = [
+        'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
+        'https://corsproxy.io/?url=',
         'https://corsproxy.io/?url=',
         'https://api.allorigins.win/get?url=',
         'https://api.codetabs.com/v1/proxy?quest=',
@@ -129,3 +131,4 @@ function getRssFeed() {
             container.innerHTML = `<p style="color: red; padding: 20px; border: 1px solid red;"><b>Error:</b> ${error.message}. Please try selecting a different source.</p>`;
         });
 }
+
