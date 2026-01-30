@@ -208,52 +208,56 @@ async function autoLoadAllFeeds() {
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
-    loadingDiv.textContent = 'Loading all RSS feeds concurrently...';
+
+    loadingDiv.textContent = 'Preparing to load feeds sequentially...';
     loadingDiv.style.display = 'block';
     container.innerHTML = '';
-    const feedPromises = [];
-    const feedDetails = [];
+
+    let allSucceeded = true;
+    const totalFeeds = selectElement.options.length - 1;
+
+    // We use a standard for-loop to ensure we can AWAIT each call
     for (let i = 1; i < selectElement.options.length; i++) {
         const option = selectElement.options[i];
         const feedUrl = option.value;
         const sourceText = option.textContent;
         const fullOptionId = option.id;
-        feedPromises.push(
-            fetchAndDisplayFeed(feedUrl, sourceText, container, false, fullOptionId)
-        );
-        feedDetails.push({ sourceText: sourceText, index: i });
-    }
-    console.log(`Starting to fetch ${feedPromises.length} feeds concurrently.`);
-    const results = await Promise.allSettled(feedPromises);
-    console.log('All feed promises have settled:', results);
-    let allSucceeded = true;
-    results.forEach((result, index) => {
-        if (result.status === 'rejected') {
+
+        // Update the message so you can see it working one-by-one
+        loadingDiv.textContent = `Loading (${i}/${totalFeeds}): ${sourceText}...`;
+        loadingDiv.style.color = 'blue';
+
+        try {
+            // Execution STOPS here until this specific feed is finished
+            await fetchAndDisplayFeed(feedUrl, sourceText, container, false, fullOptionId);
+            console.log(`Successfully loaded: ${sourceText}`);
+        } catch (error) {
             allSucceeded = false;
-            console.error(`Feed ${feedDetails[index].sourceText} failed:`, result.reason);
-        } else {
-            console.log(`Feed ${feedDetails[index].sourceText} succeeded.`);
+            console.error(`Failed to load ${sourceText}:`, error);
+            // Even if one fails, the loop will continue to the next one
         }
-    });
-    // --- NEW LOGIC STARTS HERE ---
+        
+        // OPTIONAL: Add a tiny "breather" delay (500ms) to help your CPU/Chrome tabs
+        await new Promise(res => setTimeout(res, 500));
+    }
+
+    // --- Final Status Logic ---
     if (allSucceeded) {
         loadingDiv.textContent = 'All feeds loaded successfully! ✓';
         loadingDiv.style.color = 'green';
-        changeFavicon('success'); // Call function to change favicon
+        changeFavicon('success');
     } else {
-        loadingDiv.textContent = 'Some feeds could not be loaded. Please check the console for details.';
+        loadingDiv.textContent = 'Processing complete. Some feeds failed to load.';
         loadingDiv.style.color = 'orange';
     }
-    // Set a timeout to display the final "processed" message before hiding the div
+
     setTimeout(() => {
-        // This is the message that displays when all feeds are completed
         loadingDiv.textContent = 'All feeds have been processed.';
-        // Now hide the div after another short delay
         setTimeout(() => {
             loadingDiv.style.display = 'none';
             loadingDiv.style.color = '';
-        }, 1500); // A brief pause to let the user see the final message
-    }, 2500); // Display the success/failure message for 2.5 seconds first
+        }, 1500);
+    }, 2500);
 
     if (container.innerHTML === '') {
         container.innerHTML = '<p>No feeds could be loaded or displayed.</p>';
