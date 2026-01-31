@@ -88,87 +88,72 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
 }
 // --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
-    // Declare fullOptionId here, outside of the try block
-    let fullOptionId = ''; 
     console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
+    
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
+        
+        // If we are only loading ONE feed, clear the container. 
+        // If we are in the middle of a batch (isSingleFeed = false), DO NOT clear.
         if (isSingleFeed) {
-            document.getElementById('rss-feed-message').style.display = 'none';
+            const msgElement = document.getElementById('rss-feed-message');
+            if (msgElement) msgElement.style.display = 'none';
             displayContainer.innerHTML = '';
         }
+
         const items = xmlDoc.querySelectorAll('item');
-        let sectionHtml = '';
-        sectionHtml += `<h3>${sourceText}</h3>`;
+        let sectionHtml = `<h3>${sourceText}</h3>`;
         sectionHtml += '<ul style="list-style: none; padding: 0;">';
+
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
             let maxLen = 50; 
-            // 1. Find the first colon and start the title AFTER it
+
+            // 1. Clean Title (Remove prefix before colon)
             if (title.includes(":")) {
-                // Slice starting from the index of the first colon + 1 (to skip the colon itself)
                 title = title.substring(title.indexOf(":") + 1).trim();
             }
-            // 2. Now apply your "Move Forward" trimming logic to the cleaned title
+
+            // 2. Truncate Title
             if (title.length > maxLen) {
-                // Find the first space starting from maxLen
                 let nextSpace = title.indexOf(" ", maxLen);
                 if (nextSpace !== -1) {
                     title = title.substring(0, nextSpace) + "...";
-                } 
-                else if (title.length > (maxLen + 20)) { 
-                         title = title.substring(0, maxLen) + "...";
+                } else if (title.length > (maxLen + 20)) { 
+                    title = title.substring(0, maxLen) + "...";
                 }
             }
-            let date = null;
+
+            // 3. Date Handling
+            let dateStr = "";
             if (pubDateStr) {
-                try {
-                    date = new Date(pubDateStr);
-                    if (isNaN(date.getTime())) {
-                        console.warn("Invalid date string for new Date():", pubDateStr);
-                        date = null;
-                    }
-                } catch (e) {
-                    console.error("Error parsing date:", pubDateStr, e);
-                    date = null;
-                }
-            }
-            sectionHtml += `<li>`;
-            if (date) {
-                sectionHtml += `${date.toLocaleDateString()} `;
+                const dateObj = new Date(pubDateStr);
+                dateStr = isNaN(dateObj.getTime()) ? new Date().toLocaleDateString() : dateObj.toLocaleDateString();
             } else {
-                // If no date is provided, use today's date
-                const today = new Date();
-                sectionHtml += `${today.toLocaleDateString()} `;
+                dateStr = new Date().toLocaleDateString();
             }
-            sectionHtml += `<strong>${sourceText}</strong>: `;
-            sectionHtml += `${title}`;
+
+            // 4. Build List Item
+            sectionHtml += `<li>${dateStr} <strong>${sourceText}</strong>: ${title}`;
             if (optionId) {
-                // The issue is here: this is where fullOptionId is used.
-                // However, it's only defined in autoLoad() or manualLoad().
-                // You need to pass it into this function and make it accessible.
-                sectionHtml += ` ${optionId}`;
+                sectionHtml += ` <span style="font-size: 0.8em; color: gray;">(${optionId})</span>`;
             }
             sectionHtml += `</li>`;
         });
+
         sectionHtml += '</ul>';
         displayContainer.innerHTML += sectionHtml;
+
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
-        // The error here is that fullOptionId is not defined in this scope.
-        // It's a local variable to the autoLoadAllFeeds or manualLoad function.
-        // To fix this, you need to pass it as an argument to fetchAndDisplayFeed.
         const errorMessage = error.message.substring(0, 100);
+        
         if (isSingleFeed) {
-            document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed from URL:<br> ${feedUrl}<br>Reason: ${error.message}</p>`;
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed.<br>Reason: ${error.message}</p>`;
         } else {
-            // This part is for the autoLoadAllFeeds case
-            // The original code tried to use a variable called fullOptionId here.
-            // But it's not defined, causing the error.
-            // You should use the 'optionId' variable that is passed into the function.
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${errorMessage}... URL: &lt;option id="${optionId}" value="${feedUrl}"&gt;&lt;/option&gt;</p>`;
+            // FIX: Use 'optionId' (the parameter), not 'fullOptionId' (the undefined variable)
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}'. Error: ${errorMessage}... [ID: ${optionId}]</p>`;
         }
     }
 }
