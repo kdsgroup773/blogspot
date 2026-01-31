@@ -89,7 +89,6 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
 }
 // --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
-    // FIX: If sourceText is empty/whitespace, use the ID or a placeholder
     let displayName = (sourceText && sourceText.trim().length > 0) ? sourceText.trim() : `Source ${optionId.split('#').pop() || 'Unknown'}`;
     
     console.log(`fetchAndDisplayFeed called for: ${displayName}, with optionId: "${optionId}"`);
@@ -104,8 +103,15 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         }
 
         const items = xmlDoc.querySelectorAll('item');
-        // Use the cleaned displayName in the header
-        let sectionHtml = `<div class="feed-section"><h3>${displayName}</h3><ul style="list-style: none; padding: 0;">`;
+        
+        // --- DISPLAY LOGIC: Option ID added to Header ---
+        let sectionHtml = `
+            <div class="feed-section" style="margin-top: 20px;">
+                <div style="background: #f0f0f0; padding: 10px; border-radius: 4px; border-bottom: 2px solid #ccc;">
+                    <h3 style="margin: 0; display: inline-block;">${displayName}</h3>
+                    <div style="font-size: 0.8em; color: #666; margin-top: 4px;"><strong>Source ID:</strong> ${optionId}</div>
+                </div>
+                <ul style="list-style: none; padding: 10px 0;">`;
 
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
@@ -129,15 +135,11 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
                 dateStr = new Date().toLocaleDateString();
             }
 
-            sectionHtml += `<li style="margin-bottom: 5px;">
-                <span style="color: #666; font-size: 0.85em;">${dateStr}</span> 
-                <strong>${displayName}</strong>: 
-                <a href="${link}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a>`;
-            
-            if (optionId) {
-                sectionHtml += ` <span style="font-size: 0.75em; color: #999;">(${optionId.split('#').pop()})</span>`;
-            }
-            sectionHtml += `</li>`;
+            sectionHtml += `
+                <li style="margin-bottom: 8px; border-bottom: 1px dotted #eee; padding-bottom: 4px;">
+                    <span style="color: #888; font-size: 0.85em;">${dateStr}</span> 
+                    <a href="${link}" target="_blank" style="text-decoration: none; color: #0066cc; font-weight: 500;">${title}</a>
+                </li>`;
         });
 
         sectionHtml += '</ul></div>';
@@ -147,10 +149,15 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         console.error(`Error loading feed for ${displayName}:`, error);
         const errorSummary = error.message.includes("XML Parsing") ? "Format Error" : "Connection Failed";
         
+        // --- DISPLAY LOGIC: Option ID displayed in Error Box ---
         displayContainer.innerHTML += `
-            <div style="border-left: 3px solid orange; padding: 5px 10px; margin: 10px 0; background: #fff4e5;">
-                <strong style="color: #d97706;">! ${displayName}</strong>: ${errorSummary}
-                <br><small style="color: #666;">ID: ${optionId}</small>
+            <div style="border: 1px solid orange; border-left: 5px solid orange; padding: 10px; margin: 15px 0; background: #fff4e5; border-radius: 4px;">
+                <strong style="color: #d97706; font-size: 1.1em;">! ${displayName}</strong>
+                <div style="margin-top: 5px; font-family: monospace; font-size: 0.85em; color: #444; word-break: break-all;">
+                    <strong>ID:</strong> ${optionId}<br>
+                    <strong>Value:</strong> ${feedUrl}
+                </div>
+                <div style="margin-top: 8px; font-weight: bold; color: #666;">Status: ${errorSummary}</div>
             </div>`;
     }
 }
