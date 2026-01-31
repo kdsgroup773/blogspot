@@ -146,20 +146,23 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         displayContainer.innerHTML += sectionHtml;
 
     } catch (error) {
-        console.error(`Error loading feed for ${displayName}:`, error);
-        const errorSummary = error.message.includes("XML Parsing") ? "Format Error" : "Connection Failed";
-        
-        // --- DISPLAY LOGIC: Option ID displayed in Error Box ---
-        displayContainer.innerHTML += `
-            <div style="border: 1px solid orange; border-left: 5px solid orange; padding: 10px; margin: 15px 0; background: #fff4e5; border-radius: 4px;">
-                <strong style="color: #d97706; font-size: 1.1em;">! ${displayName}</strong>
-                <div style="margin-top: 5px; font-family: monospace; font-size: 0.85em; color: #444; word-break: break-all;">
-                    <strong>ID:</strong> ${optionId}<br>
-                    <strong>Value:</strong> ${feedUrl}
-                </div>
-                <div style="margin-top: 8px; font-weight: bold; color: #666;">Status: ${errorSummary}</div>
-            </div>`;
-    }
+    console.error(`Final failure for ${title}:`, error);
+    
+    // Create a container for the error
+    const errorDiv = document.createElement('div');
+    errorDiv.className = "feed-error-display";
+    errorDiv.style.color = "red";
+    errorDiv.style.margin = "10px 0";
+    errorDiv.style.border = "1px solid red";
+    errorDiv.style.padding = "10px";
+
+    // This is the part you want: Displaying the literal HTML string
+    const failedOptionString = `<option id="https://kensbookinfo.blogspot.com/p/etc-continents.html#Antarctica" value="https://scitechdaily.com/tag/antarctica/feed/">Antarctica</option>`;
+    
+    errorDiv.textContent = "Failed to load: " + failedOptionString;
+
+    document.getElementById('feed-container').appendChild(errorDiv);
+}
 }
 // --- Helper function to extract the number from the option ID ---
 function extractOptionNumberId(fullOptionId) {
