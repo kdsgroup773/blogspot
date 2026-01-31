@@ -1,3 +1,4 @@
+
 // Define proxyList globally, as it's a constant list 
 const proxyList = [
         'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
@@ -10,11 +11,10 @@ const proxyList = [
         'https://thingproxy.freeboard.io/fetch/',
         'https://api.proxyscrape.com/v2/?request=get&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all&url=',
         'https://b-cors-proxy.herokuapp.com/',
-        'https://yacdn.org/proxy/',
         'https://cors-anywhere.azm.workers.dev/'
 ];
 // --- fetchWithRetry function (moved to global scope) ---
-async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
+async function fetchWithRetry(url, options = {}, retries = 4, delay = 6000) {
     try {
         const response = await fetch(url, options);
         if (!response.ok) {
@@ -89,80 +89,89 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
 }
 // --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
-    let displayName = (sourceText && sourceText.trim().length > 0) ? sourceText.trim() : `Source ${optionId.split('#').pop() || 'Unknown'}`;
-    
-    console.log(`fetchAndDisplayFeed called for: ${displayName}, with optionId: "${optionId}"`);
-    
+    // Declare fullOptionId here, outside of the try block
+    let fullOptionId = ''; 
+    console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
-        
         if (isSingleFeed) {
-            const msgElement = document.getElementById('rss-feed-message');
-            if (msgElement) msgElement.style.display = 'none';
+            document.getElementById('rss-feed-message').style.display = 'none';
             displayContainer.innerHTML = '';
         }
-
         const items = xmlDoc.querySelectorAll('item');
-        
-        // --- DISPLAY LOGIC: Option ID added to Header ---
-        let sectionHtml = `
-            <div class="feed-section" style="margin-top: 20px;">
-                <div style="background: #f0f0f0; padding: 10px; border-radius: 4px; border-bottom: 2px solid #ccc;">
-                    <h3 style="margin: 0; display: inline-block;">${displayName}</h3>
-                    <div style="font-size: 0.8em; color: #666; margin-top: 4px;"><strong>Source ID:</strong> ${optionId}</div>
-                </div>
-                <ul style="list-style: none; padding: 10px 0;">`;
-
+        let sectionHtml = '';
+        sectionHtml += `<h3>${sourceText}</h3>`;
+        sectionHtml += '<ul style="list-style: none; padding: 0;">';
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
-            const link = item.querySelector('link')?.textContent || '#';
-            let maxLen = 65; 
-
+            let maxLen = 50; 
+            // 1. Find the first colon and start the title AFTER it
             if (title.includes(":")) {
+                // Slice starting from the index of the first colon + 1 (to skip the colon itself)
                 title = title.substring(title.indexOf(":") + 1).trim();
             }
-
+            // 2. Now apply your "Move Forward" trimming logic to the cleaned title
             if (title.length > maxLen) {
-                title = title.substring(0, maxLen) + "...";
+                // Find the first space starting from maxLen
+                let nextSpace = title.indexOf(" ", maxLen);
+                if (nextSpace !== -1) {
+                    title = title.substring(0, nextSpace) + "...";
+                } 
+                else if (title.length > (maxLen + 20)) { 
+                         title = title.substring(0, maxLen) + "...";
+                }
             }
-
-            let dateStr = "";
+            let date = null;
             if (pubDateStr) {
-                const dateObj = new Date(pubDateStr);
-                dateStr = isNaN(dateObj.getTime()) ? new Date().toLocaleDateString() : dateObj.toLocaleDateString();
-            } else {
-                dateStr = new Date().toLocaleDateString();
+                try {
+                    date = new Date(pubDateStr);
+                    if (isNaN(date.getTime())) {
+                        console.warn("Invalid date string for new Date():", pubDateStr);
+                        date = null;
+                    }
+                } catch (e) {
+                    console.error("Error parsing date:", pubDateStr, e);
+                    date = null;
+                }
             }
-
-            sectionHtml += `
-                <li style="margin-bottom: 8px; border-bottom: 1px dotted #eee; padding-bottom: 4px;">
-                    <span style="color: #888; font-size: 0.85em;">${dateStr}</span> 
-                    <a href="${link}" target="_blank" style="text-decoration: none; color: #0066cc; font-weight: 500;">${title}</a>
-                </li>`;
+            sectionHtml += `<li>`;
+            if (date) {
+                sectionHtml += `${date.toLocaleDateString()} `;
+            } else {
+                // If no date is provided, use today's date
+                const today = new Date();
+                sectionHtml += `${today.toLocaleDateString()} `;
+            }
+            sectionHtml += `<strong>${sourceText}</strong>: `;
+            sectionHtml += `${title}`;
+            if (optionId) {
+                // The issue is here: this is where fullOptionId is used.
+                // However, it's only defined in autoLoad() or manualLoad().
+                // You need to pass it into this function and make it accessible.
+                sectionHtml += ` ${optionId}`;
+            }
+            sectionHtml += `</li>`;
         });
-
-        sectionHtml += '</ul></div>';
+        sectionHtml += '</ul>';
         displayContainer.innerHTML += sectionHtml;
-
     } catch (error) {
-    console.error(`Final failure for ${title}:`, error);
-    
-    // Create a container for the error
-    const errorDiv = document.createElement('div');
-    errorDiv.className = "feed-error-display";
-    errorDiv.style.color = "red";
-    errorDiv.style.margin = "10px 0";
-    errorDiv.style.border = "1px solid red";
-    errorDiv.style.padding = "10px";
-
-    // This is the part you want: Displaying the literal HTML string
-    const failedOptionString = `<option id="https://kensbookinfo.blogspot.com/p/etc-continents.html#Antarctica" value="https://scitechdaily.com/tag/antarctica/feed/">Antarctica</option>`;
-    
-    errorDiv.textContent = "Failed to load: " + failedOptionString;
-
-    document.getElementById('feed-container').appendChild(errorDiv);
-}
+        console.error(`Error loading feed for ${sourceText}:`, error);
+        // The error here is that fullOptionId is not defined in this scope.
+        // It's a local variable to the autoLoadAllFeeds or manualLoad function.
+        // To fix this, you need to pass it as an argument to fetchAndDisplayFeed.
+        const errorMessage = error.message.substring(0, 100);
+        if (isSingleFeed) {
+            document.getElementById('rss-feed-message').style.display = 'none';
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed from URL:<br> ${feedUrl}<br>Reason: ${error.message}</p>`;
+        } else {
+            // This part is for the autoLoadAllFeeds case
+            // The original code tried to use a variable called fullOptionId here.
+            // But it's not defined, causing the error.
+            // You should use the 'optionId' variable that is passed into the function.
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${errorMessage}... URL: &lt;option id="${optionId}" value="${feedUrl}"&gt;&lt;/option&gt;</p>`;
+        }
+    }
 }
 // --- Helper function to extract the number from the option ID ---
 function extractOptionNumberId(fullOptionId) {
@@ -209,7 +218,7 @@ async function autoLoadAllFeeds() {
     const totalFeeds = selectElement.options.length - 1;
 
     // We use a standard for-loop to ensure we can AWAIT each call
-    for (let i = 0; i < selectElement.options.length; i++) {
+    for (let i = 1; i < selectElement.options.length; i++) {
         const option = selectElement.options[i];
         const feedUrl = option.value;
         const sourceText = option.textContent;
