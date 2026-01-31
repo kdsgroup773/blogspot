@@ -37,7 +37,7 @@ function getRssFeed() {
     const loadingDiv = document.getElementById('rss-feed-message');
     loadingDiv.textContent = 'Loading RSS feed...';
     container.innerHTML = '';
-    async function fetchWithRetry(url, options = {}, retries = 3, delay = 2000) {
+    async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
         try {
             const response = await fetch(url, options);
             if (!response.ok) {
@@ -131,4 +131,5 @@ function getRssFeed() {
             container.innerHTML = `<p style="color: red; padding: 20px; border: 1px solid red;"><b>Error:</b> ${error.message}. Please try selecting a different source.</p>`;
         });
 }
+
 
