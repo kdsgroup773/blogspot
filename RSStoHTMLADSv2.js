@@ -10,6 +10,7 @@ const proxyList = [
         'https://thingproxy.freeboard.io/fetch/',
         'https://api.proxyscrape.com/v2/?request=get&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all&url=',
         'https://b-cors-proxy.herokuapp.com/',
+        'https://yacdn.org/proxy/',
         'https://cors-anywhere.azm.workers.dev/'
 ];
 // --- fetchWithRetry function (moved to global scope) ---
@@ -88,13 +89,14 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
 }
 // --- fetchAndDisplayFeed function ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
-    console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
+    // FIX: If sourceText is empty/whitespace, use the ID or a placeholder
+    let displayName = (sourceText && sourceText.trim().length > 0) ? sourceText.trim() : `Source ${optionId.split('#').pop() || 'Unknown'}`;
+    
+    console.log(`fetchAndDisplayFeed called for: ${displayName}, with optionId: "${optionId}"`);
     
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         
-        // If we are only loading ONE feed, clear the container. 
-        // If we are in the middle of a batch (isSingleFeed = false), DO NOT clear.
         if (isSingleFeed) {
             const msgElement = document.getElementById('rss-feed-message');
             if (msgElement) msgElement.style.display = 'none';
@@ -102,30 +104,23 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         }
 
         const items = xmlDoc.querySelectorAll('item');
-        let sectionHtml = `<h3>${sourceText}</h3>`;
-        sectionHtml += '<ul style="list-style: none; padding: 0;">';
+        // Use the cleaned displayName in the header
+        let sectionHtml = `<div class="feed-section"><h3>${displayName}</h3><ul style="list-style: none; padding: 0;">`;
 
         items.forEach(item => {
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent;
-            let maxLen = 50; 
+            const link = item.querySelector('link')?.textContent || '#';
+            let maxLen = 65; 
 
-            // 1. Clean Title (Remove prefix before colon)
             if (title.includes(":")) {
                 title = title.substring(title.indexOf(":") + 1).trim();
             }
 
-            // 2. Truncate Title
             if (title.length > maxLen) {
-                let nextSpace = title.indexOf(" ", maxLen);
-                if (nextSpace !== -1) {
-                    title = title.substring(0, nextSpace) + "...";
-                } else if (title.length > (maxLen + 20)) { 
-                    title = title.substring(0, maxLen) + "...";
-                }
+                title = title.substring(0, maxLen) + "...";
             }
 
-            // 3. Date Handling
             let dateStr = "";
             if (pubDateStr) {
                 const dateObj = new Date(pubDateStr);
@@ -134,27 +129,29 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
                 dateStr = new Date().toLocaleDateString();
             }
 
-            // 4. Build List Item
-            sectionHtml += `<li>${dateStr} <strong>${sourceText}</strong>: ${title}`;
+            sectionHtml += `<li style="margin-bottom: 5px;">
+                <span style="color: #666; font-size: 0.85em;">${dateStr}</span> 
+                <strong>${displayName}</strong>: 
+                <a href="${link}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a>`;
+            
             if (optionId) {
-                sectionHtml += ` <span style="font-size: 0.8em; color: gray;">(${optionId})</span>`;
+                sectionHtml += ` <span style="font-size: 0.75em; color: #999;">(${optionId.split('#').pop()})</span>`;
             }
             sectionHtml += `</li>`;
         });
 
-        sectionHtml += '</ul>';
+        sectionHtml += '</ul></div>';
         displayContainer.innerHTML += sectionHtml;
 
     } catch (error) {
-        console.error(`Error loading feed for ${sourceText}:`, error);
-        const errorMessage = error.message.substring(0, 100);
+        console.error(`Error loading feed for ${displayName}:`, error);
+        const errorSummary = error.message.includes("XML Parsing") ? "Format Error" : "Connection Failed";
         
-        if (isSingleFeed) {
-            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed.<br>Reason: ${error.message}</p>`;
-        } else {
-            // FIX: Use 'optionId' (the parameter), not 'fullOptionId' (the undefined variable)
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}'. Error: ${errorMessage}... [ID: ${optionId}]</p>`;
-        }
+        displayContainer.innerHTML += `
+            <div style="border-left: 3px solid orange; padding: 5px 10px; margin: 10px 0; background: #fff4e5;">
+                <strong style="color: #d97706;">! ${displayName}</strong>: ${errorSummary}
+                <br><small style="color: #666;">ID: ${optionId}</small>
+            </div>`;
     }
 }
 // --- Helper function to extract the number from the option ID ---
