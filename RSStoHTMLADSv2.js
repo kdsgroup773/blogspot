@@ -199,7 +199,7 @@ async function autoLoadAllFeeds() {
     const totalFeeds = selectElement.options.length - 1;
 
     // We use a standard for-loop to ensure we can AWAIT each call
-    for (let i = 1; i < selectElement.options.length; i++) {
+    for (let i = 0; i < selectElement.options.length; i++) {
         const option = selectElement.options[i];
         const feedUrl = option.value;
         const sourceText = option.textContent;
