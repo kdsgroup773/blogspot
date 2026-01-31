@@ -13,7 +13,7 @@ const proxyList = [
         'https://cors-anywhere.azm.workers.dev/'
 ];
 // --- fetchWithRetry function (moved to global scope) ---
-async function fetchWithRetry(url, options = {}, retries = 4, delay = 6000) {
+async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
     try {
         const response = await fetch(url, options);
         if (!response.ok) {
