@@ -193,9 +193,7 @@ function generateAll() {
         container.innerHTML = "";
 
         let selectedHeader = (p.label === 'Mastodon' && p.format === 'rich') ? HEADER_TEXT : '';
-
         let currentBatchText = selectedHeader;
-        // The Rich HTML Header
         let currentBatchHtml = (p.format === 'rich') ? `<b>${HEADER_TEXT.trim()}</b><br><br>` : "";
         let batchCounter = 0;
 
@@ -205,7 +203,6 @@ function generateAll() {
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                // FORMAT: [Headline](URL) -> Making the text itself the link
                 htmlEntry = `<a href="${url}">${title}</a><br><br>`;
                 textEntry = `${title}: ${url}\n\n`;
             } else if (p.format === 'markdown') {
@@ -217,8 +214,21 @@ function generateAll() {
             // Check if adding this exceeds character limit
             if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
                 batchCounter++;
-                const finalContent = (p.label === 'Paragraph' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
+                
+                // --- FIX STARTS HERE ---
+                let finalContentText = currentBatchText;
+                let finalContentHtml = currentBatchHtml;
+
+                if (p.label === 'Paragraph' || p.format === 'markdown' || p.label === 'Substack') {
+                    finalContentText += BRANDING_FOOTER;
+                    // Also add it to HTML so it copies!
+                    if (p.format === 'rich') {
+                        finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
+                    }
+                }
+                
+                addCard(container, finalContentText, `${p.label} #${batchCounter}`, finalContentHtml, p.format);
+                // --- FIX ENDS HERE ---
                 
                 // Reset for next batch
                 currentBatchText = selectedHeader + textEntry;
@@ -231,8 +241,19 @@ function generateAll() {
             // End of list? Add final card
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                const finalContent = (p.label === 'Paragraph' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
-                addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
+                
+                // --- APPLY SAME FIX TO FINAL BATCH ---
+                let finalContentText = currentBatchText;
+                let finalContentHtml = currentBatchHtml;
+
+                if (p.label === 'Paragraph' || p.format === 'markdown' || p.label === 'Substack') {
+                    finalContentText += BRANDING_FOOTER;
+                    if (p.format === 'rich') {
+                        finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
+                    }
+                }
+                
+                addCard(container, finalContentText, `${p.label} #${batchCounter}`, finalContentHtml, p.format);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
