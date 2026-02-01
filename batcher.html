@@ -217,7 +217,7 @@ function generateAll() {
             // Check if adding this exceeds character limit
             if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
                 batchCounter++;
-                const finalContent = (p.label === 'Tumblr' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                const finalContent = (p.label === 'Paragraph' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
                 
                 // Reset for next batch
@@ -231,7 +231,7 @@ function generateAll() {
             // End of list? Add final card
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                const finalContent = (p.label === 'Tumblr' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
+                const finalContent = (p.label === 'Paragraph' || p.format === 'markdown') ? currentBatchText + BRANDING_FOOTER : currentBatchText;
                 addCard(container, finalContent, `${p.label} #${batchCounter}`, currentBatchHtml, p.format);
             }
         });
