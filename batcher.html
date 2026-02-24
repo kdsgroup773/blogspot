@@ -32,15 +32,6 @@
             border-bottom: 2px solid #ddd;
         }
 
-        .plain-text-display {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 13px;
-            line-height: .75;
-            color: #000;
-            margin-bottom: 12px;
-            white-space: pre-wrap;
-        }
-
         .input-group { display: flex; gap: 10px; align-items: flex-start; max-width: 1400px; }
 
         textarea {
@@ -115,14 +106,6 @@
 
 <div class="static-header">
     <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">Universal News Batcher</div>
-    <!--div class="plain-text-display">
-        https://kensbookinfo.blogspot.com/p/home_5.html
-
-ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
-
-#News, #DailyNews, #USNews, #USNews CityNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending 
-</div -->
-
     <div class="input-group">
         <textarea id="rawInput" placeholder="Paste headlines with URLs here..."></textarea>
         <div class="action-buttons">
@@ -139,7 +122,7 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
             <div class="column-content" id="m-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--sub-orange)"><span>Substack (Rich)</span><span id="sub-count" class="batch-count-pill">0</span></div>
+            <div class="column-header" style="color:var(--sub-orange)"><span>Substack (Notes)</span><span id="sub-count" class="batch-count-pill">0</span></div>
             <div class="column-content" id="sub-area"></div>
         </div>
         <div class="column">
@@ -162,16 +145,12 @@ ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT
 </div>
 
 <script>
-const HEADER_URL = "https://kensbookinfo.blogspot.com/p/home_5.html\n\n";
 const HEADER_TEXT = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
 const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
 
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 875, label: 'Mastodon', format: 'plain' },
-    // { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'plain' },
-    // { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'rich' },
-    // { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'markdown' },
-    { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'substack' },
+    { id: 'sub-area', countId: 'sub-count', limit: 1000, label: 'Substack', format: 'substack' },
     { id: 't-area', countId: 't-count', limit: 9000, label: 'Tumblr', format: 'markdown' },
     { id: 'p-area', countId: 'p-count', limit: 9000, label: 'Paragraph', format: 'rich' },
     { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain' },
@@ -195,9 +174,8 @@ function generateAll() {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
 
-        let selectedHeader = (p.label === 'Mastodon' && p.format === 'rich') ? HEADER_TEXT : '';
-        let currentBatchText = selectedHeader;
-        let currentBatchHtml = (p.format === 'rich') ? `<b>${HEADER_TEXT.trim()}</b><br><br>` : "";
+        let currentBatchText = "";
+        let currentBatchHtml = "";
         let batchCounter = 0;
 
         lines.forEach((rawLine, index) => {
@@ -205,9 +183,7 @@ function generateAll() {
             let textEntry = "";
             let htmlEntry = "";
 
-            // Handle the different formatting types
             if (p.format === 'substack') {
-                // YOUR CUSTOM FORMAT: Title on one line, URL in brackets on the next
                 textEntry = `${title}\n[${url}]\n\n`;
             } else if (p.format === 'rich') {
                 htmlEntry = `<a href="${url}">${title}</a><br><br>`;
@@ -215,48 +191,31 @@ function generateAll() {
             } else if (p.format === 'markdown') {
                 textEntry = `### [${title}](${url})\n\n`;
             } else {
-                // Default plain text for X, Mastodon, etc.
                 textEntry = `${title}\n${url}\n\n`;
             }
 
-            // Check if adding this exceeds character limit
-            if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
-                batchCounter++;
-                
-                let finalContentText = currentBatchText + BRANDING_FOOTER;
-                let finalContentHtml = currentBatchHtml;
+            // Define if footer should be used for this platform
+            const footerToUse = (p.label === 'Mastodon') ? "" : BRANDING_FOOTER;
 
-                if (p.format === 'rich') {
-                    finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
-                }
-                
-                addCard(container, finalContentText, `${p.label} #${batchCounter}`, finalContentHtml, p.format);
-                
-                // Reset for next batch
-                currentBatchText = selectedHeader + textEntry;
-                currentBatchHtml = (p.format === 'rich') ? `<b>${HEADER_TEXT.trim()}</b><br><br>` + htmlEntry : "";
+            if ((currentBatchText + textEntry + footerToUse).length > p.limit) {
+                batchCounter++;
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format);
+                currentBatchText = textEntry;
+                currentBatchHtml = htmlEntry;
             } else {
                 currentBatchText += textEntry;
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
-            // End of list? Add final card
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                
-                let finalContentText = currentBatchText + BRANDING_FOOTER;
-                let finalContentHtml = currentBatchHtml;
-
-                if (p.format === 'rich') {
-                    finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
-                }
-                
-                addCard(container, finalContentText, `${p.label} #${batchCounter}`, finalContentHtml, p.format);
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
+
 function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
@@ -287,17 +246,13 @@ async function copyDynamic(btn, format) {
         if (format === 'rich') {
             const blobHtml = new Blob([html], { type: "text/html" });
             const blobText = new Blob([text], { type: "text/plain" });
-            const data = [new ClipboardItem({
-                ["text/html"]: blobHtml,
-                ["text/plain"]: blobText
-            })];
+            const data = [new ClipboardItem({ ["text/html"]: blobHtml, ["text/plain"]: blobText })];
             await navigator.clipboard.write(data);
         } else {
             await navigator.clipboard.writeText(text);
         }
         markAsDone();
     } catch (err) {
-        console.error("Copy failed", err);
         await navigator.clipboard.writeText(text);
         markAsDone();
     }
