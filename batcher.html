@@ -169,8 +169,9 @@ const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #LocalNews, #WorldNews,
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 875, label: 'Mastodon', format: 'plain' },
     // { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'plain' },
-    { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'rich' },
+    // { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'rich' },
     // { id: 'sub-area', countId: 'sub-count', limit: 9000, label: 'Substack', format: 'markdown' },
+    { id: 'sub-area', countId: 'sub-count', limit: 1000, label: 'Substack', format: 'substack' },
     { id: 't-area', countId: 't-count', limit: 9000, label: 'Tumblr', format: 'markdown' },
     { id: 'p-area', countId: 'p-count', limit: 9000, label: 'Paragraph', format: 'rich' },
     { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain' },
@@ -204,12 +205,17 @@ function generateAll() {
             let textEntry = "";
             let htmlEntry = "";
 
-            if (p.format === 'rich') {
+            // Handle the different formatting types
+            if (p.format === 'substack') {
+                // YOUR CUSTOM FORMAT: Title on one line, URL in brackets on the next
+                textEntry = `${title}\n[${url}]\n\n`;
+            } else if (p.format === 'rich') {
                 htmlEntry = `<a href="${url}">${title}</a><br><br>`;
                 textEntry = `${title}: ${url}\n\n`;
             } else if (p.format === 'markdown') {
                 textEntry = `### [${title}](${url})\n\n`;
             } else {
+                // Default plain text for X, Mastodon, etc.
                 textEntry = `${title}\n${url}\n\n`;
             }
 
@@ -217,20 +223,14 @@ function generateAll() {
             if ((currentBatchText + textEntry + BRANDING_FOOTER).length > p.limit) {
                 batchCounter++;
                 
-                // --- FIX STARTS HERE ---
-                let finalContentText = currentBatchText;
+                let finalContentText = currentBatchText + BRANDING_FOOTER;
                 let finalContentHtml = currentBatchHtml;
 
-                if (p.label === 'Paragraph' || p.format === 'markdown' || p.label === 'Substack') {
-                    finalContentText += BRANDING_FOOTER;
-                    // Also add it to HTML so it copies!
-                    if (p.format === 'rich') {
-                        finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
-                    }
+                if (p.format === 'rich') {
+                    finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
                 }
                 
                 addCard(container, finalContentText, `${p.label} #${batchCounter}`, finalContentHtml, p.format);
-                // --- FIX ENDS HERE ---
                 
                 // Reset for next batch
                 currentBatchText = selectedHeader + textEntry;
@@ -244,15 +244,11 @@ function generateAll() {
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
                 
-                // --- APPLY SAME FIX TO FINAL BATCH ---
-                let finalContentText = currentBatchText;
+                let finalContentText = currentBatchText + BRANDING_FOOTER;
                 let finalContentHtml = currentBatchHtml;
 
-                if (p.label === 'Paragraph' || p.format === 'markdown' || p.label === 'Substack') {
-                    finalContentText += BRANDING_FOOTER;
-                    if (p.format === 'rich') {
-                        finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
-                    }
+                if (p.format === 'rich') {
+                    finalContentHtml += `<br>${BRANDING_FOOTER.replace(/\n/g, '<br>')}`;
                 }
                 
                 addCard(container, finalContentText, `${p.label} #${batchCounter}`, finalContentHtml, p.format);
@@ -261,7 +257,6 @@ function generateAll() {
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
-
 function addCard(container, content, title, htmlContent, format) {
     const card = document.createElement('div');
     card.className = 'batch-card';
