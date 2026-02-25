@@ -180,10 +180,10 @@ function generateAll() {
         let currentBatchHtml = "";
         let batchCounter = 0;
 
-        lines.forEach((rawLine, index) => {
-            const { title, url } = cleanLine(rawLine);
-            let textEntry = "";
-            let htmlEntry = "";
+        // lines.forEach((rawLine, index) => {
+        //    const { title, url } = cleanLine(rawLine);
+        //    let textEntry = "";
+        //    let htmlEntry = "";
 
             if (p.format === 'substack') {
                 textEntry = `${title}\n[${url}]\n\n`;
