@@ -163,7 +163,7 @@ function clearInput() { document.getElementById('rawInput').value = ""; }
 function cleanLine(line) {
     const urlMatch = line.match(/https?:\/\/\S+$/);
     const url = urlMatch ? urlMatch[0] : null;
-    const url = "";
+    
     let title = line.replace(url, "").trim();
     return { title, url };
 }
