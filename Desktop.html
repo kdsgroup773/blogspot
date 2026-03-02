@@ -1,0 +1,1510 @@
+<div class="separator"style="clear: both; text-align: left;">
+  <figure>
+	<img border="0" data-original-height="853" data-original-width="1280" height="160" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiTBra3JcNjq4xy2FiX8IAXmpCdp2WikvmYY_FMBCyD1ocxrgWOoNwfSFvd1yoYa1YdMs89VeT9pJ49A4YRITMtyLNxr59j0J9PnRNrufyHz6ft0yS2diw5Fjul2fU3MFOwlxhjiuvaHCFwwEp7p4HczLdITpRy5EGpMUz-2mdf74is-uj3d7RTK_owwZs/s1600/Ken.background.jpeg" width="160" />
+  </figure>
+</div>
+
+<script src="https://kdsgroup773.github.io/blogspot/blog.header.js"></script>
+<h1 style="text-align: center; font-family: sans-serif; color: #2c3e50; font-size: 1.5rem; margin-top: 10px;">
+  Ken's Digital Desktop is a a virtual library reference desk an online port that meets all your needs.
+</h1>
+<p style="text-align: center; font-family: sans-serif; color: #555; max-width: 700px; margin: 0 auto 20px auto;">
+  I offer curated links to high-quality, credible web resources for facts, news, homework help, and general knowledge, featuring tools, calculators, daily almanacs, and encyclopedic content to help users quickly find information. 
+</p>
+<style>
+   #divfix {
+   bottom: 0;
+   right: 0;
+   position: fixed;
+   z-index: 3000;
+   }
+   article img { 
+   float: left; 
+   width: 100px; 
+   height: 100px; 
+   }
+   article br {
+   display: none;
+   }
+   /* begin styles for RSS Feed */
+   .rss-box {
+   margin: 0 0 0 0;
+   width: auto;
+   overflow-y: scroll;
+   overflow-x: hidden;
+   background-color: white;
+   border: 1px solid silver;
+   }
+   .rss-box-carousel {
+   margin: 0 0 0 0;
+   width: auto;
+   height: 250px;
+   overflow-y: scroll;
+   overflow-x: hidden;
+   background-color: white;
+   border: 1px solid silver;
+   }  
+   .rss-items {
+   margin-top:0px;
+   padding:0.5em; 0.5em;
+   margin-left:0px;
+   color:#000000;
+
+   }
+   p.rss-title {padding:0.5em;}
+   .rss-title {
+   font-size: 10pt;
+   background-color: white;
+   color: black;
+   font-weight:bold;
+   text-align: left;
+   }
+   .rss-item  {
+   font-size: 11pt;
+   list-style:none;
+   padding-bottom: 1em;
+   overflow: hidden;
+   }
+   .rss-item a {
+   color:#333333;
+   font-size: 11pt;
+   font-weight:bold;
+   }
+   .rss-item a:visited {
+   color: black;
+   }
+   .rss-date {
+   font-size: 10pt;
+   color: navy;
+   }
+   /* buttons modeled from http://www.wellstyled.com/css-inline-buttons.html */
+   .pod-play {
+   _width:12em;
+   margin: 0 0.2em; padding: 0.1em 0; _padding:0;
+   white-space:nowrap;
+   text-decoration: none;
+   vertical-align:middle;
+   background: #fb6;
+   color: black;
+   }
+   .pod-play em {
+   _width:1em; _cursor:hand;
+   font-style: normal;
+   margin:0; padding: 0.1em 0.5em;
+   background: white;
+   color: #222;
+   }
+   .pod-play span {
+   _width:1em; _cursor:hand;
+   margin:0; padding: 0.1em 0.5em 0.1em 0.3em;
+   }
+   .pod-play:hover {
+   background: #666;
+   color: white;
+   }
+   .pod-play:hover em {
+   background: black;
+   color: white;
+   }
+   * {box-sizing: border-box}
+   /* Set height of body and the document to 100% */
+   body, html {
+   height: 100%;
+   margin: 0;
+   font-family: Arial;
+   }
+   /* Style tab links */
+   .tablink {
+   width: 86px;
+   background-color: #555;
+   color: white;
+   float: left;
+   border: none;
+   outline: none;
+   cursor: pointer;
+   padding: 14px 16px;
+   font-size: 12px;
+   border-top: 2px solid LightGrey;
+   border-left: 2px solid LightGrey;
+   border-radius: 12px;
+   /*  border-bottom-right-radius: 0px; */
+   /*  border-bottom-left-radius: 0px; */
+   }
+   .tablink:hover {
+   background-color: #777;
+   }
+   /* Style the tab content (and add height:100% for full page content) */
+   .tabcontent {
+   color: black;
+   display: none;
+   padding: 100px 20px;
+   height: 100%;
+   }
+   .tooltip {
+   position: relative;
+   display: inline-block;
+   border-bottom: 1px dotted black;
+   }
+   .tooltip .tooltiptext {
+   visibility: hidden;
+   width: 120px;
+   background-color: black;
+   color: #fff;
+   text-align: center;
+   border-radius: 6px;
+   padding: 5px 0;
+   /* Position the tooltip */
+   position: absolute;
+   z-index: 1;
+   }
+   .tooltip:hover .tooltiptext {
+   visibility: visible;
+   }
+   h1.rss {
+   margin-top: .2in;
+   }
+   .rssdog img{
+   float: left;
+   }
+   div.mySlides {display:none;}
+   .left{
+   float: left;
+   }
+   .center {
+   float: center;
+   text-align: center;
+   }
+   .right {
+   float: right;
+   }
+  /* Container needed to position the button. Adjust the width as needed */
+.container {
+  position: relative;
+  width: 100%;
+}
+
+/* Make the image responsive */
+.container img {
+  width: 100%;
+  height: auto;
+}
+
+/* Style the button and place it in the middle of the container/image */
+.container .btn {
+  position: absolute;
+  top: 50%;
+  left: 95%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: #F5F5F5;
+  color: black;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.container .btn:hover {
+  background-color: black;
+  color: white;
+}
+.col {
+   display: inline-block;
+   padding: 10px; 
+}
+  * {
+  box-sizing: border-box;
+}
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+}
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
+<!--D E S K T O P -->
+<div id="nav-menu" style="background-color: #f4f4f4; padding: 15px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 20px; font-family: Arial, sans-serif; line-height: 1.8; font-size: 14px;">
+  <b style="font-size: 1.2em; color: #333;">Jump to Section:</b><br>
+  
+  <a href="#Almanacs">Almanacs/Maps</a> | 
+  <a href="#Atlas">Atlas</a> | 
+  <a href="#Calendars">Calendars & Time</a> | 
+  <a href="#Comics">Comics</a> | 
+  <a href="#Dictionaries">Dictionaries & Thesauri</a> | 
+  <a href="#Directories">Directories - People & Places</a> | 
+  <a href="#Electronic">Electronic Texts</a> | 
+  <a href="#Encyclopedias">Encyclopedias</a> | 
+  <a href="#Entertain">Entertainment</a> | 
+  <a href="#Finance">Financial News</a> | 
+  <a href="#Grammar">Grammar & Style</a> | 
+  <a href="#Net">Internet</a> | 
+  <a href="#Languages">Languages</a> | 
+  <a href="#Libraries">Libraries of Data</a> | 
+  <a href="#Mag">Magazines and Journals</a> | 
+  <a href="#Media">Media News</a> | 
+  <a href="#Misc">Miscellaneous</a> | 
+  <a href="#Newspapers">National News Sites</a> | 
+  <a href="#News">News Sources</a> | 
+  <a href="#Politics">Politics/Gossip</a> | 
+  <a href="#Quotations">Quotations</a> | 
+  <a href="#Sports">Sports</a> | 
+  <a href="#Statistics">Statistics</a> | 
+  <a href="#stream">Streaming Media</a> | 
+  <a href="#Travel">Travel</a> | 
+  <a href="#Newspapers">U.S. Newspapers</a> | 
+  <a href="#Weather">Weather</a> | 
+  <a href="#Weights">Weights & Measures</a> | 
+  <a href="#Wire">Wire Services</a> | 
+  <a href="#worldnews">World News Sites</a> | 
+  <a href="#WorldNewspapers">World Newspapers</a>
+</div>
+<table border=0>
+<tr>
+<td bgcolor=#3366ff align=center>
+  <b><font size =+1 color=WHITE>Almanacs/Maps</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.cia.gov/the-world-factbook>CIA World Factbook </a>
+<li><a href=https://www.refdesk.com/factmaps.html>Atlas and Maps - Refdesk</a>
+<li><a href=https://money.cnn.com/best/bplive>Best Places to Live: USA</a>
+<li><a href=https://www.50states.com>Facts About the 50 U.S. States</a>
+<li><a href=http://www.indo.com/distance>How far is it?</a>
+<li><a href=https://www.infoplease.com>Information Please</a>
+<li><a href=https://www.state.gov/independent-states-in-the-world>Independent States in the World</a>
+<li><a href=https://www.nationalgeographic.com/maps>Map Machine Atlas </a>
+<li><a href=https://www.mapquest.com>MapQuest</a>
+<li><a href=https://www.refdesk.com/quote.html>Daily Almanac - Refdesk</a>
+<li><a href=https://legacy.lib.utexas.edu/maps>Perry-Castaneda Library Map Collection</a>
+<li><a href=https://www.almanac.com>Old Farmer's Almanac</a>
+<li><a href=http://www.getty.edu/research/tools/vocabulary/tgn/index.html>Thesaurus of Geographic Names</a> 
+<li><a href=https://maps.yahoo.com/b>Yahoo! Maps </a>
+</ul>
+<hr>
+<a id=Calendars></a>
+<table border=0>
+<tr>
+<td bgcolor=#006666 align=center><b><font size =+1 color=WHITE>Calendars & Time</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.time.gov>Atomic Clock, U.S. Naval Observatory</a>
+<li><a href=https://www.thetimenow.com><!-- Legacy alternative, less accessible: timeanddate.com -->Date and Time Gateway</a>
+<li><a href=http://www.earthcalendar.net>Earth Calendar </a>
+<li><a href=https://aulis.org/Calendar/Ecclesiastical_dates.html>Ecclesiastical Calendar Calculator</a>
+<li><a href=https://web.archive.org/web/20150919015402/http://greenwich2000.com>Greenwich 2000 (archived)</a>
+<li><a href=https://www.vpcalendar.net>Perpetual Calendar</a>
+<li><a href=https://www.history.com/this-day-in-history>This Day in History</a>
+<li><a href=https://www.timeanddate.com/worldclock>World Clock</a>
+</ul>
+<hr>
+<a id=Dictionaries></a>
+<table border=0>
+<tr>
+<td bgcolor=#660033 align=center><b><font size =+1 color=WHITE>Dictionaries & Thesauri</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=http://www.ucc.ie/info/net/acronyms/index.html>Acronym and Abbreviation Server</a>
+<li><a href=https://www.masterstech-home.com/ASLDict.html>American Sign Language Dictionary</a>
+<li><a href=https://www.ahdictionary.com>American Heritage Pronouncing Dictionary</a>
+<li><a href=https://www.dictionary.com>Dictionary.com</a>
+<li><a href=https://www.refdesk.com/factdict.html>Dictionary Resources - Refdesk</a>
+<li><a href=https://www.bennetyee.org/http_webster.cgi??>Hypertext Webster Gateway</a>
+<li><a href=https://www.merriam-webster.com>Merriam-Webster Online</a>
+<li>Morse Code Translators 
+<a href=https://morsecode.world/international/translator.html>[1]</a>,
+<a href=https://morse-code-translator.net>[2]</a>
+<li><a href=https://www.onelook.com>One Look Dictionaries</a>
+<li><a href=https://www.thesaurus.com>Roget's Thesaurus</a>
+<li><a href=https://www.rhymezone.com>Rhyming Dictionary</a>
+<li><a href=https://www.refdesk.com/factquot.html>Thesauri & Quotes Resources - Refdesk</a>
+<li> <a href=https://dictionaries.travlang.com>Travlang</a>
+<li><a href=https://www.websters1913.com>Webster's Revised Unabridged Dictionary, 1913</a>
+<li><a href=https://www.yourdictionary.com>YourDictionary</a>
+</ul>
+<hr>
+<a id=Directories></a>
+<table border=0>
+<tr>
+<td bgcolor=#cc3333 align=center><b><font size =+1 color=WHITE>Directories - People & Places</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.whitepages.com/area-codes>Area Code Lookup</a>
+<li><a href=https://www.bennetyee.org/ucsd-pages/area.html>Area Code Listing, By Number</a>
+<li><a href=https://www.areaconnect.com>AreaConnect</a> - USA Yellow Pages, White Pages, and City Guides
+<li><a href=https://www.s9.com>Biographical Dictionary</a>
+<li><a href=https://www.biography.com>Biography.com</a>
+<li><a href=http://www.freeality.com/missing.htm>Find People </a>
+<li><a href=http://www.the-acr.com/codes/cntrycd.htm>International Calling Codes</a>
+<li><a href=http://www.almaz.com>Nobel Prize Winners</a>
+<li><a href=https://rulers.org>Rulers of the World </a>
+<li><a href=https://www.whitepages.com>SwitchBoard</a>
+<li><a href=https://time.com/collection/100-most-influential-people-2020>Time 100: Most Influential People</a>
+<li><a href=https://www.usps.com>US Zip Code Finder</a>
+<li><a href=https://www.whitepages.com>WhitePages.com</a>
+<li><a href=http://www.whowhere.com>WhoWhere</a>
+</ul>
+<hr>
+<a id=Electronic></a>
+<table border=0>
+<tr>
+<td bgcolor=#990066 align=center><b><font size =+1 color=WHITE>Electronic Texts</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=http://www.luminarium.org/medlit>14th-15th Century English Literature </a>
+<li><a href=http://www.luminarium.org/renlit>16th Century English Literature </a>
+<li><a href=http://www.luminarium.org/sevenlit>17th Century English Literature </a>
+<li><a href=https://aesopfables.com>Aesop's Fables</a> 
+<li><a href=http://infomotions.com/alex>Alex: Electronic Texts on the Net</a> 
+<li><a href=https://www.gutenberg.org/files/11/11-h/11-h.htm>Alice's Adventures in Wonderland</a>
+<li><a href=http://www.bibliomania.com>Bibliomania </a>
+<li><a href=https://dcs.library.virginia.edu/digital-stewardship-services/etext>Electronic Text Center - Univ. of Va.</a>
+<li><a href=https://web.archive.org/web/20180415140438/https://eserver.org>eserver.org (archived)</a>
+<li><a href=https://quod.lib.umich.edu/m/moagrp>Making of America</a>
+<li><a href=http://legacy.netlibrary.com>netLibrary</a> 
+<li><a href=https://digital.library.upenn.edu/books>On-Line Books Page</a>
+<li><a href=https://www.bartleby.com>Project Bartleby </a>
+<li><a href=https://www.gutenberg.org>Project Gutenberg</a>
+<li><a href=http://shakespeare.mit.edu>Shakespeare - Complete Works </a>
+<li><a href=http://sunsite.unc.edu/pha>World War II Document Collection </a>
+</ul>
+<hr>
+<a id=Encyclopedias></a>
+<table border=0>
+<tr>
+<td bgcolor=#3366ff align=center><b><font size =+1 color=WHITE>Encyclopedias</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.britannica.com/topic/Concise-Encyclopaedia-Britannica>Britannica Concise</a>
+<li><a href=https://www.bartleby.com/topics/Wellness-Essay>Columbia 2001</a>
+<li><a href=https://www.encyberpedia.com/ency.htm>Encyberpedia</a>
+<li><a href=https://www.encyclopedia.com>Encyclopedia.com</a>
+<li><a href=https://www.britannica.com>Encyclopedia Britannica</a>
+<li><a href=https://www.si.edu/explore>Encyclopedia Smithsonian</a>
+<li><a href=https://www.refdesk.com/myency.html>Facts Encyclopedia - Refdesk</a>
+<li><a href=https://www.bhg.com/home-improvement>Home Improvement Ideas</a>
+<li><a href=https://www.nolo.com/legal-encyclopedia>Legal</a>
+<li><a href=https://medlineplus.gov>Medical</a>
+<li><a href=https://informationweek.com>Technology</a>
+</ul>
+<hr>
+<a id=Grammar></a>
+<table border=0>
+<tr>
+<td bgcolor=#006600 align=center><b><font size =+1 color=WHITE>Grammar & Style</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://guides.lib.uw.edu/research/citations/citation-styles>Citation Styles</a>
+<li><a href=https://www.bartleby.com/141/index.html>Elements of Style</a>
+<li><a href=https://www.refdesk.com/factgram.html>Grammar, Style, and Usage - Refdesk</a>
+<li><a href=https://www.ef.com/wwen/english-resources>On-Line English Grammar</a>
+<li><a href=https://owl.purdue.edu>Purdue University On-Line Writing Lab</a>
+<li><a href=https://www.bartleby.com/176>Robert's Rules of Order</a>
+<li><a href=http://www.theslot.com>The Slot: A Spot for Copy Editors</a>
+</ul>
+<hr>
+<a id=Net></a>
+<table border=0>
+<tr>
+<td bgcolor=#006600 align=center><b><font size =+1 color=WHITE>Internet</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://htmldog.com/guides/html/beginner>A Beginner's Guide to HTML</a>
+<li><a href=https://guides.lib.berkeley.edu/evaluating-resources>Finding Information on the Internet: A Tutorial  </a>
+<li><a href=http://www.internet101.org>Internet 101  </a>
+<li><a href=https://www.refdesk.com/factbeg.html>Internet Beginner's Guides and Tutorials - Refdesk.com</a>
+<li><a href=http://www.internetnews.com>InternetNews.com </a>
+<li><a href=https://websitebuilders.com/how-to>Learn the Net</a>
+<li><a href=https://users.ox.ac.uk/~ctitext2/service/workshop/collab.html>NetLearn: Internet Learning Resources</a>
+</ul>
+<hr>
+<a id=Languages></a>
+<table border=0>
+<tr>
+<td bgcolor=#660099 align=center><b><font size =+1 color=WHITE>Languages</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.ethnologue.com>Ethnologue</a>
+<li><a href=https://web.archive.org/web/20010413075230/http://www.june29.com/HLP>Human Languages Page (archived)</a>
+<li><a href=http://www.logos.it/query.html>Logos Multilingual Dictionary</a>
+<li><a href=https://morsecode.world/international/translator.html>Morse Code Translator</a>
+<li><a href=https://www.travlang.com>Travlang</a>
+</ul>
+<hr>
+<a id=Libraries></a>
+<table border=0>
+<tr>
+<td bgcolor=#cc0000 align=center><b><font size =+1 color=WHITE>Libraries of Data</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.refdesk.com/expert.html>Ask the Experts - Refdesk</a>
+<li><a href=http://www.bibliomania.com>Bibliomania</a>
+<li><a href=https://web.archive.org/web/20161016204157/http://digital-librarian.com>Digital Librarian (archived)</a>
+<li><a href=https://www.educationindex.com>Education Index</a>
+<li><a href=https://www.refdesk.com/myency.html>Facts Encyclopedia - Refdesk</a>
+<li><a href=https://www.robertniles.com//data>Finding Data on the Internet</a>
+<li><a href=https://www.refdesk.com/homework.html>Homework Helper - Refdesk</a>
+<li><a href=https://web.archive.org/web/20180930202231/http://www.ipl.org>Librarians' Index to the Internet (archived)</a>
+<li><a href=https://www.loc.gov>Library of Congress</a>
+<li><a href=http://www.libraryspot.com>LibrarySpot</a>
+<li><a href=https://www.looksmart.com>LookSmart</a>
+<li><a href=https://www.martindalecenter.com>Martindale's Reference Desk</a>
+<li><a href=https://www.lib.purdue.edu/find/quickreference>Purdue Univ. Ready Reference Desk</a>
+<li><a href=https://www.refdesk.com/instant.html>Quick Reference / Research - Refdesk</a>
+<li><a href=https://www.refdesk.com/shelves.html>Reference Shelves on the Internet</a>
+<li><a href=http://www.itools.com/research-it>Research-It!</a>
+<li><a href=http://info-s.com>The Info Source</a>
+<li><a href=http://www.w3.org/vl>WWW Virtual Library</a>
+<li><a href=https://www.yahoo.com>Yahoo!</a>
+</ul>
+<hr>
+<a id=Mag></a>
+<table border=0>
+<tr>
+<td bgcolor=#006600 align=center><b><font size =+1 color=WHITE>Magazines and Journals</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=http://www.newslink.org/mag.html>AJR Newslink Magazine Index</a>
+<li><a href=https://spectator.org>American Spectator</a>
+<li><a href=https://www.theatlantic.com>Atlantic Monthly</a>
+<li><a href=https://www.bloomberg.com/businessweek>Business Week</a>
+<li><a href=https://www.cnn.com/business>CNN Business</a> formerly: Money Magazine
+<li><a href=https://www.consumerreports.org/cro/index.htm>Consumer Reports</a>
+<li><a href=https://www.economist.com>Economist, The</a>
+<li><a href=https://www.forbes.com>Forbes Magazine</a>
+<li><a href=https://web.archive.org/web/20160325091449/http://www.inkpot.com>InkPot (archived)</a>
+<li><a href=https://www.life.com>Life Magazine Online</a>
+<li><a href=https://www.motherjones.com>Mother Jones</a>
+<li><a href=https://www.thenation.com>The Nation</a>
+<li><a href=https://www.nationalgeographic.com>National Geographic Online</a>
+<li><a href=https://www.nationalreview.com>National Review</a>
+<li><a href=https://www.newsweek.com>Newsweek</a>
+<li><a href=https://www.newyorker.com>New Yorker</a>
+<li><a href=https://www.meredith.com>People Magazine</a>
+<li><a href=https://www.rd.com>Reader's Digest</a>
+<li><a href=https://www.rollingstone.com>Rolling Stone</a>
+<li><a href=https://slate.com>Slate</a>
+<li><a href=https://www.meredith.com>Time Magazine</a>
+<li><a href=https://www.usnews.com>U.S. News and World Report</a>
+<li><a href=https://www.villagevoice.com>Village Voice, The</a>
+<li><a href=https://www.scientificamerican.com>Scientific American</a>
+<li><a href=https://www.wired.com>Wired</a>
+</ul>
+<p>
+<a id=Misc></a>
+<table border=0>
+<tr>
+<td bgcolor=#cc0000 align=center><b><font size =+1 color=WHITE>Miscellaneous</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=http://lcweb2.loc.gov/ammem/ammemhome.html>American Memories - Lib. of Congress</a>
+<li><a href=https://www.cnet.com>CNET.com</a>
+<li><a href=https://www.msn.com>CarPoint</a>
+<li><a href=https://www.clipart.com>Clipart Directory</a>
+<li><a href=https://www.collegenet.com>CollegeNet</a>
+<li><a href=https://www.refdesk.com/doitself.html>Do-It-Yourself - Refdesk</a>
+<li><a href=https://www.sec.gov/edgar/searchedgar/companysearch.html>EDGAR Database of Corporate Information</a>
+<li><a href=https://www.epicurious.com>Epicurious Food</a>
+<li><a href=https://www.expedia.com>Expedia Travel</a>
+<li><a href=https://www.fbi.gov/wanted>The FBI's Most Wanted</a>
+<li><a href=https://www.factcheck.org>Fact Check</a>
+<li><a href=https://www.fodors.com>Fodor's Travel Guides</a>
+<li><a href=https://www.genealogy.com>Genealogy SiteFinder</a>
+<li><a href=http://groups.google.com>Google Groups</a>
+<li><a href=https://healthy.net>HealthWorld</a>
+<li><a href=https://avalon.law.yale.edu>Historical Documents</a>
+<li><a href=http://www.thehistorynet.com>History Net</a>
+<li><a href=https://www.hyperhistory.com/online_n2/History_n2/a.html>HyperHistory</a>
+<li><a href=https://www.infoplease.com>Information Please</a>
+<li><a href=https://www.jumbo.com>Jumbo Download Software</a>
+<li><a href=https://web.archive.org/web/20190627041711/http://www.kidscom.com>KidsCom (archived)</a>
+<li><a href=https://mars.nasa.gov/mars-exploration/missions>Mars Missions</a>
+<li><a href=http://www.mayohealth.org>Mayo Clinic</a>
+<li><a href=https://www.merckmanuals.com/professional>Merck Manual</a>
+<li><a href=https://www.nasa.gov>NASA</a>
+<li><a href=https://www.nejm.org>New England Journal of Medicine</a>
+<li><a href=https://www.medicinenet.com>Online Medical Dictionary</a>
+<li><a href=https://www.job-applications.com/printable-pdfs>Printable JobApplications.com</a>
+<li><a href=https://www.salon.com>Salon</a>
+<li><a href=https://www.si.edu>Smithsonian Institution</a>
+<li><a href=https://www.ticketmaster.com>Ticketmaster</a>
+<li><a href=https://www.travelocity.com>Travelocity</a>
+<li><a href=https://www.xe.com/currency>Universal Currency Convertor</a>
+<li><a href=https://hcahealthcare.com>Virtual Body</a>
+</ul>
+<hr>
+<a id=News></a>
+<table border=0>
+<tr>
+<td bgcolor=#3366ff align=center><b><font size =+1 color=WHITE>News Sources</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.newseum.org>Newseum Online</a>
+<li><a href=https://abcnews.go.com>ABCNEWS.com</a>
+<li><a href=https://www.cnn.com/2018/11/19/us/2018-in-review-fast-facts/index.html>CNN: 2018 in Review Fast Facts</a>
+<li><a href=https://www.cnn.com/videos>CNN Video</a>
+<li><a href=https://www.csmonitor.com>Christian Science Monitor</a>
+<li><a href=https://www.jpost.com>Jerusalem Post</a>
+<li><a href=https://www.latimes.com>Los Angeles Times</a>
+<li><a href=https://www.refdesk.com/paper.html>USA and Worldwide Newspapers - Refdesk</a>
+<li><a href=https://www.nj.com>New Jersey Online</a>
+<li><a href=https://www.nytimes.com>New York Times</a>
+<li><a href=https://www.inquirer.com>Philadelphia Inquirer</a>
+<li><a href=https://www.mercurynews.com>San Jose Mercury News</a>
+<li><a href=https://www.thetimes.co.uk>Times of London</a>
+<li><a href=https://readthebias.com>Read the Bias</a>
+<li><a href=https://www.usatoday.com>USA Today</a>
+<li><a href=https://www.wsj.com>Wall Street Journal</a>
+<li><a href=https://www.washingtonpost.com>Washington Post</a>
+<li><a href=https://www.washingtontimes.com>Washington Times</a>
+<li><a href=https://news.yahoo.com>Yahoo! Headline News</a>
+</ul>
+<hr>
+<a id=Politics></a>
+<table border=0>
+<tr>
+<td bgcolor=#3366ff align=center><b><font size =+1 color=WHITE>Politics/Gossip</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.washingtonpost.com/wp-dyn/content/linkset/2005/03/24/LI2005032401502.html>David S. Broder</a>--<I>Washington Post</I><br>
+<li><a href=https://www.washingtonpost.com/richard-cohen/2011/03/17/gIQABxKGGI_page.html>Richard Cohen</a>--<I>Time</I><br>
+<li><a href=https://www.washingtonpost.com/ej-dionne-jr/2011/02/24/ABhJNkM_page.html>E.J. Dionne</a>--<I>Washington Post</I><br>
+<li><a href=https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html>Maureen Dowd</a>--<I>New York Times</I><br>
+<li><a href=https://www.drudgereport.com>Matt Drudge</a>--<I>The Drudge Report</I><br>
+<li><a href=https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html>Thomas Friedman</a>--<I>New York Times </I><br>
+<li><a href=https://www.jewishworldreview.com/cols/hentoff1.asp>Nat Hentoff</a>--<I>Jewish World Review</I><br>
+<li><a href=https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html>Bob Herbert</a>--<I>New York Times</I><br>
+<li><a href=https://www.washingtonpost.com/jim-hoagland/2011/03/02/ABFzJ7M_page.html>Jim Hoagland</a>--<I>Washington Post</I><br>
+<li><a href=https://www.huffpost.com/author/arianna-huffington>Arianna Huffington</a><br>
+<li><a href=http://www.kausfiles.com>Michael Kaus</a>--<I>kausfiles.com</I><br>
+<li><a href=https://www.washingtonpost.com/politics/powerpost>Al Kamen</a>--<I>Washington Post</I><br>
+<li><a href=https://www.washingtonpost.com/wp-dyn/opinion/columns/kellymichael>Michael Kelly</a>--<I>Washington Post</I><br>
+<li><a href=https://usatoday30.usatoday.com/life/columns/lking.htm>Larry King</a>--<I>USA Today</I><br>
+<li><a href=https://www.washingtonpost.com/people/charles-krauthammer>Charles Krauthammer</a>--<I>Washington Post</I><br>
+<li><a href=https://chicago.suntimes.com/authors/mary-mitchell>Mary Mitchell</a>--<I>Chicago Sun-Times</I><br>
+<li><a href=https://www.wsj.com/news/author/peggy-noonan>Peggy Noonan</a>--<I>Wall Street Journal</I><br>
+<li><a href=https://www.salon.com/writer/camille_paglia>Camille Paglia</a>--<I>Salon.com</I><br>
+<li><a href=https://www.washingtontimes.com/staff/wesley-pruden>Wes Pruden</a>--<I>Washington Times</I><br>
+<li><a href=https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html>William Safire</a>--<I>New York Times</I><br>
+<li><a href=https://www.washingtonpost.com/robert-j-samuelson/2011/02/24/ABSZV8O_page.html>Robert J. Samuelson</a>--<I>Washington Post</I><br>
+<li><a href=http://www.creators.com/opinion_show.cfm?columnsName=msh>Mark Shields</a>--<I>Creators Syndicate</I><br>
+<li><a href=http://www.sobran.com/columns>Joe Sobran</a>--<I>sobran.com</I><br>
+<li><a href=https://www.jewishworldreview.com/cols/sowell1.asp>Thomas Sowell</a>--<I>Jewish World Review</I><br>
+<li><a href=http://www.andrewsullivan.com>Andrew Sullivan</a>--<I>andrewsullivan.com</I><br>
+<li><a href=https://www.cincinnati.com>Howard Wilkinson</a>--<I>Cincinnati Enquirer</I><br>
+<li><a href=https://www.washingtonpost.com/people/george-f-will>George Will</a>--<I>Washington Post</I><br>
+</ul>
+<ul>
+<b>Editorial Pages:</b><br>
+<li><a href=https://www.latimes.com/opinion>Los Angeles Times</a> editorial &amp; opinion<br>
+<li><a href=https://www.nytimes.com/section/opinion>New York Times</a> editorial &amp; opinion<br>
+<li><a href=http://www.washingtonpost.com/wp-dyn/opinion/?nav=hpleft1>Washington Post</a> editorial &amp; opinion<br>
+<li><a href=http://www.washtimes.com/op-ed>Washington Times</a> editorials<br>
+<li><a href=https://usatoday30.usatoday.com/news/comment/debate.htm>USA Today</a> editorial &amp; opinion
+<li><b>Gossip:</b><br>
+<li><a href=https://nypost.com/2008/08/28/gossip-411>Page Six</a>--<I>New York Post</I>
+<br>
+<li><b>Sports:</b><br>
+<li><a href=https://www.freep.com/sports/mitch-albom>Mitch Albom</a>--<I>Detroit Free Press</I><br>
+<li><a href=https://archive.nytimes.com/www.nytimes.com/library/sports/backtalk/sot-index.html>Ira Berkow</a>--<I>New York Times</I><br>
+<li><a href=https://www.washingtonpost.com/people/jerry-brewer>Jerry Bewer</a>--<I>Washington Post</I>
+<li><a href=https://www.washingtonpost.com/wp-dyn/content/linkset/2005/03/24/LI2005032402662.html>Tony Kornheiser</a>--<I>Washington Post</I><br>
+<hr>
+<li><b>Television Talk Shows:</b><br>
+(Listed times are for Washington, D.C., ET. Check your local listings.)<br>
+<li><a href=https://www.mclaughlin.com>The McLaughlin Group</a>Check Local Listings<br>
+<li><a href=https://www.nbcnews.com/meet-the-press>Meet the Press</a> 11 AM Sundays, NBC<br>
+<li><a href=https://www.pbs.org/weta/washingtonweek>Washington Week in Review</a> Check local listings, PBS
+</ul>
+<br>
+<hr>
+<a id=Quotations></a>
+<table border=0>
+<tr>
+<td bgcolor=#0000cc align=center><b><font size =+1 color=WHITE>Quotations</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.aphorismsgalore.com>Aphorisms Galore</a> 
+<li><a href=https://www.bartleby.com/100/index.html>Bartlett's Familiar Quotations</a>
+<li><a href=http://www.quoteland.com>Quoteland.com</a>
+<li><a href=https://www.refdesk.com/factquot.html>Thesauri & Quotes Resources - Refdesk</a>
+</ul>
+<hr>
+<a id=Sports></a>
+<table border=0>
+<tr>
+<td bgcolor=#660099 align=center><b><font size =+1 color=WHITE>Sports</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.sportsline.com>CBS SportsLine</a>
+<li><a href=https://www.espn.com>ESPN</a>
+<li><a href=https://golf.com>Golf.com</a>
+<li><a href=https://mlb.mlb.com/NASApp/mlb/index.jsp>Major League Baseball</a>
+<li><a href=https://www.si.com>Sports Illustrated</a>
+<li><a href=https://www.sportingnews.com>Sporting News</a>
+</ul>
+<hr>
+<a id=Statistics></a>
+<table border=0>
+<tr>
+<td bgcolor=#006600 align=center><b><font size =+1 color=WHITE>Statistics</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://data.census.gov/cedsci/deeplinks?url=https://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml>American FactFinder</a>
+<li><a href=https://www.cia.gov/the-world-factbook>CIA World Factbook</a>
+<li><a href=https://www.census.gov/library/publications/time-series/statistical_abstracts.html>Statistical Abstract of the U.S.</a>
+<li><a href=https://www.bls.gov>Bureau of Labor Statistics </a>
+<li><a href=https://www.albany.edu/sourcebook>Criminal Justice Statistics </a>
+<li><a href=https://www.usa.gov/statistics>Fedstats</a>
+<li><a href=https://www.cdc.gov/nchs/fastats/Default.htm>CDC - Health Statistics</a>
+<li><a href=https://www.census.gov/popclock>National Population Clock</a>
+<li><a href=https://www.refdesk.com/factpop.html>Population & Demographic Resources - Refdesk</a>
+<li><a href=http://www.lib.umich.edu/govdocs/stats.html>Statistical Resources</a>
+<li><a href=https://www.census.gov>U.S. Census Bureau</a>
+<li><a href=https://www.census.gov/popclock>World Population Figures</a>
+</ul>
+<hr>
+<a id=Travel></a>
+<table border=0>
+<tr>
+<td bgcolor=#3366ff align=center><b><font size =+1 color=WHITE>Travel</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.cdc.gov>The Centers for Disease Control</a>
+<li><a href=http://www.citysearch.com>CitySearch</a>
+<li><a href=https://www.faxaway.com>Faxaway</a>
+<li><a href=https://www.mapquest.com>MapQuest</a>
+<li><a href=https://www.weather.gov>National Weather Service </a>
+<li><a href=https://travel.state.gov/content/travel/en/404.html>Travel Warnings - U.S. State Dept. </a>
+<li><a href=https://www.travelersaid.org>Travelers Aid International </a>
+<li><a href=https://www.oanda.com/currency/converter>Universal Currency Converter</a>
+<li><b>Airlines:</b><br>
+<li><a href=https://www.aa.com/homePage.do>American Airlines</a><br>
+<li><a href=https://www.delta.com>Delta Airlines</a><br>
+<li><a href=https://www.southwest.com>Southwest Airlines</a><br>
+<li><a href=https://www.united.com/en/us>United Airlines</a><br>
+<li><a href=https://www.aa.com/homePage.do>US Airways</a><br>
+<li><b>Agents:</b><br>
+<li><a href=https://www.americanexpress.com/en-us/travel/flights>American Express Travel</a><br>
+<li><a href=https://www.cnn.com/travel>CNN Interactive Travel</a><br>
+<li><a href=https://www.cayole.com>Cayole Cruises</a><br>
+<li><a href=https://www.expedia.com>Expedia</a><br>
+<li><a href=https://www.travelocity.com>Travelocity</a><br>
+</ul>
+<hr>
+<a id=Weather></a>
+<table border=0>
+<tr>
+<td bgcolor=#cc0000 align=center><b><font size =+1 color=WHITE>Weather</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.accuweather.com>AccuWeather</a> 
+<li><a href=https://www.weather.gov>National Weather Service</a>
+<li><a href=https://weather.msfc.nasa.gov/GOES>Satellite Images - GOES</a>
+<li><a href=http://clasp-research.engin.umich.edu/weather>UM Weather center</a> formerly: WeatherNet
+<li><a href=https://www.refdesk.com/weath1.html>Weather Sites - Refdesk</a>
+<li><a href=https://weather.com>Weather Channel</a>
+<li><a href=http://www.worldclimate.com>WorldClimate.com</a>
+</ul>
+<hr>
+<a id=Weights></a>
+<table border=0>
+<tr>
+<td bgcolor=BLACK align=center><b><font size =+1 color=WHITE>Weights & Measures</font></b></td>
+</tr>
+</table>
+<ul>
+<li><a href=https://www.thecalculatorsite.com/cooking/cooking-calculator.php>Cooking Measures and Conversion Calculator</a>
+<li><a href=https://www.bankrate.com/calculators/savings/moving-cost-of-living-calculator.aspx>Cost of living comparison calculator</a>
+<li><a href=https://www.oanda.com/currency/converter>Currency Converter</a>
+<li><a href=http://www.indo.com/distance>How Far Is It?</a>
+<li><a href=https://www.convert-me.com/en>Measurement Units Translation</a>
+<li><a href=http://www.megaconverter.com>Megaconverter</a>
+<li><a href=https://www.refdesk.com/factmeas.html>Weights and Measures - Refdesk</a>
+<li><a href=http://www.worldwidemetric.com/metcal.htm>World Wide Metric Calculators</a>
+</ul>
+<font size=3>
+  <a id=Comics></a>
+<TABLE% BORDER=1 CELLPADDING=0 CELLSPACING=0>
+  <TR>
+    <TD align=left valign=top WIDTH=50%><P><a id=Comics>
+      <TABLE BORDER=0>
+        <TR>
+          <TD BGCOLOR=#660033 ALIGN=center><b><font size =+1 COLOR=WHITE>Comics</font></b></TD>
+        </TR>
+      </TABLE></a>
+    <UL>
+<li><a href="https://www.artcomic.com/">Art Comics Daily</a>
+<li><a href="https://www.cagle.com/">Cartoonists' Index</a>
+<li><a href="https://www.gocomics.com/?ref=comics">Comics.com</a>
+<li><a href="https://www.creators.com/categories/comics">Creators.com Comics Page</a>
+<li><a href="https://www.creators.com/categories/cartoons">Creators.com Editorial Cartoons</a>
+<li><a href="https://dilbert.com/">Dilbert Official Site</a>
+<li><a href="https://www.washingtonpost.com/doonesbury/">Doonesbury</a>
+<li><a href="https://www.washingtonpost.com/entertainment/comics/">WashingtonPost.com Comics</a>
+<li><a href="https://news.yahoo.com/">Yahoo Comics</a>
+    </UL>
+    <hr>
+      <a id=Entertain></a>
+      <TABLE BORDER=0>
+        <TR>
+          <TD BGCOLOR=#006600 ALIGN=center><b><font size =+1 COLOR=WHITE>Entertainment</font></b></TD>
+        </TR>
+      </TABLE>
+    <UL>
+<li><a href="https://www.washingtonpost.com/wp-srv/style/movies/features/afi100list.htm">AFI 100 Greatest Movies</a>
+<li><a href="https://www.theatlantic.com/">Atlantic Unbound</a>
+<li><a href="https://www.billboard.com/">Billboard Music News & Reviews</a>
+<li><a href="https://www.biography.com/">Biography.com</a>
+<li><a href="http://www.boxofficeguru.com/">Box Office Guru</a>
+<li><a href="https://www.cc.com/">Comedy Central</a>
+<li><a href="https://www.crankycritic.com/">CrankyCritic</a>
+<li><a href="https://www.eonline.com/">E! Online</a>
+<li><a href="https://www.yahoo.com/entertainment/">Entertainment Headlines - Yahoo!</a>
+<li><a href="https://www.epicurious.com/">Epicurious</a>
+<li><a href="https://www.refdesk.com/entrtain.html">Entertainment - refdesk</a>
+<li><a href="https://gamelan.com/">GameLan</a>
+<li><a href="https://www.hollywood.com/">Hollywood Online</a>
+<li><a href="https://www.hollywoodreporter.com/">Hollywood Reporter, The</a>
+<li><a href="https://www.imdb.com/">Internet Movie Database</a>
+<li><a href="http://www.cbs.com/late_night/late_show/top_ten/">Letterman's Top 10 </a>
+<li><a href="https://moviecitynews.com/">Movie City News</a>
+<li><a href="https://help.imdb.com/article/contribution/titles/goofs/GFDUF27RBTQGS8UZ">Movie Goofs: IMDb</a>
+<li><a href="https://www.mrqe.com/">Movie Review Query Engine</a>
+<li><a href="https://www.mtv.com/">MTV Online</a>
+<li><a href="https://www.theonion.com/">The Onion</a>
+<li><a href="https://www.playbill.com/">Playbill Online</a>
+<li><a href="https://www.salon.com/">Salon</a>
+<li><a href="http://www.script-o-rama.com/">Script-O-Rama: Movie Scripts</a> 
+<li><a href="https://www.imdbtrivia.com/">Trivia Game: IMDb</a>
+<li><a href="https://www.tvguide.com/">TV Guide</a>
+<li><a href="https://variety.com/">Variety.com</a>
+    </UL>
+    <hr>
+    <a id=Finance></a>
+      <TABLE BORDER=0>
+        <TR>
+          <TD BGCOLOR=#660033 ALIGN=center><b><font size =+1 COLOR=WHITE>Financial News</font></b></TD>
+        </TR>
+      </TABLE>
+    <UL>
+<li><a href="https://www.americanbanker.com/">American Banker Online</a>
+<li><a href="https://www.bizjournals.com/">American City Business Journals</a>
+<li><a href="http://www.prars.com/index.php">Annual Report Service</a>
+<li><a href="https://www.bankrate.com/">Bank Rate Monitor</a>
+<li><a href="https://www.barrons.com/">Barron's Online</a>
+<li><a href="https://bigcharts.marketwatch.com">BigCharts</a>
+<li><a href="https://www.bloomberg.com/">Bloomberg Online</a>
+<li><a href="https://www.bloomberg.com/businessweek">Business Week</a>
+<li><a href="https://www.businesswire.com/portal/site/home/">Business Wire</a>
+<li><a href="https://www.cnn.com/business">CNN Money  </a>
+<li><a href="https://www.dnb.com/">Dun & Bradstreet</a>
+<li><a href="https://www.sec.gov/edgar/searchedgar/companysearch.html">EDGAR Online SEC Filings</a>
+<li><a href="https://www.economist.com/">Economist Magazine</a>
+<li><a href="https://www.entrepreneur.com/magazine">Entrepreneur Magazine</a>
+<li><a href="https://www.forbes.com/">Forbes Digital Tool</a>
+<li><a href="https://www.ft.com">Financial Times</a>
+<li><a href="https://money.cnn.com/galleries/fortune.html">Fortune Magazine</a>
+<li><a href="https://www.merriman.com/">FundAdvice.com</a>
+<li><a href="https://www.dnb.com/products/marketing-sales/dnb-hoovers.html">Hoover's Online</a>
+<li><a href="https://www.inc.com/">Inc. Online</a>
+<li><a href="https://www.investors.com/">Investor's Business Daily  </a>
+<li><a href="https://www.kiplinger.com/">Kiplinger Magazine  </a>
+<li><a href="https://www.moodys.com/">Moody's Investors Service  </a>
+<li><a href="https://www.morningstar.com/">Morningstar Mutual Funds  </a>
+<li><a href="https://www.fool.com/">Motley Fool  </a>
+<li><a href="https://www.prnewswire.com/">PR Newswire</a>
+<li><a href="https://www.quote.com/">Quote.com</a>
+<li><a href="https://www.spglobal.com/ratings/en/">Standard & Poor's  </a>
+<li><a href="https://www.wsj.com/">Wall Street Journal </a>
+<li><a href="https://www.marketwatch.com/">Wall Street Journal MarketWatch</a>
+<li><a href="https://www.worth.com/">Worth Online </a>
+<li><a href="https://www.wrightinvestorsservice.com/">Wright Investor's Service </a>
+<li><a href="https://finance.yahoo.com/">Yahoo! Stock Quotes/Bus. News  </a>
+    </UL>
+    <hr>
+    <a id=Media></a>
+      <TABLE BORDER=0>
+        <TR>
+          <TD BGCOLOR=#006666 ALIGN=center><b><font size =+1 COLOR=WHITE>Media News</font></b></TD>
+        </TR>
+      </TABLE>
+    <UL>
+<li><a href="https://www.1stheadlines.com/">1stHeadlines</a>
+<li><a href="https://abcnews.go.com/">ABC</a>
+<li><a href="https://www.ap.org/">AP Wire</a>
+<li><a href="https://www.afp.com/afpcom/en/">Agence France-Presse</a>
+<li><a href="https://allafrica.com/">allAfrica.com</a>
+<li><a href="https://www.bbc.co.uk/news">BBC</a>
+<li><a href="http://www.cbc.ca/news/">CBC News</a>
+<li><a href="https://www.c-span.org/">C-SPAN</a>
+<li><a href="https://www.cnn.com/">CNN</a>
+<li><a href="https://o.canada.com">Canada.com</a>
+<li><a href="https://www.foxnews.com/">FOX</a>
+<li><a href="https://www.kyodo.co.jp/">Kyodo Japanese News Service</a>
+<li><a href="https://www.msn.com/">MSNBC</a>
+<li><a href="https://www.npr.org/sections/news">NPR</a>
+<li><a href="http://sunsite.unc.edu/slanews/internet/archives.html">US News Archives</a>
+<li><a href="http://www.washingtonpost.com/wp-dyn/technology/">TechNews: Wash. Post</a>
+<li><a href="https://www.newsmax.com/">NewsMax.com</a>
+<li><a href="https://www.newsnow.co.uk/h/">News Now</a>
+<li><a href="https://tvnews.vanderbilt.edu/">TV News Archive</a>
+<li><a href="https://www.reuters.com/">Reuters</a>
+<li><a href="https://www.pch.com/quizzes">Topix.net</a>
+<li><a href="https://www.upi.com/">UPI</a>
+<li><a href="https://www.voanews.com/">Voice of America News</a>
+<li><a href="https://www.wnd.com/">WorldNetDaily</a>
+<li><a href="https://wn.com/">WorldNews.com</a>
+<li><a href="https://www.worldtribune.com/">World Tribune.com</a>
+    </UL>
+    <hr>
+    <a id=stream></a>
+      <TABLE BORDER=0>
+        <TR>
+          <TD BGCOLOR=#cc3333 ALIGN=center><b><font size =+1 COLOR=WHITE>Streaming Media</font></b></TD>
+        </TR>
+      </TABLE>
+    <p>
+    <UL>
+<li><a href="https://planetradio.co.uk/absolute-radio/">Absolute Radio</a>
+<li><a href="https://www.bbc.co.uk/sounds/play/live:bbc_world_service">BBCWorldServ</a>
+<li><a href="https://brsmedia.com">BRS Media</a>
+<li><a href="https://www.sportsline.com/">CBS Sportsline</a>
+<li><a href="http://www.cbsnews.com/videos/">CBS News Videos</a>
+<li><a href="https://www.c-span.org/">C-SPAN</a>
+<li><a href="https://www.espn.com/espnradio/">ESPN Live</a>
+<li><a href="https://www.footage.net/?AspxAutoDetectCookieSupport=1">Footage.net</a>
+<li><a href="https://www.foxsports.com/">Fox Sports</a>
+<li><a href="https://www.france.tv/france-2/">France 2</a>
+<li><a href="https://www.internet-radio.com/stations/news/">Internet Radio News</a>
+<li><a href="https://mytuner-radio.com/">Internet Radio Turner</a>
+<li><a href="https://www.kcrw.com/">KCRW</a>
+<li><a href="http://www.listen.com/">Listen.com</a>
+<li><a href="https://www.mtv.com/">MTV Online</a>
+<li><a href="https://www.npr.org/">NPR Live</a>
+<li><a href="https://www.premierenetworks.com/">Premiere Radio</a>
+<li><a href="https://pseudo.com/">PseudoOnline</a>
+<li><a href="https://www.radio4all.org/">Radio 4 All</a>
+<li><a href="https://radio-locator.com/">Radio-Locator</a>
+<li><a href="https://www.voanews.com/">VOA Radio</a>
+    </UL>
+    <hr>
+    <a id=Newspapers></a>
+  <P>
+  <table>
+        <tr>
+          <TD BGCOLOR=#cc3333 ALIGN=center><b><font size =+1 COLOR=WHITE>U.S. Newspapers</font></b></TD>
+  </tr>
+  <tr style="border-collapse: collapse; border: none;" cellspacing="250" valign="top">
+  <td style="border-collapse: collapse; border: none; padding-right: 100px;" width="50%">
+<a href="/paper.html#natnews"><img src="https://refdesk.com/fl-usa.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="US" align="middle"> National</a><br>
+<a href="/al.html"><img src="https://refdesk.com/fl-usal.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="AL" align="middle"> Alabama</a><br>
+<a href="/ak.html"><img src="https://refdesk.com/fl-usak.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="AK" align="middle"> Alaska</a><br>
+<a href="/az.html"><img src="https://refdesk.com/fl-usaz.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="AZ" align="middle"> Arizona</a><br>
+<a href="/ar.html"><img src="https://refdesk.com/fl-usar.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="AR" align="middle"> Arkansas</a><br>
+<a href="/ca.html"><img src="https://refdesk.com/fl-usca.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="CA" align="middle"> California</a><br>
+<a href="/co.html"><img src="https://refdesk.com/fl-usco.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="CO" align="middle"> Colorado</a><br>
+<a href="/ct.html"><img src="https://refdesk.com/fl-usct.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="CT" align="middle"> Connecticut</a><br>
+<a href="/de.html"><img src="https://refdesk.com/fl-usde.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="DE" align="middle"> Delaware</a><br>
+<a href="/dc.html"><img src="https://refdesk.com/fl-usdc.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="DC" align="middle"> Dist. of Columbia</a><br>
+<a href="/fl.html"><img src="https://refdesk.com/fl-usfl.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="FL" align="middle"> Florida</a><br>
+<a href="/ga.html"><img src="https://refdesk.com/fl-usga.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="GA" align="middle"> Georgia</a><br>
+<a href="/hi.html"><img src="https://refdesk.com/fl-ushi.gif" width=54 height=18 hspace=1 vspace=2 border=0 alt="HI" align="middle"> Hawaii</a><br>
+<a href="/id.html"><img src="https://refdesk.com/fl-usid.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="ID" align="middle"> Idaho</a><br>
+<a href="/il.html"><img src="https://refdesk.com/fl-usil.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="IL" align="middle"> Illinois</a><br>
+<a href="/in.html"><img src="https://refdesk.com/fl-usin.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="IN" align="middle"> Indiana</a><br>
+<a href="/ia.html"><img src="https://refdesk.com/fl-usia.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="IA" align="middle"> Iowa</a><br>
+<a href="/ks.html"><img src="https://refdesk.com/fl-usks.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="KS" align="middle"> Kansas</a><br>
+<a href="/ky.html"><img src="https://refdesk.com/fl-usky.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="KY" align="middle"> Kentucky</a><br>
+<a href="/la.html"><img src="https://refdesk.com/fl-uslo.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="LA" align="middle"> Louisiana</a><br>
+<a href="/me.html"><img src="https://refdesk.com/fl-usme.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="ME" align="middle"> Maine</a><br>
+<a href="/md.html"><img src="https://refdesk.com/fl-usmd.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="MD" align="middle"> Maryland</a><br>
+<a href="/ma.html"><img src="https://refdesk.com/fl-usma.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="MA" align="middle"> Massachusetts</a><br>
+<a href="/mi.html"><img src="https://refdesk.com/fl-usmi.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="MI" align="middle"> Michigan</a><br>
+<a href="/mn.html"><img src="https://refdesk.com/fl-usmn.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="MN" align="middle"> Minnesota</a><br>
+<a href="/ms.html"><img src="https://refdesk.com/ms.png"  width=54 height=34 hspace=1 vspace=2 border=0 alt="MS" align="middle"> Mississippi</a><br>
+  </td>
+  <td style="border-collapse: collapse; border: none;" width="50%">
+<a href="/mo.html"><img src="https://refdesk.com/fl-usmo.gif" width=54 height=34 hspace=1 vspace=.2 border=0 alt="MO" align="middle"> Missouri</a><br>
+<a href="/mt.html"><img src="https://refdesk.com/fl-usmt.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="MT" align="middle"> Montana</a><br>
+<a href="/ne.html"><img src="https://refdesk.com/fl-usne.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="NE" align="middle"> Nebraska</a><br>
+<a href="/nv.html"><img src="https://refdesk.com/fl-usnv.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="NV" align="middle"> Nevada</a><br>
+<a href="/nh.html"><img src="https://refdesk.com/fl-usnh.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="NH" align="middle"> New Hampshire</a><br>
+<a href="/nj.html"><img src="https://refdesk.com/fl-usnj.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="NJ" align="middle"> New Jersey</a><br>
+<a href="/nm.html"><img src="https://refdesk.com/fl-usnm.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="NM" align="middle"> New Mexico</a><br>
+<a href="/ny.html"><img src="https://refdesk.com/fl-usny.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="NY" align="middle"> New York</a><br>
+<a href="/nc.html"><img src="https://refdesk.com/fl-usnc.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="NC" align="middle"> North Carolina</a><br>
+<a href="/nd.html"><img src="https://refdesk.com/fl-usnd.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="ND" align="middle"> North Dakota</a><br>
+<a href="/oh.html"><img src="https://refdesk.com/fl-usoh.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="OH" align="middle"> Ohio</a><br>
+<a href="/ok.html"><img src="https://refdesk.com/fl-usok.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="OK" align="middle"> Oklahoma</a><br>
+<a href="/or.html"><img src="https://refdesk.com/fl-usor.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="OR" align="middle"> Oregon</a><br>
+<a href="/pa.html"><img src="https://refdesk.com/fl-uspa.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="PA" align="middle"> Pennsylvania</a><br>
+<a href="/ri.html"><img src="https://refdesk.com/fl-usri.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="RI" align="middle"> Rhode Island</a><br>
+<a href="/sc.html"><img src="https://refdesk.com/fl-ussc.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="SC" align="middle"> South Carolina</a><br>
+<a href="/sd.html"><img src="https://refdesk.com/fl-ussd.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="SD" align="middle"> South Dakota</a><br>
+<a href="/tn.html"><img src="https://refdesk.com/fl-ustn.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="TN" align="middle"> Tennessee</a><br>
+<a href="/tx.html"><img src="https://refdesk.com/fl-ustx.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="TX" align="middle"> Texas</a><br>
+<a href="/ut.html"><img src="https://refdesk.com/fl-usut.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="UT" align="middle"> Utah</a><br>
+<a href="/vt.html"><img src="https://refdesk.com/fl-usvt.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="VT" align="middle"> Vermont</a><br>
+<a href="/va.html"><img src="https://refdesk.com/fl-usva.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="VA" align="middle"> Virginia</a><br>
+<a href="/wa.html"><img src="https://refdesk.com/fl-uswa.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="WA" align="middle"> Washington</a><br>
+<a href="/wv.html"><img src="https://refdesk.com/fl-uswv.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="WV" align="middle"> West Virginia</a><br>
+<a href="/wi.html"><img src="https://refdesk.com/fl-uswi.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="WI" align="middle"> Wisconsin</a><br>
+<a href="/wy.html"><img src="https://refdesk.com/fl-uswy.gif" width=54 height=34 hspace=1 vspace=2 border=0 alt="WY" align="middle"> Wyoming</a><br>
+  </td>
+</tr>
+</table>
+<p>
+<font size=3>
+<a href="https://en.wikipedia.org/wiki/List_of_newspapers_in_the_United_States_by_circulation">Top 100 U.S. Newspapers</a><br>
+<a href="https://news.google.com/topstories?as_drrb=a&hl=en-US&gl=US&ceid=US:en">Searchable Newspaper Archives</a><br>
+<a href="http://metalab.unc.edu/slanews/internet/archives.html">U.S. News Archives</a>
+</font>
+<p>
+<hr>
+<a id="WorldNewspapers"></a>
+<a id="africa"></a>
+<TABLE BORDER=0>
+<TR>
+<TD BGCOLOR=green center><b><font size =+1 COLOR=WHITE>World Newspapers</font></b></TD>
+</TR>
+</TABLE>
+<p>
+<font size=3><dt>AFRICA
+<dd>
+<a href="https://www.refdesk.com/africa.html#algeria">Algeria</a> |
+<a href="https://www.refdesk.com/africa.html#benin">Benin</a> |
+<a href="https://www.refdesk.com/africa.html#cam">Cameroon</a> |
+<a href="https://www.refdesk.com/africa.html#egypt">Egypt</a> |
+<a href="https://www.refdesk.com/africa.html#ethopia">Ethiopia</a> |
+<a href="https://www.refdesk.com/africa.html#ghana">Ghana</a> |
+<a href="https://www.refdesk.com/africa.html#guinea">Guinea</a> |
+<a href="https://www.refdesk.com/africa.html#ivory">Ivory Coast</a> |
+<a href="https://www.refdesk.com/africa.html#kenya">Kenya</a> |
+<a href="https://www.refdesk.com/africa.html#liberia">Liberia</a> |
+<a href="https://www.refdesk.com/africa.html#mad">Madagascar</a> |
+<a href="https://www.refdesk.com/africa.html#maur">Mauritius</a> |
+<a href="https://www.refdesk.com/africa.html#mor">Morocco</a> |
+<a href="https://www.refdesk.com/africa.html#nam">Namibia</a> |
+<a href="https://www.refdesk.com/africa.html#nam">Nigeria</a> |
+<a href="https://www.refdesk.com/africa.html#reunion">Reunion Island</a> |
+<a href="https://www.refdesk.com/africa.html#sey">Seychelles</a> |
+<a href="https://www.refdesk.com/africa.html#senegal">Senegal</a> |
+<a href="https://www.refdesk.com/africa.html#sierra">Sierra Leone</a> |
+<a href="https://www.refdesk.com/africa.html#safrica">South Africa</a> |
+<a href="https://www.refdesk.com/africa.html#swaz">Swaziland</a> |
+<a href="https://www.refdesk.com/africa.html#tanz">Tanzania</a> | 
+<a href="https://www.refdesk.com/africa.html#tun">Tunisia</a> |
+<a href="https://www.refdesk.com/africa.html#uganda">Uganda</a> |
+<a href="https://www.refdesk.com/africa.html#zambia">Zambia</a> |
+<a href="https://www.refdesk.com/africa.html#zim">Zimbabwe</a> 
+<p>
+<a id="asia"></a>
+<dt>ASIA
+<dd>
+<font size=3>
+<a href="https://www.refdesk.com/asia.html#afghan">Afghanistan</a> |
+<a href="https://www.refdesk.com/asia.html#bang">Bangladesh</a> |
+<a href="https://www.refdesk.com/asia.html#bhutan">Bhutan</a> |
+<a href="https://www.refdesk.com/asia.html#brun">Brunei</a> |
+<a href="https://www.refdesk.com/asia.html#cam">Cambodia</a> |
+<a href="https://www.refdesk.com/asia.html#china">China</a> |
+<a href="https://www.refdesk.com/asia.html#india">India</a> |
+<a href="https://www.refdesk.com/asia.html#indonesia">Indonesia</a> |
+<a href="https://www.refdesk.com/asia.html#japan">Japan</a> |
+<a href="https://www.refdesk.com/asia.html#kaz">Kazakhstan</a> |
+<a href="https://www.refdesk.com/asia.html#laos">Laos</a> |
+<a href="https://www.refdesk.com/asia.html#macau">Macau</a> |
+<a href="https://www.refdesk.com/asia.html#malaysia">Malaysia</a> |
+<a href="https://www.refdesk.com/asia.html#maldives">Maldives</a> |
+<a href="https://www.refdesk.com/asia.html#mongolia">Mongolia</a> |
+<a href="https://www.refdesk.com/asia.html#nepal">Nepal</a> |
+<a href="https://www.refdesk.com/asia.html#nkorea">North Korea</a> |
+<a href="https://www.refdesk.com/asia.html#pakistan">Pakistan</a> |
+<a href="https://www.refdesk.com/asia.html#philip">Philippines</a> |
+<a href="https://www.refdesk.com/asia.html#sing">Singapore</a> |
+<a href="https://www.refdesk.com/asia.html#skorea">South Korea</a> |
+<a href="https://www.refdesk.com/asia.html#sri">Sri Lanka</a> |
+<a href="https://www.refdesk.com/asia.html#taiwan">Taiwan</a> |
+<a href="https://www.refdesk.com/asia.html#thai">Thailand</a> |
+<a href="https://www.refdesk.com/asia.html#viet">Vietnam</a> 
+<p>
+<a id="caribbean"></a>
+<dt>CARIBBEAN
+<dd>
+<a href="https://www.refdesk.com/carib.html#antigua">Antigua and Barbuda</a> |
+<a href="https://www.refdesk.com/carib.html#aruba">Aruba</a> |
+<a href="https://www.refdesk.com/carib.html#bahamas">Bahamas</a> |
+<a href="https://www.refdesk.com/carib.html#barb">Barbados</a> |
+<a href="https://www.refdesk.com/carib.html#berm">Bermuda</a> |
+<a href="https://www.refdesk.com/carib.html#bvi">British Virgin Islands</a> |
+<a href="https://www.refdesk.com/carib.html#cuba">Cuba</a> |
+<a href="https://www.refdesk.com/carib.html#dom">Dominican Republic</a> |
+<a href="https://www.refdesk.com/carib.html#grenada">Grenada</a> |
+<a href="https://www.refdesk.com/carib.html#haiti">Haiti</a> |
+<a href="https://www.refdesk.com/carib.html#jm">Jamaica</a> |
+<a href="https://www.refdesk.com/carib.html#neth">Netherlands Antilles</a> |
+<a href="https://www.refdesk.com/carib.html#pr">Puerto Rico</a> |
+<a href="https://www.refdesk.com/carib.html#trin">Trinidad and Tobago</a> | 
+<a href="https://www.refdesk.com/carib.html#turks">Turks and Caicos Islands</a> |
+<a href="https://www.refdesk.com/carib.html#vi">Virgin Islands</a> 
+<p>
+<a id="camerica"></a>
+<dt>CENTRAL AMERICA
+<dd><font size=3><a href="centamer.html#belize">Belize</a> |
+<a href="https://www.refdesk.com/centamer.html#costa">Costa Rica</a> |
+<a href="https://www.refdesk.com/centamer.html#elsal">El Salvador</a> |
+<a href="https://www.refdesk.com/centamer.html#guat">Guatemala</a> |
+<a href="https://www.refdesk.com/centamer.html#hond">Honduras</a> |
+<a href="https://www.refdesk.com/centamer.html#nicaragua">Nicaragua</a> |
+<a href="https://www.refdesk.com/centamer.html#pan">Panama</a> 
+<p>
+<a id="europe"></a>
+<dt>EUROPE
+<dd><font size=3>
+<a href="https://www.refdesk.com/europe.html#albania">Albania</a> |
+<a href="https://www.refdesk.com/europe.html#andorra">Andorra</a> |
+<a href="https://www.refdesk.com/europe.html#austria">Austria</a> |
+<a href="https://www.refdesk.com/europe.html#bel">Belarus</a> |
+<a href="https://www.refdesk.com/europe.html#belg">Belgium</a> |
+<a href="https://www.refdesk.com/europe.html#bosnia">Bosnia-Herzegovina</a> |
+<a href="https://www.refdesk.com/europe.html#bulg">Bulgaria</a> |
+<a href="https://www.refdesk.com/europe.html#croatia">Croatia</a> |
+<a href="https://www.refdesk.com/europe.html#cyprus">Cyprus</a> |
+<a href="https://www.refdesk.com/europe.html#czech">Czech Republic</a> |
+<a href="https://www.refdesk.com/europe.html#den">Denmark</a> |
+<a href="https://www.refdesk.com/europe.html#estonia">Estonia</a> |
+<a href="https://www.refdesk.com/europe.html#fin">Finland</a> |
+<a href="https://www.refdesk.com/europe.html#france">France</a> |
+<a href="https://www.refdesk.com/europe.html#georgia">Georgia</a> |
+<a href="https://www.refdesk.com/europe.html#germany">Germany</a> |
+<a href="https://www.refdesk.com/europe.html#gib">Gibraltar</a> |
+<a href="https://www.refdesk.com/europe.html#greece">Greece</a> |
+<a href="https://www.refdesk.com/europe.html#hungary">Hungary</a> |
+<a href="https://www.refdesk.com/europe.html#ice">Iceland</a> |
+<a href="https://www.refdesk.com/europe.html#ireland">Ireland</a> |
+<a href="https://www.refdesk.com/europe.html#italy">Italy</a> |
+<a href="https://www.refdesk.com/europe.html#latvia">Latvia</a> |
+<a href="https://www.refdesk.com/europe.html#liech">Liechtenstein</a> |
+<a href="https://www.refdesk.com/europe.html#lith">Lithuania</a> |
+<a href="https://www.refdesk.com/europe.html#lux">Luxembourg</a> |
+<a href="https://www.refdesk.com/europe.html#macedonia">Macedonia</a> |
+<a href="https://www.refdesk.com/europe.html#malta">Malta</a> |
+<a href="https://www.refdesk.com/europe.html#mold">Moldova</a> |
+<a href="https://www.refdesk.com/europe.html#netherlands">Netherlands</a> |
+<a href="https://www.refdesk.com/europe.html#norway">Norway</a> |
+<a href="https://www.refdesk.com/europe.html#poland">Poland</a> |
+<a href="https://www.refdesk.com/europe.html#port">Portugal</a> |
+<a href="https://www.refdesk.com/europe.html#romania">Romania</a> |
+<a href="https://www.refdesk.com/europe.html#russ">Russia</a> |
+<a href="https://www.refdesk.com/europe.html#scot">Scotland</a> |
+<a href="https://www.refdesk.com/europe.html#slovakia">Slovakia</a> |
+<a href="https://www.refdesk.com/europe.html#slovenia">Slovenia</a> |
+<a href="https://www.refdesk.com/europe.html#spain">Spain</a> |
+<a href="https://www.refdesk.com/europe.html#swed">Sweden</a> |
+<a href="https://www.refdesk.com/europe.html#switz">Switzerland</a> | 
+<a href="https://www.refdesk.com/europe.html#urkaine">Ukraine</a> |
+<a href="https://www.refdesk.com/europe.html#uk">United Kingdom</a> 
+<p>
+<a id="mideast"></a>
+<dt>MIDDLE EAST <a href="/mideastnews.html">(Middle East News Resources)</a>
+<dd><font size=3>
+<a href="https://www.refdesk.com/mideast.html#bahrain">Bahrain</a> |
+<a href="https://www.refdesk.com/mideast.html#cyprus">Cyprus</a> |
+<a href="https://www.refdesk.com/mideast.html#egypt">Egypt</a> |
+<a href="https://www.refdesk.com/mideast.html#iran">Iran</a> |
+<a href="https://www.refdesk.com/mideast.html#iraq">Iraq</a> |
+<a href="https://www.refdesk.com/mideast.html#israel">Israel</a> |
+<a href="https://www.refdesk.com/mideast.html#jordan">Jordan</a> |
+<a href="https://www.refdesk.com/mideast.html#kuwait">Kuwait</a> |
+<a href="https://www.refdesk.com/mideast.html#lebanon">Lebanon</a> | 
+<a href="https://www.refdesk.com/mideast.html#oman">Oman</a> |
+<a href="https://www.refdesk.com/mideast.html#qatar">Qatar</a> | 
+<a href="https://www.refdesk.com/mideast.html#saudi">Saudi Arabia</a> |
+<a href="https://www.refdesk.com/mideast.html#turkey">Turkey</a> | 
+<a href="https://www.refdesk.com/mideast.html#uae">United Arab Emirates</a> |
+<a href="https://www.refdesk.com/mideast.html#yemen">Yemen</a> 
+<p>
+<dt>NORTH AMERICA
+<dd><font size=3>
+<a href="https://www.refdesk.com/noamer.html#canada">Canada</a> |
+<a href="https://www.refdesk.com/noamer.html#mexico">Mexico</a> 
+<p>
+<a id="samerica"></a>
+<dt>SOUTH AMERICA
+<dd><font size=3>
+<a href="https://www.refdesk.com/soamer.html#arg">Argentina</a> |
+<a href="https://www.refdesk.com/soamer.html#bolv">Bolivia</a> |
+<a href="https://www.refdesk.com/soamer.html#braz">Brazil</a> |
+<a href="https://www.refdesk.com/soamer.html#chile">Chile</a> |
+<a href="https://www.refdesk.com/soamer.html#colombia">Colombia</a> |
+<a href="https://www.refdesk.com/soamer.html#ecuador">Ecuador</a> |
+<a href="https://www.refdesk.com/soamer.html#guyana">Guyana</a> |
+<a href="https://www.refdesk.com/soamer.html#para">Paraguay</a> |
+<a href="https://www.refdesk.com/soamer.html#peru">Peru</a> |
+<a href="https://www.refdesk.com/soamer.html#urug">Uruguay</a> |
+<a href="https://www.refdesk.com/soamer.html#venez">Venezuela</a> 
+<p>
+<a id="spacific"></a>
+<dt>SOUTH PACIFIC
+<dd><font size=3>
+<a href="https://www.refdesk.com/sopac.html#antar">Antarctica</a> |
+<a href="https://www.refdesk.com/sopac.html#australia">Australia</a> |
+<a href="https://www.refdesk.com/sopac.html#guam">Guam</a> |
+<a href="https://www.refdesk.com/sopac.html#nz">New Zealand</a> |
+<a href="https://www.refdesk.com/sopac.html#nmi">Northern Mariana Islands</a> |
+<a href="https://www.refdesk.com/sopac.html#pap">Papua New Guinea</a> |
+<a href="https://www.refdesk.com/sopac.html#samoa">Samoa</a> |
+<a href="https://www.refdesk.com/sopac.html#tonga">Tonga</a> 
+<p>
+  <hr>
+<a id="natnews"></a>
+  <TABLE BORDER=0>
+<TR>
+<TD BGCOLOR=orange center><b><font size =+1 COLOR=WHITE>National News Sites</font></b></TD>
+</TR>
+</TABLE>
+<p>
+<ul>
+<li><a href="https://abcnews.go.com/">ABCNews.com</a>
+<li><a href="https://archive.azcentral.com/arizonarepublic/">Arizona Republic, The</a>
+<li><a href="https://www.ajc.com/">Atlanta Journal-Constitution</a>
+<li><a href="https://www.axios.com/">Axios</a>
+<li><a href="https://www.baltimoresun.com/">Baltimore Sun</a>
+<li><a href="https://www.bostonglobe.com/">Boston Globe</a>
+<li><a href="https://www.cbsnews.com/">CBS News</a>
+<li><a href="https://www.cnn.com/">CNN</a> 
+<li><a href="https://chicago.suntimes.com/">Chicago Sun-Times</a>
+<li><a href="https://www.chicagotribune.com/">Chicago Tribune</a>
+<li><a href="https://www.csmonitor.com/">Christian Science Monitor</a>
+<li><a href="http://news.cincinnati.com/apps/pbcs.dll/section?Category=NEWS">Cincinnati Enquirer</a>
+<li><a href="https://www.cleveland.com/plaindealer/">Cleveland Plain Dealer</a>
+<li><a href="https://www.dallasnews.com/">Dallas Morning News</a>
+<li><a href="https://www.denverpost.com/">Denver Post</a> 
+<li><a href="https://www.freep.com/">Detroit Free Press</a>
+<li><a href="https://www.detroitnews.com/">Detroit News</a> 
+<li><a href="https://www.jacksonville.com/">Florida Times-Union</a>
+<li><a href="https://www.foxnews.com/">Fox News</a>
+<li><a href="http://www.star-telegram.com/">Ft. Worth Star-Telegram</a>
+<li><a href="https://www.courant.com/">Hartford Courant</a>
+<li><a href="https://www.chron.com/">Houston Chronicle</a>
+<li><a href="https://www.huffpost.com/">Huffington Post</a>
+<li><a href="https://www.indystar.com/">Indianapolis Star and News</a>
+<li><a href="https://www.kansascity.com/">Kansas City Star</a>
+<li><a href="https://lasvegassun.com/">Las Vegas Sun</a>
+<li><a href="https://www.latimes.com/">Los Angeles Times</a> 
+<li><a href="https://www.msn.com/">MSNBC News</a>
+<li><a href="https://www.miamiherald.com/miami-com/">Miami Herald</a>
+<li><a href="https://www.jsonline.com/">Milwaukee-Journal Sentinel</a>
+<li><a href="https://www.twincities.com/">Minneapolis-St. Paul Pioneer Press</a>
+<li><a href="https://www.startribune.com/">Minneapolis-St. Paul Star Tribune</a>
+<li><a href="https://www.nj.com/">New Jersey Online</a>
+<li><a href="https://www.nydailynews.com/">New York Daily News</a>
+<li><a href="https://www.newsday.com/">New York Newsday</a>
+<li><a href="https://nypost.com/">New York Post</a>
+<li><a href="https://www.nytimes.com/">New York Times</a>
+<li><a href="https://www.npr.org/">NPR Online</a>
+<li><a href="https://www.orlandosentinel.com/">Orlando Sentinel</a>
+<li><a href="https://www.oregonlive.com/">Oregonian, The</a>
+<li><a href="https://www.inquirer.com/">Philadelphia Inquirer, The</a>
+<li><a href="https://www.post-gazette.com/">Pittsburgh Post-Gazette</a>
+<li><a href="https://triblive.com/">Pittsburgh Tribune-Review</a>
+<li><a href="https://www.providencejournal.com/">Providence Journal</a>
+<li><a href="https://www.democratandchronicle.com/">Rochester Democrat & Chronicle</a>
+<li><a href="https://www.sacbee.com/">Sacramento Bee</a>
+<li><a href="https://www.deseret.com/">Salt Lake City Deseret News</a>
+<li><a href="https://www.sltrib.com/">Salt Lake City Tribune</a>
+<li><a href="https://www.mysanantonio.com/">San Antonio Express-News</a>
+<li><a href="https://www.sandiegouniontribune.com/">San Diego Union-Tribune</a>
+<li><a href="https://www.sfchronicle.com/">San Francisco Chronicle</a>
+<li><a href="https://www.sfexaminer.com/">San Francisco Examiner</a>
+<li><a href="https://www.mercurynews.com/">San Jose Mercury News</a>
+<li><a href="https://www.seattletimes.com/">Seattle Times</a>
+<li><a href="https://www.sun-sentinel.com/">South Florida Sun-Sentinel</a>
+<li><a href="https://www.stltoday.com/">St. Louis Post-Dispatch</a>
+<li><a href="https://www.tampabay.com/">St. Petersburg Times</a>
+<li><a href="https://www.syracuse.com/">Syracuse Post-Standard</a>
+<li><a href="https://www.tampabay.com/">Tampa Bay Times</a>
+<li><a href="https://www.usatoday.com/">USA Today</a>
+<li><a href="https://www.pilotonline.com/">Virginian-Pilot, The</a>
+<li><a href="https://www.wsj.com/">Wall Street Journal</a> 
+<li><a href="https://www.washingtonpost.com/">Washington Post</a> 
+<li><a href="https://www.washingtontimes.com/">Washington Times</a> 
+</ul>
+<hr>
+<a id="worldnews"></a>
+  <TABLE BORDER=0>
+<TR>
+<TD BGCOLOR=purple center><b><font size =+1 COLOR=WHITE>World News Sites</font></b></TD>
+</TR>
+</TABLE>
+<p>
+<ul>
+<li><a href="https://www.theage.com.au/">Age, The (Melbourne)</a>
+<li><a href="http://www.asahi.com/english/">Asahi (Japan)</a>
+<li><a href="https://www.bbc.co.uk/news">BBC News</a> 
+<li><a href="https://www.cnn.com/world">CNN - World News</a> 
+<li><a href="http://www.chinadaily.com.cn/">China Daily</a>
+<li><a href="https://www.thestandard.com.hk/">Hong Kong Standard</a>
+<li><a href="https://www.irishtimes.com/">Irish Times</a>
+<li><a href="https://www.japantimes.co.jp/">Japan Times</a>
+<li><a href="https://www.jpost.com/">Jerusalem Post</a>
+<li><a href="https://www.iol.co.za/the-star">Johannesburg Star</a>
+<li><a href="http://www.koreaherald.com/">Korea Herald</a>
+<li><a href="https://www.lemonde.fr/">Le Monde</a> (French)
+<li><a href="https://www.telegraph.co.uk/">London Telegraph</a>
+<li><a href="http://www.thetimes.co.uk/tto/news/">London Times</a>
+<li><a href="https://www.msn.com/">msnbc.com </a> 
+<li><a href="https://www.rt.com/">Russia Today</a>
+<li><a href="https://www.sptimesrussia.com/">St. Petersburg Times (Russia)</a>
+<li><a href="http://www.scmp.com/portal/site/SCMP/">South China Morning Post</a>
+<li><a href="https://timesofindia.indiatimes.com/us">Times of India</a>
+<li><a href="https://www.thestar.com/?redirect=true">Toronto Star</a>
+<li><a href="https://www.usatoday.com/news/world/">USA Today World</a>
+</ul>
+  <hr>
+  <a id=Politics></a>
+    <TABLE BORDER=0>
+      <TR>
+        <TD BGCOLOR=#3366ff ALIGN=center><b><font size =+1 COLOR=WHITE>Politics/Columnists/Gossip</font></b></TD>
+      </TR>
+    </TABLE>
+    <p>
+  <ul>
+<b>Columnists by Paper:</b><br>
+<li><a href="http://cnn.com/ALLPOLITICS/">AllPolitics - CNN</a><br>
+<li><a href="http://www.boston.com/globe/columns/">Boston Globe</a><br>
+<li><a href="https://www.bostonherald.com/opinion/columnists/">Boston Herald</a><br>
+<li><a href="https://chicago.suntimes.com/columnists">Chicago Sun Times</a><br>
+<li><a href="http://chicagotribune.com/news/columnists/">Chicago Tribune</a><br>
+<li><a href="https://www.dallasnews.com/opinion/">Dallas Morning News</a><br>
+<li><a href="https://www.denverpost.com/opinion/opinion-columnists/">Denver Post</a><br>
+<li><a href="https://www.freep.com/opinion/">Detroit Free Press</a><br>
+<li><a href="https://www.detroitnews.com/opinion/columnists/">Detroit News</a><br>
+<li><a href="https://www.houstonchronicle.com/opinion/columnists/"> Houston Chronicle</a><br>
+<li><a href="https://www.miamiherald.com/opinion/">Miami Herald</a><br>
+<li><a href="https://nypost.com/columnists/">New York Post</a><br>
+<li><a href="https://www.nytimes.com/section/opinion/columnists">New York Times</a><br>
+<li><a href="https://www.ocregister.com/opinion/">Orange County Register</a><br>
+<li><a href="https://www.mercurynews.com/tag/opinion-columnists/">San Jose Mercury Center</a><br>
+<li><a href="https://www.sfchronicle.com/local/columnists/">SFGate (Chron. and Exam.)</a><br>
+<li><a href="https://www.tampabay.com/opinion/">Tampa Bay Times</a><br>
+<li><a href="https://www.usatoday.com/opinion/columnist/">USA Today</a><br>
+<li><a href="https://www.wsj.com/news/opinion">Wall Street Journal</a><br>
+<li><a href="https://www.washingtonpost.com/syndication/columnists/"> Washington Post</a>
+<b>Columnists by Person:</b><br>
+<li><a href="https://townhall.com/columnists/michaelbarone/">Michael Barone</a> --<I>U.S. News</I><br>
+<li><a href="https://www.washingtonpost.com/wp-dyn/content/linkset/2005/03/24/LI2005032401502.html">David S. Broder</a> --<I>Washington Post</I><br>
+<li><a href="http://www.chicagotribune.com/news/columnists/">Steve Chapman</a> --<i>Chicago Tribune</i><br>
+<li><a href="https://www.washingtonpost.com/richard-cohen/2011/03/17/gIQABxKGGI_page.html">Richard Cohen</a> --<I>Washington Post</I><br>
+<li><a href="https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html">Gail Collins</a> --<I>New York Times</I><br>
+<li><a href="http://www.anncoulter.org/">Ann Coulter</a> --<I>Frontpage Magazine</I><br>
+<li><a href="https://www.washingtonpost.com/ej-dionne-jr/2011/02/24/ABhJNkM_page.html">E.J. Dionne</a> --<I>Washington Post</I><br>
+<li><a href="https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html">Maureen Dowd</a> --<I>New York Times</I><br>
+<li><a href="https://www.drudgereport.com/">Matt Drudge</a> --<I>The Drudge Report</I><br>
+<li><a href="https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html">Thomas Friedman</a> --<I>New York Times </I><br>
+<li><a href="https://www.wsj.com/news/opinion">Paul Gigot</a> --<I>Wall Street Journal </I><br>
+<li><a href="https://www.jewishworldreview.com/cols/hentoff1.asp">Nat Hentoff</a> --<I>Jewish World Review</I><br>
+<li><a href="https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html">Bob Herbert</a> --<I>New York Times</I><br>
+<li><a href="https://www.washingtonpost.com/jim-hoagland/2011/03/02/ABFzJ7M_page.html">Jim Hoagland</a> --<I>Washington Post</I><br>
+<li><a href="https://www.creators.com/read/molly-ivins">Molly Ivins</a> --<I>Ft. Worth Star-Telegram</I><br>
+<li><a href="https://www.wsj.com/news/opinion">Holman Jenkins</a> --<I>Wall Street Journal</I><br>
+<li><a href="http://www.kausfiles.com/">Michael Kaus</a> --<I>kausfiles.com</I><br>
+<li><a href="https://www.washingtonpost.com/politics/powerpost/">Art Kamen</a> --<I>Washington Post</I><br>
+<li><a href="https://www.washingtonpost.com/wp-dyn/opinion/columns/kellymichael/">Michael Kelly</a> --<I>Washington Post</I><br>
+<li><a href="https://usatoday30.usatoday.com/life/columns/lking.htm">Larry King</a> --<I>USA Today</I><br>
+<li><a href="http://washingtonpost.com/wp-dyn/opinion/columns/krauthammercharles/">Charles Krauthammer</a> --<I>Washington Post</I><br>
+<li><a href="https://www.nytimes.com/section/opinion">Paul Krugman</a> --<I>New York Times</I><br>
+<li><a href="https://www.washingtonpost.com/wp-dyn/content/linkset/2005/03/24/LI2005032401272.html">Howard Kurtz</a> --<I>Washington Post</I><br>
+<li><a href="https://chicago.suntimes.com/authors/mary-mitchell">Mary Mitchell</a> --<I>Chicago Sun-Times</I><br>
+<li><a href="https://www.wsj.com/news/author/peggy-noonan">Peggy Noonan</a> --<I>Wall Street Journal</I><br>
+<li><a href="http://www.chicagotribune.com/news/columnists/">Clarence Page</a> --<I>Chicago Tribune</I><br>
+<li><a href="https://www.salon.com/writer/camille_paglia">Camille Paglia</a> --<I>Salon.com</I><BR>
+<li><a href="https://www.washingtonpost.com/wp-dyn/content/linkset/2005/03/24/LI2005032401732.html">William Raspberry</a> --<I>Washington Post</I><br>
+<li><a href="https://archive.nytimes.com/www.nytimes.com/pages/topics/index.html">William Safire</a> --<I>New York Times</I><br>
+<li><a href="https://www.washingtonpost.com/robert-j-samuelson/2011/02/24/ABSZV8O_page.html">Robert J. Samuelson</a> --<I>Washington Post</I><br>
+<li><a href="https://www.creators.com/features/mark-shields">Mark Shields</a> --<I>Creators Syndicate</I><br>
+<li><a href="https://www.jewishworldreview.com/cols/sowell1.asp">Thomas Sowell</a> --<I>Jewish World Review</I><br>
+<li><a href="http://www.andrewsullivan.com/">Andrew Sullivan</a> --<I>andrewsullivan.com</I><br>
+<li><a href="https://www.cincinnati.com">Howard Wilkinson</a> --<I>Cincinnati Enquirer</I><br>
+<li><a href="https://www.washingtonpost.com/people/george-f-will/">George Will</a> --<I>Washington Post</I><br>
+  <hr>
+  <b>Editorial Pages:</b><br>
+<li><a href="https://www.bostonglobe.com/opinion/">Editorials</a> - Boston Globe<br>
+<li><a href="http://www.chicagotribune.com/news/opinion/">Editorials</a> - Chicago Tribune<br>
+<li><a href="https://www.detroitnews.com/opinion/">Editorials</a> - Detroit News<br>
+<li><a href="https://www.houstonchronicle.com/opinion/">Editorials</a> - Houston Chronicle<br>
+<li><a href="https://www.kansascity.com/">Editorials</a> - Kansas City Star<br>
+<li><a href="https://lasvegassun.com/news/opinion/editorials/">Editorials</a> - Las Vegas Sun<br>
+<li><a href="https://www.latimes.com/topic/editorials">Editorials</a> - Los Angeles Times<br>
+<li><a href="https://nypost.com/opinion/">Editorials</a> - New York Post<br>
+<li><a href="https://www.nytimes.com/section/opinion">Editorials</a> - New York Times<br>
+<li><a href="https://www.inquirer.com/opinion/editorials/">Editorials</a> - Philadelphia Inquirer<br>
+<li><a href="https://www.sfgate.com/opinion/">Editorials</a> - San Francisco Chronicle<br>
+<li><a href="https://www.mercurynews.com/opinion/editorials/">Editorials</a> - San Jose Mercury News<br>
+<li><a href="https://www.seattletimes.com/html/editorialsopinion/">Editorials</a> - Seattle Times<br>
+<li><a href="https://www.stltoday.com/opinion/">Editorials</a> - St. Louis Post-Dispatch<br>
+<li><a href="https://www.tampabay.com/opinion/">Editorials</a> - Tampa Bay Tribune<br>
+<li><a href="https://www.thestar.com/opinion/editorials.html">Editorials</a> - Toronto Star<br>
+<li><a href="https://www.usatoday.com/opinion/">Editorials</a> - USA Today<br>
+<li><a href="https://www.washingtonpost.com/opinions/">Editorials</a> - Washington Post<br>
+<li><a href="http://www.washtimes.com/op-ed/">Editorials</a> - Washington Times<br>
+  <hr>
+  <b>Gossip:</b><br>
+<li><a href="https://pagesix.com/">Page Six</a> --<I>New York Post</I><br>
+  <br>
+  <b>Sports:</b><br>
+<li><a href="https://www.freep.com/sports/mitch-albom/">Mitch Albom</a> --<I>Detroit Free Press</I><br>
+<li><a href="https://www.nytimes.com/by/ira-berkow">Ira Berkow</a> --<I>New York Times</I><br>
+<li><a href="https://chicago.suntimes.com/authors/rick-telander">Rick Telander</a> --<I>Chicage Sun-Times</I> <br>
+<li><a href="https://www.espn.com/search/_/type/articles/q/Michael%20Wilbon">Michael Wilbon</a> --<I>ESPN</I>
+  <hr>
+  <b>Television Talk Shows:</b><br>
+<li><a href="https://www.mclaughlin.com/">The McLaughlin Group</a>  Check your local listings.<br>
+<li><a href="https://www.msn.com/">Meet the Press</a>  Check your local listings, NBC. <br>
+<li><a href="https://www.pbs.org/weta/washingtonweek/">Washington Week in Review</a> Check your local listings. PBS.<br>
+  </ul>
+  <hr>
+  <a id=Sports></a>
+    <TABLE BORDER=0>
+      <TR>
+        <TD BGCOLOR=#660099 ALIGN=center><b><font size =+1 COLOR=WHITE>Sports</font></b></TD>
+      </TR>
+    </TABLE>
+  <UL>
+<li><a href="https://www.espn.com/abcsports">ABC Sports</a>
+<li><a href="https://www.sportsline.com/">CBS SportsLine</a>
+<li><a href="https://www.latimes.com/sports/">Daily Sports News: LA Times</a>
+<li><a href="https://www.espn.com/">ESPN Sports Zone</a>
+<li><a href="https://www.foxsports.com/">FOX Sports</a>
+<li><a href="https://www.nbcsports.com/">MSNBC Sports</a>
+<li><a href="https://www.nba.com/">NBA.com</a>
+<li><a href="https://www.ncaa.com/">NCAA Football</a>
+<li><a href="https://www.nytimes.com/section/sports">New York Times Sports</a>
+<li><a href="https://www.cbssports.com/golf/">PGATOUR.com</a>
+<li><a href="https://www.sportingnews.com/">Sporting News</a>
+<li><a href="https://www.si.com/">Sports Illustrated</a>
+<li><a href="https://www.usatoday.com/sports/">USA Today Sports</a>
+<li><a href="https://sports.yahoo.com/">Yahoo Sports</a>
+<li><a href="sports.html">More Sports...</a>
+  </UL>
+  <hr>
+  <a id=Weather></a>
+    <TABLE BORDER=0>
+      <TR>
+        <TD BGCOLOR=#cc0000 ALIGN=center><b><font size =+1 COLOR=WHITE>Weather</font></b></TD>
+      </TR>
+    </TABLE>
+
+  <UL>
+<li><a href="https://www.accuweather.com/">AccuWeather</a> 
+<li><a href="https://www.refdesk.com/weath1.html">Weather Sites - Refdesk</a>
+<li><a href="https://www.weather.gov">National Weather Service</a>
+<li><a href="https://weather.com/">Weather Channel</a>
+<li><a href="http://clasp-research.engin.umich.edu/weather/">WeatherNet</a>
+<li><a href="http://www.worldclimate.com/">WorldClimate.com</a>
+  </UL>
+  <hr>
+  <a id=Wire></a>
+    <TABLE BORDER=0>
+      <TR>
+        <TD BGCOLOR=#3366ff ALIGN=center><b><font size =+1 COLOR=WHITE>Wire Services</font></b></TD>
+      </TR>
+    </TABLE>
+
+  <UL>
+<li>News Headlines:<br> <a href="https://apnews.com/hub/ap-top-news">AP Breaking News</a> || <a href="https://www.reuters.com/"> Reuters </a>
+<li>World Headlines:<br> <a href="https://apnews.com/hub/world-news">AP World News</a> || <a href="https://www.reuters.com/world/"> Reuters World</a>
+<li>Weather Headlines:<br> <a href="https://www.yahoo.com/news/weather/">Yahoo-Weather Channel</a>
+<li>Sports Headlines:<br> <a href="https://apnews.com/hub/sports">AP</a> || <a href="https://www.reuters.com/lifestyle/sports/">Reuters </a>
+<li>Politics Headlines:<br> <a href="https://apnews.com/hub/politics">AP</a> || <a href="https://www.reuters.com/politics">Reuters</a>
+<li>Business Headlines:<br> <a href="https://apnews.com/hub/business/">AP</a> || <a href="https://www.reuters.com/business/">Reuters</a>
+<li>Entertainment News:<br> <a href="https://apnews.com/hub/entertainment">AP</a> || <a href="https://www.reuters.com/lifestyle/">Reuters</a>
+<li>Technology News:<br> <a href="https://apnews.com/hub/technology">AP</a> | <a href="https://www.reuters.com/technology/">Reuters</a>
+<li>Health News:<br> <a href="https://apnews.com/hub/health">AP</a> || <a href="https://www.reuters.com/news/archive/healthNews">Reuters</a>
+  </UL>
+  <hr>
+  <a id=Atlas></a>
+    <TABLE>
+      <TR>
+        <TD BGCOLOR=#006666 ALIGN=center><b><font size =+1 COLOR=WHITE>Atlas and Maps</font></b></TD>
+      </TR>
+    </TABLE>
+<font size=3>
+<ul>
+<li><a href="https://www.allareacodes.com/area-code-map.htm">Area Code Map</a> - Map of telephone area codes.
+<li><a href="https://www.anyplaceamerica.com/">AnyPlaceAmerica.com</a> - "Topographic maps and photos of over 1.25 million water, land and man-made landmarks in the United States."
+<li><a href="https://www.atlapedia.com/">Atlapedia Online </a> -  key information on every country of the world.
+<li><a href="https://www.nrcan.gc.ca/maps-tools-and-publications/maps/atlas-canada/10784">Atlas of Canada</A>
+<li><a href="https://www.lib.berkeley.edu/libraries/earth-sciences-library">Berkeley Earth Sciences & Map Libraries</a>
+<li><a href="https://www.bing.com/maps">Bing Maps</a> - "Maps of the world, street map search, route planner, directions and traffic, satellite and aerial images, birds eye view, yellow pages, 3D cities, white pages, and more." 
+<li><a href="https://www.cia.gov/the-world-factbook/">CIA World Fact Book</a> - Countries described in terms of geography, language, climate, economy, etc.
+<li><a href="http://fermi.jhuapl.edu/states/states.html">Color Landform Atlas of the United States </a>
+<li><a href="https://1map.com/earthamapscom">EarthMaps by Delorme</a> - can search by zip code, street address, area code or exchange and by longitude and latitude.
+<li><a href="https://www.fourmilab.ch/earthview/vplanet.html">Earth Viewer</a> - Displays Day and Night Regions in Real Time
+<li><a href="https://earthquake.usgs.gov/earthquakes/map/">Earthquakes</a> - Latest earthquake information from the U.S. Geological Survey Earthquake Hazards Program.
+<li><a href="https://earthquake.usgs.gov/">Earthquakes</a> - Latest earthquake information from the U.S. Geological Survey Earthquake Hazards Program.
+<li><a href="https://www.fastcompany.com/90282957/12-maps-that-tell-the-extraordinary-story-of-2018?">Fast Company: 12 maps that tell the extraordinary story of 2018</a> - To mark the end of an extraordinary year, they compiled a list of some of the most compelling maps they've shared on Fast Company over the last 12 months. Most of these came from Esri, a spatial analytics company whose mapping software is used throughout the private and public sectors. The images in this link are just screen grabs, but you can click the links to find the corresponding interactive maps.
+<li><a href="https://epic.gsfc.nasa.gov">EPIC :: DSCOVR Satellite Images</a>Daily natural color imagery of Earth from the EPIC camera onboard the DSCOVR spacecraft.
+<li><a href="https://www.goes.noaa.gov/">Geostationary Satellite Server</a> - real-time satellite images provide a view from above.
+<li><a href="https://www.google.com/maps">Google Maps</a> - an online service that allows users in the U.S. to find location information,  navigate through maps, and get directions quickly and easily. Features include: Draggable maps, Integrated Local search results, and Turn-by-turn directions.
+<li><a href="https://www.hometownlocator.com/">HomeTownLocator Gazetteer</a> - Site contains data for 1.8 million physical and cultural features, US census information for 98,000 local areas and distance calculations for 177,000 populated places. Links to aerial photos, regional, local and topographical maps.
+<li><a href="http://www.indo.com/distance/">How Far Is It?</a>
+<li><a href="https://legacy.lib.utexas.edu/maps/map_sites/map_sites.html">Internet Map Resources</a> - Site by the Univ. of Texas Library presents an extensive collection of maps resources available on the Internet.  Categories include: Cartograhic Reference, City Map Sites, Country Map Sites, Historical Map Sites, State and Weather Map Sites.  
+<li><a href="https://www.infoplease.com/world/geography/major-cities-latitude-longitude-and-corresponding-time-zones">Latitude & Longitude of World Cities</a> 
+<li><a href="https://www.loc.gov/maps/collections/">Map Collections: 1500 - 2004</a> -  Site contains the largest and most comprehensive cartographic collection in the world with collections numbering over 4.5 million maps including 60,000 atlases, 6,000 reference works, numerous globes and plastic relief models, and a large number of cartographic materials in other formats, including electronic. 
+<li><a href="https://www.maps.com/">Maps.com</a>
+<li><a href="https://www.mapquest.com/">MapQuest </a>
+<li><a href="https://www.nrcan.gc.ca/maps-tools-and-publications/maps/atlas-canada/10784">National Atlas of Canada</a> - Learn about Canada's geography through texts and maps; access datasets; use an interactive mapping tool; try the quiz and consult teaching resources section.
+<li><a href="http://www.sna.se/webatlas/index.html">National Atlas of Sweden</a>
+<li><a href="https://www.utional> Atlas of the United States products are specialized geospatial, geostatistical, and thematic maps for the United States in digital raster and/or vector format.sgs.gov/centers/eros/science/usgs-eros-archive-digital-maps-national-atlas">National Atlas of the United States</a> - ""
+<li><a href="https://www.nationalgeographic.com/maps/">National Geographic Map Machine</a> - "Locate nearly any place on Earth, search and print historical, weather, and population maps, and more with our dynamic atlas."
+<li><a href="https://www.nationalgeographic.com/science/2020/06/where-people-arent/?cmpid=org=ngp::mc=crm-email::src=ngp::cmp=editorial::add=SpecialEdition_Escape_20200611&rid=464468C02E830ED1F9484F3F3F89C839">National Geographic: This map shows where on Earth humans aren’t</a> - A newly created map reveals the “wildest” places on Earth—places where humans have the lowest impact. The findings could be used to support the push to set aside half of Earth for nature.
+<li><a href="https://www.bts.gov/">Office of Geographic Information Services</a> - Bureau of Transportation Statistics, U.S. Department of Transportation. 
+<li><a href="https://www.onxmaps.com/offroad-app">onX Maps</a> - "OnX Is Home to the #1 Hunting, Mapping, Wind & Weather Tool Used by Millions On & Offline."
+<li><a href="https://www.oldmapsonline.org/">OldMapsOnline</a> - The easy-to-use getaway to historical maps in libraries around the world indexes over 400.000 maps.
+<li><a href="https://www.openstreetmap.org/#map=5/51.500/-0.100">OpenStreetMap.org</a> - "OpenStreetMap is a map of the world, created by people like you and free to use under an open license."
+<li><a href="https://legacy.lib.utexas.edu/maps/">Perry-Castaneda Library Map Collection</a> - At this comprehensive site, you will find many different types of maps along with links to related maps all over the Internet. Available sections include: country maps, city maps, detailed maps, thematic maps, historical maps, country and thematic maps on other web sites.
+<li><a href="https://www.theodora.com/maps/abc_world_maps.html">Quick Maps of the World</a>
+<li><a href="https://www.libs.uga.edu/darchive/hargrett/maps/maps.html">Rare Map Collection </a> - a collection of about 800 historical maps spanning nearly 500 years, from the sixteenth century through the early twentieth century. 
+<li><a href="https://www.census.gov/geographies/reference-maps.html">Reference Maps</a> - Locate states, counties, urban areas, school districts, places, zip codes, census tracts, census blocks, and other Census geographies. 
+<li><a href="https://www.ub.unibe.ch/research/special_collections/map_collections/ryh/index_eng.html">Ryhiner Project, The</a> - more than 15,000 maps, charts, plans and views from the 16th to the 18th century, covering the whole globe.
+<li><a href="http://www.terrafly.com/">TerraFly: Virtual 'Fly' Over the Entire U.S.</a> - This site by the School of Computer Science at Florida International University, allows users to view Geographic Information Systems images either by place (longitude/latitude) or street address. A unique feature of this service allows users to view the images continuously and seamlessly, giving the user a feeling of 'flying over' the photographed land areas.
+<li><a href="https://www.census.gov/programs-surveys/sis/resources/maps/thematic-maps.html">Thematic Maps</a> - View census data in graphical format for all geographies from the nation to individual Census blocks. Data are available for Census 2000, the 1990 Census, the 1997 Economic Census, and 2001 Population Estimates.  
+<li><a href="https://tigerweb.geo.census.gov/tigerwebmain/TIGERweb_main.html">TIGER Mapping Service</a> - U.S. Bureau of the Census.  
+<li><a href="https://www.nytimes.com/interactive/2019/10/10/climate/driving-emissions-map.html">The New York Times: The Most Detailed Map of Auto Emissions in America</a> - "Transportation is the largest source of planet-warming greenhouse gases in the United States today and the bulk of those emissions come from driving in our cities and suburbs." See also: <a href="https://web.archive.org/web/20210629043952/https://www.nytimes.com/interactive/2019/10/10/climate/driving-emissions-map.html">Archived Version</a>
+<li><a href="https://www.trailforks.com/">Trailforks.com</a> - "World's largest mountain biking trail database and management system for trail associations, builders and riders."  
+<li><a href="https://www.streetmap.co.uk/">UK Street Map Page</a> - This site provides address searching and street map facilities for the whole of mainland Britain. 
+<li><a href="https://www.melissa.com/v2/lookups/personator/">U.S. Address Lookup</a> - Using this site you can verify any U.S. address and get information on the county, time zone, house of representative member, latitude, longitude, income, home prices and more.
+<li><a href="https://www.usgs.gov/">U.S. Geological Survey Home Page</a>
+<li><a href="https://www.usgs.gov/core-science-systems/national-geospatial-program/national-map">United States Geological Survey: National Map</a> - As one of the cornerstones of the U.S. Geological Survey's (USGS) National Geospatial Program, The National Map is a collaborative effort among the USGS and other Federal, State, and local partners to improve and deliver topographic information for the Nation. It has many uses ranging from recreation to scientific analysis to emergency response.
+<li><a href="https://www.vox.com/a/lead-exposure-risk-map">Vox: The risk of lead poisoning isn't just in Flint. So we mapped the risk in every neighborhood in America</a> - "Neighborhoods where kids face the highest risk of lead poisoning exist all across America.  
+<li><a href="https://www.worldatlas.com/aatlas/world.htm">WorldAtlas.com</a> - comprehensive world atlas and geography info site.
+<li><a href="https://legacy.lib.utexas.edu/maps/map_sites/cities_sites.html">World Wide City Maps</a>
+<li><a href="https://maps.yahoo.com/b/">Yahoo! Maps</a> - "Yahoo! Maps, Driving Directions, Satellite View and Traffic. Rated the best online mapping experience."
+<li><a href="https://www.loc.gov/programs/teachers/about-this-program/">Zoom Into Maps</a> - Maps help us make sense of our world. This Library of Congress site explores maps and how they are used, with sectionsfor local geography, exploration and discovery, migration and settlement, environmental history, travel and transportation, military, pictorial, and unusual maps.
+</ul>
