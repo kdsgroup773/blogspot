@@ -113,10 +113,10 @@
             <button class="btn btn-clear" onclick="clearInput()">Clear Input</button>
         </div>
     </div>
-    <p>All The News That's Fit To Print On  Ken's Blogspot</p>
-<p>#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending</p>
-
+    <p>All The News That's Fit To Print On Ken's Blogspot</p>
+    <p>#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending</p>
 </div>
+
 <div class="dashboard-wrapper">
     <div class="dashboard">
         <div class="column">
@@ -147,17 +147,19 @@
 </div>
 
 <script>
+// --- AUTOMATION BRIDGE ---
+const bridge = new BroadcastChannel('social_post_bridge');
+
 const HEADER_TEXT = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
 const BRANDING_FOOTER = " ";
-// const BRANDING_FOOTER = "\n\n#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending";
 
 const config = [
-    { id: 'm-area', countId: 'm-count', limit: 750, label: 'Mastodon', format: 'plain' },
-    { id: 'sub-area', countId: 'sub-count', limit: 1000, label: 'Substack', format: 'substack' },
-    { id: 't-area', countId: 't-count', limit: 9000, label: 'Tumblr', format: 'markdown' },
-    { id: 'p-area', countId: 'p-count', limit: 9000, label: 'Paragraph', format: 'rich' },
-    { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain' },
-    { id: 'x-area', countId: 'x-count', limit: 410, label: 'X/Twitter', format: 'plain' }
+    { id: 'm-area', countId: 'm-count', limit: 750, label: 'Mastodon', format: 'plain', key: 'mastodon' },
+    { id: 'sub-area', countId: 'sub-count', limit: 1000, label: 'Substack', format: 'substack', key: 'substack' },
+    { id: 't-area', countId: 't-count', limit: 9000, label: 'Tumblr', format: 'markdown', key: 'tumblr' },
+    { id: 'p-area', countId: 'p-count', limit: 9000, label: 'Paragraph', format: 'rich', key: 'paragraph' },
+    { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain', key: 'linkedin' },
+    { id: 'x-area', countId: 'x-count', limit: 410, label: 'X/Twitter', format: 'plain', key: 'x' }
 ];
 
 function clearInput() { document.getElementById('rawInput').value = ""; }
@@ -165,7 +167,6 @@ function clearInput() { document.getElementById('rawInput').value = ""; }
 function cleanLine(line) {
     const urlMatch = line.match(/https?:\/\/\S+$/);
     const url = urlMatch ? urlMatch[0] : null;
-    
     let title = line.replace(url, "").trim();
     return { title, url };
 }
@@ -198,12 +199,11 @@ function generateAll() {
                 textEntry = `${title}\n${url}\n\n`;
             }
 
-            // Define if footer should be used for this platform
             const footerToUse = (p.label === 'Mastodon') ? "" : BRANDING_FOOTER;
 
             if ((currentBatchText + textEntry + footerToUse).length > p.limit) {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format);
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
@@ -213,16 +213,17 @@ function generateAll() {
 
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format);
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
     });
 }
 
-function addCard(container, content, title, htmlContent, format) {
+function addCard(container, content, title, htmlContent, format, key) {
     const card = document.createElement('div');
     card.className = 'batch-card';
+    card.setAttribute('data-platform', key);
     card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <small><b>${title}</b></small>
@@ -236,6 +237,7 @@ function addCard(container, content, title, htmlContent, format) {
 
 async function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
+    const platform = card.getAttribute('data-platform');
     const text = card.querySelector('.batch-text').innerText;
     const html = card.querySelector('.hidden-html').innerHTML;
     
@@ -247,6 +249,9 @@ async function copyDynamic(btn, format) {
     };
 
     try {
+        // BROADCAST to the other tab
+        bridge.postMessage({ site: platform, text: text });
+
         if (format === 'rich') {
             const blobHtml = new Blob([html], { type: "text/html" });
             const blobText = new Blob([text], { type: "text/plain" });
