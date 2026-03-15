@@ -103,56 +103,47 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         sectionHtml += `<h3>${sourceText}</h3>`;
         sectionHtml += '<ul style="list-style: none; padding: 0;">';
         items.forEach(item => {
-            let title = item.querySelector('title')?.textContent || 'No Title';
-            const pubDateStr = item.querySelector('pubDate')?.textContent;
-            let maxLen = 50; 
-            // 1. Find the first colon and start the title AFTER it
-            if (title.includes(":")) {
-                // Slice starting from the index of the first colon + 1 (to skip the colon itself)
-                title = title.substring(title.indexOf(":") + 1).trim();
-            }
-            // 2. Now apply your "Move Forward" trimming logic to the cleaned title
-            if (title.length > maxLen) {
-                // Find the first space starting from maxLen
-                let nextSpace = title.indexOf(" ", maxLen);
-                if (nextSpace !== -1) {
-                    title = title.substring(0, nextSpace) + "...";
-                } 
-                else if (title.length > (maxLen + 20)) { 
-                         title = title.substring(0, maxLen) + "...";
-                }
-            }
-            let date = null;
-            if (pubDateStr) {
-                try {
-                    date = new Date(pubDateStr);
-                    if (isNaN(date.getTime())) {
-                        console.warn("Invalid date string for new Date():", pubDateStr);
-                        date = null;
-                    }
-                } catch (e) {
-                    console.error("Error parsing date:", pubDateStr, e);
-                    date = null;
-                }
-            }
-            sectionHtml += `<li>`;
-            if (date) {
-                sectionHtml += `${date.toLocaleDateString()} `;
-            } else {
-                // If no date is provided, use today's date
-                const today = new Date();
-                sectionHtml += `${today.toLocaleDateString()} `;
-            }
-            sectionHtml += `<strong>${sourceText}</strong>: `;
-            sectionHtml += `${title}`;
-            if (optionId) {
-                // The issue is here: this is where fullOptionId is used.
-                // However, it's only defined in autoLoad() or manualLoad().
-                // You need to pass it into this function and make it accessible.
-                sectionHtml += ` ${optionId}`;
-            }
-            sectionHtml += `</li>`;
-        });
+    let title = item.querySelector('title')?.textContent || 'No Title';
+    // Get the link for the specific news article
+    const itemLink = item.querySelector('link')?.textContent || '#'; 
+    const pubDateStr = item.querySelector('pubDate')?.textContent;
+    let maxLen = 50; 
+
+    // 1. Clean the title (existing logic)
+    if (title.includes(":")) {
+        title = title.substring(title.indexOf(":") + 1).trim();
+    }
+
+    // 2. Trimming logic (existing logic)
+    if (title.length > maxLen) {
+        let nextSpace = title.indexOf(" ", maxLen);
+        if (nextSpace !== -1) {
+            title = title.substring(0, nextSpace) + "...";
+        } else if (title.length > (maxLen + 20)) { 
+            title = title.substring(0, maxLen) + "...";
+        }
+    }
+
+    // 3. Date logic (existing logic)
+    let date = null;
+    if (pubDateStr) {
+        date = new Date(pubDateStr);
+    }
+    const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
+
+    // --- UPDATED HTML STRUCTURE ---
+    sectionHtml += `<li>`;
+    sectionHtml += `${displayDate} `;
+    sectionHtml += `<strong>${sourceText}</strong>: `;
+    
+    // This is the part that makes it a link:
+    sectionHtml += `<a href="${itemLink}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">${title}</a>`;
+    
+    if (optionId) {
+        sectionHtml += ` <small style="color: #666;">(${optionId})</small>`;
+    }
+    sectionHtml += `</li>`;
+});
         sectionHtml += '</ul>';
         displayContainer.innerHTML += sectionHtml;
     } catch (error) {
