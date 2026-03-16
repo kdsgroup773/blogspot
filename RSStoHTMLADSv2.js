@@ -106,7 +106,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         items.forEach(item => {
     let title = item.querySelector('title')?.textContent || 'No Title';
     const pubDateStr = item.querySelector('pubDate')?.textContent;
-    const linkUrl = item.querySelector('link')?.textContent || '#'; // Get the actual URL
+    // const linkUrl = item.querySelector('link')?.textContent || '#'; // Get the actual URL
     let maxLen = 50; 
 
     // 1. Title Trimming Logic (remains the same)
