@@ -106,7 +106,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         items.forEach(item => {
     let title = item.querySelector('title')?.textContent || 'No Title';
     const pubDateStr = item.querySelector('pubDate')?.textContent;
-    // const linkUrl = item.querySelector('link')?.textContent || '#'; // Get the actual URL
+    const linkUrl = item.querySelector('link')?.textContent || '#'; // Get the actual URL
     let maxLen = 50; 
 
     // 1. Title Trimming Logic (remains the same)
@@ -146,9 +146,9 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
     sectionHtml += `<a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a>`;
 
     // Append the ID/Fragment if it exists (for your dynamic jumps)
-    if (optionId) {
-        sectionHtml += ` <span style="font-size: 0.8em; color: #888;">(${optionId})</span>`;
-    }
+    // if (optionId) {
+    //    sectionHtml += ` <span style="font-size: 0.8em; color: #888;">(${optionId})</span>`;
+    // }
 
     sectionHtml += `</li>`;
 });
