@@ -102,19 +102,18 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         let sectionHtml = '';
         sectionHtml += `<h3>${sourceText}</h3>`;
         sectionHtml += '<ul style="list-style: none; padding: 0;">';
+            
         items.forEach(item => {
     let title = item.querySelector('title')?.textContent || 'No Title';
-    // Get the link for the specific news article
-    const itemLink = item.querySelector('link')?.textContent || '#'; 
     const pubDateStr = item.querySelector('pubDate')?.textContent;
+    const linkUrl = item.querySelector('link')?.textContent || '#'; // Get the actual URL
     let maxLen = 50; 
 
-    // 1. Clean the title (existing logic)
+    // 1. Title Trimming Logic (remains the same)
     if (title.includes(":")) {
         title = title.substring(title.indexOf(":") + 1).trim();
     }
 
-    // 2. Trimming logic (existing logic)
     if (title.length > maxLen) {
         let nextSpace = title.indexOf(" ", maxLen);
         if (nextSpace !== -1) {
@@ -124,24 +123,33 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         }
     }
 
-    // 3. Date logic (existing logic)
+    // 2. Date Logic (remains the same)
     let date = null;
     if (pubDateStr) {
-        date = new Date(pubDateStr);
+        try {
+            date = new Date(pubDateStr);
+            if (isNaN(date.getTime())) date = null;
+        } catch (e) { date = null; }
     }
-    const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
 
-    // --- UPDATED HTML STRUCTURE ---
+    // 3. Build the HTML with the hidden URL
     sectionHtml += `<li>`;
+    
+    // Add Date
+    const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
     sectionHtml += `${displayDate} `;
+
+    // Add Source
     sectionHtml += `<strong>${sourceText}</strong>: `;
-    
-    // This is the part that makes it a link:
-    sectionHtml += `<a href="${itemLink}" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">${title}</a>`;
-    
+
+    // The Magic: Wrap the title in the link and skip displaying the URL string
+    sectionHtml += `<a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a>`;
+
+    // Append the ID/Fragment if it exists (for your dynamic jumps)
     if (optionId) {
-        sectionHtml += ` <small style="color: #666;">(${optionId})</small>`;
+        sectionHtml += ` <span style="font-size: 0.8em; color: #888;">(${optionId})</span>`;
     }
+
     sectionHtml += `</li>`;
 });
         sectionHtml += '</ul>';
