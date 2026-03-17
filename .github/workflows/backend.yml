@@ -31,5 +31,4 @@ jobs:
       - name: Cross build (${{ matrix.target }})
         env:
           BUILD_TARGET: ${{ matrix.target }}
-        run: |
-          run: bash ./scripts/cross-build.sh
+        run: bash ./scripts/cross-build.sh
