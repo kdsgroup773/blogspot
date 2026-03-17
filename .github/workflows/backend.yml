@@ -32,5 +32,4 @@ jobs:
         env:
           BUILD_TARGET: ${{ matrix.target }}
         run: |
-          chmod +x ./scripts/cross-build.sh
-          ./scripts/cross-build.sh
+          run: bash ./scripts/cross-build.sh
