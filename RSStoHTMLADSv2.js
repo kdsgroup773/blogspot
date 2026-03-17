@@ -1,4 +1,3 @@
-
 // Define proxyList globally, as it's a constant list 
 const proxyList = [
         'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
