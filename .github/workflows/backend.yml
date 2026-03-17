@@ -3,16 +3,16 @@ name: backend
 on:
   push:
     paths:
-    - ".github/workflows/backend.yml"
-    - "CMakeLists.txt"
-    - "src/*"
-    - "scripts/*"
+      - ".github/workflows/backend.yml"
+      - "CMakeLists.txt"
+      - "src/**"
+      - "scripts/**"
   pull_request:
     paths:
-    - ".github/workflows/backend.yml"
-    - "CMakeLists.txt"
-    - "src/*"
-    - "scripts/*"
+      - ".github/workflows/backend.yml"
+      - "CMakeLists.txt"
+      - "src/**"
+      - "scripts/**"
   workflow_call:
 
 jobs:
@@ -24,14 +24,19 @@ jobs:
         target: [i686, x86_64, arm, armhf, aarch64, mips, mipsel, mips64, mips64el, s390x, win32]
     steps:
       - uses: actions/checkout@v4
+
       - name: Install packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y autoconf automake build-essential cmake curl file libtool
+          sudo apt-get install -y autoconf automake build-essential cmake curl file libtool gcc-multilib g++-multilib
+
       - name: Cross build (${{ matrix.target }})
         env:
           BUILD_TARGET: ${{ matrix.target }}
-        run:
-          git update-index --chmod=+x ./scripts/cross-build.sh
-        run: 
-          ./scripts/cross-build.sh
+        run: bash ./scripts/cross-build.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ttyd.${{ matrix.target }}
+          path: build/ttyd*
