@@ -192,19 +192,20 @@ function generateAll() {
 
          lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            if (!url) return; // Skip lines without URLs
+            if (!url) return; 
 
             // Logic to handle existing '?' in URLs
             const separator = url.includes('?') ? '&' : '?';
             let textEntry = "";
             let htmlEntry = "";
 
-            if (p.format === 'substack') {
-                htmlEntry = `<a href="${url}${separator}ref=substack" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
-                textEntry = `${title} - ${url}${separator}ref=substack\n\n`;
-            } else if (p.format === 'rich') {
-                // Determine if we are on Paragraph or another rich platform
-                const tag = (p.label === 'Paragraph') ? 'ref=paragraph' : 's=primal'; 
+            // 1. Generate the Content based on format
+            if (p.format === 'substack' || p.format === 'rich') {
+                // Determine the tag based on the platform label
+                let tag = "ref=substack";
+                if (p.label.includes("Paragraph")) tag = "ref=paragraph";
+                if (p.label.includes("Primal")) tag = "s=primal";
+
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
             } else if (p.format === 'markdown') {
@@ -215,27 +216,28 @@ function generateAll() {
 
             const footerToUse = (p.label === 'Mastodon') ? "" : BRANDING_FOOTER;
 
-            // CRITICAL FIX: Ensure both text and HTML are updated for Substack and Rich formats
+            // 2. Batching Logic (CRITICAL FIX: Check for both rich and substack here)
+            const isRichFormat = (p.format === 'rich' || p.format === 'substack');
+
             if ((currentBatchText + textEntry + footerToUse).length > p.limit) {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' || p.format === 'substack' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                // Add the full batch to a card
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (isRichFormat ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                
+                // Reset for the next batch
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
                 currentBatchText += textEntry;
-                // Save the HTML for platforms that support Rich Text
-                if (p.format === 'rich' || p.format === 'substack') {
-                    currentBatchHtml += htmlEntry;
-                }
+                if (isRichFormat) currentBatchHtml += htmlEntry;
             }
 
+            // 3. Handle the final remaining batch
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' || p.format === 'substack' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (isRichFormat ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
             }
         });
-        document.getElementById(p.countId).innerText = batchCounter;
-    });
 }
 
 function addCard(container, content, title, htmlContent, format, key) {
