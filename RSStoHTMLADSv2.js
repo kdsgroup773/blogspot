@@ -142,7 +142,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
     sectionHtml += `<strong>${sourceText}</strong>: `;
 
     // The Magic: Wrap the title in the link and skip displaying the URL string
-    sectionHtml += `<a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a>`;
+    sectionHtml += `<a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a>`;
 
     // Append the ID/Fragment if it exists (for your dynamic jumps)
     // if (optionId) {
