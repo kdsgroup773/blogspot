@@ -196,7 +196,7 @@ function generateAll() {
             let htmlEntry = "";
 
             if (p.format === 'substack') {
-                textEntry = `${title}\n[${url}]?ref=substack\n\n`;
+                textEntry = `${title}\n[${url}?ref=substack]\n\n`;
             } else if (p.format === 'rich') {
                 htmlEntry = `<a href="${url}">${title}</a><br><br>`;
                 textEntry = `${title}: ${url}\n\n`;
