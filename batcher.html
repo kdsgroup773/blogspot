@@ -196,7 +196,8 @@ function generateAll() {
             let htmlEntry = "";
 
             if (p.format === 'substack') {
-                htmlEntry = `<a href="${url}?ref=substack" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
+                const separator = url.includes('?') ? '&' : '?';
+                htmlEntry = `<a href="${url}${separator}ref=substack" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
                 //htmlEntry = `<a href="${url}?ref=substack">${title}</a><br><br>`;
                 //textEntry = `${title}: ${url}?ref=substack\n\n`;
             } else if (p.format === 'rich') {
