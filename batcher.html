@@ -113,15 +113,8 @@
             <button class="btn btn-clear" onclick="clearInput()">Clear Input</button>
         </div>
     </div>
-<!-- p>All The News That's Fit To Print On Ken's Blogspot</p -->
-<button onclick="navigator.clipboard.writeText('All The News That\'s Fit To Print On Ken\'s Blogspot')">
-  Copy Text
-</button>
-<hr>
-<!-- p>#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending</p -->
-<button onclick="navigator.clipboard.writeText('#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending')">
-  Copy Hashtags
-</button>
+    <button onclick="navigator.clipboard.writeText('All The News That\'s Fit To Print On Ken\'s Blogspot')">Copy Title Text</button>
+    <button onclick="navigator.clipboard.writeText('#News, #DailyNews, #USNews, #LocalNews, #WorldNews, #BreakingNews, #Headlines, #CurrentEvents, #TopStories, #Facts, #Trending')">Copy Hashtags</button>
 </div>
 
 <div class="dashboard-wrapper">
@@ -131,16 +124,16 @@
             <div class="column-content" id="m-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--sub-orange)"><span>Substack (Notes)</span><span id="sub-count" class="batch-count-pill">0</span></div>
+            <div class="column-header" style="color:var(--sub-orange)"><span>Substack</span><span id="sub-count" class="batch-count-pill">0</span></div>
             <div class="column-content" id="sub-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--t-blue)"><span>Tumblr (MD)</span><span id="t-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="t-area"></div>
+            <div class="column-header" style="color:var(--p-orange)"><span>Paragraph</span><span id="p-count" class="batch-count-pill">0</span></div>
+            <div class="column-content" id="p-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--p-orange)"><span>Paragraph (Tab)</span><span id="p-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="p-area"></div>
+            <div class="column-header" style="color:var(--t-blue)"><span>Primal (Nostr)</span><span id="pri-count" class="batch-count-pill">0</span></div>
+            <div class="column-content" id="pri-area"></div>
         </div>
         <div class="column">
             <div class="column-header" style="color:var(--li-blue)"><span>LinkedIn</span><span id="li-count" class="batch-count-pill">0</span></div>
@@ -154,17 +147,14 @@
 </div>
 
 <script>
-// --- AUTOMATION BRIDGE ---
 const bridge = new BroadcastChannel('social_post_bridge');
-
-const HEADER_TEXT = "ALL THE NEWS THAT IS FIT TO PRINT TODAY FROM KEN'S BLOGSPOT\n\n";
 const BRANDING_FOOTER = " ";
 
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 750, label: 'Mastodon', format: 'plain', key: 'mastodon' },
-    { id: 'sub-area', countId: 'sub-count', limit: 1000, label: 'Substack', format: 'substack', key: 'substack' },
-    { id: 't-area', countId: 't-count', limit: 9000, label: 'Tumblr', format: 'markdown', key: 'tumblr' },
+    { id: 'sub-area', countId: 'sub-count', limit: 1000, label: 'Substack', format: 'rich', key: 'substack' },
     { id: 'p-area', countId: 'p-count', limit: 9000, label: 'Paragraph', format: 'rich', key: 'paragraph' },
+    { id: 'pri-area', countId: 'pri-count', limit: 9000, label: 'Primal', format: 'rich', key: 'primal' },
     { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain', key: 'linkedin' },
     { id: 'x-area', countId: 'x-count', limit: 410, label: 'X/Twitter', format: 'plain', key: 'x' }
 ];
@@ -190,54 +180,44 @@ function generateAll() {
         let currentBatchHtml = "";
         let batchCounter = 0;
 
-         lines.forEach((rawLine, index) => {
+        lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
-            if (!url) return; 
+            if (!url) return;
 
-            // Logic to handle existing '?' in URLs
             const separator = url.includes('?') ? '&' : '?';
             let textEntry = "";
             let htmlEntry = "";
 
-            // 1. Generate the Content based on format
-            if (p.format === 'substack' || p.format === 'rich') {
-                // Determine the tag based on the platform label
+            if (p.format === 'rich') {
                 let tag = "ref=substack";
-                if (p.label.includes("Paragraph")) tag = "ref=paragraph";
-                if (p.label.includes("Primal")) tag = "s=primal";
+                if (p.label === 'Paragraph') tag = "ref=paragraph";
+                if (p.label === 'Primal') tag = "s=primal";
 
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
-            } else if (p.format === 'markdown') {
-                textEntry = `### [${title}](${url})\n\n`;
             } else {
                 textEntry = `${title}\n${url}\n\n`;
             }
 
             const footerToUse = (p.label === 'Mastodon') ? "" : BRANDING_FOOTER;
 
-            // 2. Batching Logic (CRITICAL FIX: Check for both rich and substack here)
-            const isRichFormat = (p.format === 'rich' || p.format === 'substack');
-
             if ((currentBatchText + textEntry + footerToUse).length > p.limit) {
                 batchCounter++;
-                // Add the full batch to a card
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (isRichFormat ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
-                
-                // Reset for the next batch
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
                 currentBatchText += textEntry;
-                if (isRichFormat) currentBatchHtml += htmlEntry;
+                if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
-            // 3. Handle the final remaining batch
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (isRichFormat ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
             }
         });
+        document.getElementById(p.countId).innerText = batchCounter;
+    });
 }
 
 function addCard(container, content, title, htmlContent, format, key) {
@@ -269,9 +249,7 @@ async function copyDynamic(btn, format) {
     };
 
     try {
-        // BROADCAST to the other tab
         bridge.postMessage({ site: platform, text: text });
-
         if (format === 'rich') {
             const blobHtml = new Blob([html], { type: "text/html" });
             const blobText = new Blob([text], { type: "text/plain" });
