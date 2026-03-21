@@ -201,9 +201,11 @@ function generateAll() {
                 htmlEntry = `<a href="${url}">${title}</a><br><br>`;
                 textEntry = `${title}: ${url}\n\n`;
             } else if (p.format === 'markdown') {
-                textEntry = `### [${title}](${url})\n\n`;
+                textEntry = `### [${title}](${url}?ref=substack
+)\n\n`;
             } else {
-                textEntry = `${title}\n${url}\n\n`;
+                textEntry = `${title}\n${url}?ref=substack
+\n\n`;
             }
 
             const footerToUse = (p.label === 'Mastodon') ? "" : BRANDING_FOOTER;
