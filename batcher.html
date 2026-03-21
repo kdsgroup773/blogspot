@@ -192,15 +192,21 @@ function generateAll() {
 
          lines.forEach((rawLine, index) => {
             const { title, url } = cleanLine(rawLine);
+            if (!url) return; // Skip lines without URLs
+
+            // Logic to handle existing '?' in URLs
+            const separator = url.includes('?') ? '&' : '?';
             let textEntry = "";
             let htmlEntry = "";
 
             if (p.format === 'substack') {
-                htmlEntry = `<a href="${url}?ref=substack">${title}</a><br><br>`;
-                //textEntry = `${title}: ${url}?ref=substack\n\n`;
+                htmlEntry = `<a href="${url}${separator}ref=substack" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
+                textEntry = `${title} - ${url}${separator}ref=substack\n\n`;
             } else if (p.format === 'rich') {
-                htmlEntry = `<a href="${url}">${title}</a><br><br>`;
-                textEntry = `${title}: ${url}\n\n`;
+                // Determine if we are on Paragraph or another rich platform
+                const tag = (p.label === 'Paragraph') ? 'ref=paragraph' : 's=primal'; 
+                htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
+                textEntry = `${title} - ${url}${separator}${tag}\n\n`;
             } else if (p.format === 'markdown') {
                 textEntry = `### [${title}](${url})\n\n`;
             } else {
@@ -209,19 +215,23 @@ function generateAll() {
 
             const footerToUse = (p.label === 'Mastodon') ? "" : BRANDING_FOOTER;
 
+            // CRITICAL FIX: Ensure both text and HTML are updated for Substack and Rich formats
             if ((currentBatchText + textEntry + footerToUse).length > p.limit) {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' || p.format === 'substack' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
                 currentBatchText += textEntry;
-                if (p.format === 'rich') currentBatchHtml += htmlEntry;
+                // Save the HTML for platforms that support Rich Text
+                if (p.format === 'rich' || p.format === 'substack') {
+                    currentBatchHtml += htmlEntry;
+                }
             }
 
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' || p.format === 'substack' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
