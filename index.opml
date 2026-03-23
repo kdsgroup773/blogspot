@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Ken's Master News Feed</title>
+  </head>
+  <body>
+
+<outline text="Countries">
+<outline type="rss" text="Albania" xmlUrl="https://balkaninsight.com/category/bi/albania/feed/"  />
+<outline type="rss" text="Austria" xmlUrl="https://feeds.thelocal.com/rss/builder/at"  />
+<outline type="rss" text="Bangladesh" xmlUrl="https://thebangladeshtoday.com/?feed=rss2"  />
+<outline type="rss" text="Belgium" xmlUrl="https://www.thebulletin.be/rss.xml"  />
+<outline type="rss" text="Brazil" xmlUrl="https://en.mercopress.com/rss/brazil"  />
+<outline type="rss" text="British Virgin Island" xmlUrl="https://bvinews.com/feed/"  />
+<outline type="rss" text="Canada" xmlUrl="https://globalnews.ca/feed/"  />
+<outline type="rss" text="China" xmlUrl="https://www.scmp.com/rss/4/feed"  />
+<outline type="rss" text="Colombia" xmlUrl="https://colombiareports.com/feed/"  />
+<outline type="rss" text="Denmark" xmlUrl="https://feeds.thelocal.com/rss/dk"  />
+<outline type="rss" text="Egypt" xmlUrl="https://egyptianstreets.com/feed/" />
+<outline type="rss" text="Ethiopia" xmlUrl="https://zehabesha.com/feed/"  />
+<outline type="rss" text="Finland" xmlUrl="https://www.helsinkitimes.fi/?format=feed&amp;type=rss"  />
+<outline type="rss" text="France" xmlUrl="https://www.france24.com/en/france/rss"  />
+<outline type="rss" text="Germany" xmlUrl="https://www.spiegel.de/international/index.rss"  />
+<outline type="rss" text="Greece" xmlUrl="https://feeds.feedburner.com/ekathimerini/sKip"  />
+<outline type="rss" text="Hong Kong" xmlUrl="https://www.scmp.com/rss/91/feed"  />
+<outline type="rss" text="India" xmlUrl="https://timesofindia.indiatimes.com/rssfeedmostrecent.cms"  />
+<outline type="rss" text="Indonesia" xmlUrl="https://en.antaranews.com/rss/news.xml"  />
+<outline type="rss" text="Iran" xmlUrl="https://en.mehrnews.com/rss"  />
+<outline type="rss" text="Ireland" xmlUrl="https://www.dublinlive.ie/news/dublin-news/?service=rss"  />
+<outline type="rss" text="Israel" xmlUrl="https://www.israelhayom.com/feed/"  />
+<outline type="rss" text="Italy" xmlUrl="https://feeds.thelocal.com/rss/it"  />
+<outline type="rss" text="Jamaica" xmlUrl="https://www.jamaicaobserver.com/app-feed-category/?category=latest-news"  />
+<outline type="rss" text="Japan" xmlUrl="https://www.japantimes.co.jp/feed"  />
+<outline type="rss" text="Kenya" xmlUrl="https://www.kenyanews.go.ke/feed/"  />
+<outline type="rss" text="Malaysia" xmlUrl="https://www.malaysiakini.com/rss/en/news.rss"  />
+<outline type="rss" text="Mexico" xmlUrl="https://mexiconewsdaily.com/feed/"  />
+<outline type="rss" text="Japan" xmlUrl="https://www.moroccoworldnews.com/comments/feed/"  />
+<outline type="rss" text="Myanmar" xmlUrl="https://www.gnlm.com.mm/feed/"  />
+<outline type="rss" text="Nepal" xmlUrl="https://english.onlinekhabar.com/feed"  />
+<outline type="rss" text="Netherlands" xmlUrl="https://nltimes.nl/rssfeed2"  />
+<outline type="rss" text="New Zealand" xmlUrl="https://www.nzherald.co.nz/arc/outboundfeeds/rss/section/nz/?outputType=xml&amp;_website=nzh"  />
+<outline type="rss" text="Nicaragua" xmlUrl="https://english.elpais.com/arc/outboundfeeds/rss/tags_slug/nicaragua-a/?outputType=xml"  />
+<outline type="rss" text="Nigeria" xmlUrl="https://www.naijanews.com/feed/"  />
+<outline type="rss" text="Norway" xmlUrl="https://feeds.thelocal.com/rss/no"  />
+<outline type="rss" text="North Korea" xmlUrl="https://www.dailynk.com/english/feed/"  />
+<outline type="rss" text="Oman" xmlUrl="https://www.muscatdaily.com/feed/"  />
+<outline type="rss" text="Pakistan" xmlUrl="https://tribune.com.pk/feed/latest"  />
+<outline type="rss" text="Palistine" xmlUrl="https://www.palestinechronicle.com/feed/"  />
+<outline type="rss" text="Philippines" xmlUrl="https://www.inquirer.net/fullfeed/"  />
+<outline type="rss" text="Poland" xmlUrl="https://notesfrompoland.com/feed/"  />
+<outline type="rss" text="Portugal" xmlUrl="https://www.portugal.com/feed/"  />
+<outline type="rss" text="Qatar" xmlUrl="https://dohanews.co/feed/"  />
+<outline type="rss" text="Romania" xmlUrl="https://flipboard.com/topic/romania.rss"  />
+<outline type="rss" text="Russia" xmlUrl="https://tass.com/rss/v2.xml"  />
+<outline type="rss" text="Saudi Arabia" xmlUrl="https://saudigazette.com.sa/rssFeed/74"  />
+<outline type="rss" text="Sierra Leone" xmlUrl="https://feeds.sierraleonetimes.com/rss/8fcd2bb0346b8627"  />
+<outline type="rss" text="Singapore" xmlUrl="https://www.straitstimes.com/news/singapore/rss.xml"  />
+<outline type="rss" text="South Africa" xmlUrl="https://feeds.capi24.com/v1/Search/articles/News24/TopStories/rss"  />
+<outline type="rss" text="South Korea" xmlUrl="https://flipboard.com/topic/southkorea.rss"  />
+<outline type="rss" text="Spain" xmlUrl="https://feeds.thelocal.com/rss/es"  />
+<outline type="rss" text="Sweden" xmlUrl="https://www.dailymail.co.uk/news/sweden/index.rss"  />
+<outline type="rss" text="Switzerland" xmlUrl="https://feeds.thelocal.com/rss/ch"  />
+<outline type="rss" text="Syria" xmlUrl="https://sana.sy/en/?feed=rss2"  />
+<outline type="rss" text="Taiwan" xmlUrl="https://flipboard.com/topic/taiwan.rss"  />
+<outline type="rss" text="Thailand" xmlUrl="https://www.bangkokpost.com/rss/data/most-recent.xml"  />
+<outline type="rss" text="Trinadad" xmlUrl="https://newsday.co.tt/feed/"  />
+<outline type="rss" text="Turkey" xmlUrl="https://newsday.co.tt/feed/"  />
+<outline type="rss" text="Uganda" xmlUrl="https://www.watchdoguganda.com/feed"  />
+<outline type="rss" text="Ukraine" xmlUrl="https://kyivindependent.com/news-archive/rss/"  />
+<outline type="rss" text="United Arab Emerates" xmlUrl="https://www.aljazeera.com/xml/rss/all.xml"  />
+<outline type="rss" text="United Kingdom" xmlUrl="http://feeds.bbci.co.uk/news/uk/rss.xml"  />
+<outline type="rss" text="Venezuela" xmlUrl="https://in-venezuela.com/author/gcorvus/feed/"  />
+<outline type="rss" text="Vietnam" xmlUrl="https://e.vnexpress.net/rss/news.rss"  />
+<outline type="rss" text="Yemen" xmlUrl="https://en.ypagency.net/feed"  />
+<outline type="rss" text="Zambia" xmlUrl="https://www.dailynationzambia.com/comments/feed/"  />
+<outline type="rss" text="Zimbabwe" xmlUrl="https://iharare.com/feed/"  />
+<outline type="rss" text="United States" xmlUrl="https://feeds.npr.org/1004/rss.xml"  />
+<outline type="rss" text="Australia" xmlUrl="https://www.abc.net.au/news/feed/51120/rss.xml"  />
+<outline type="rss" text="Argentina" xmlUrl="https://www.batimes.com.ar/feed"  />
+<outline type="rss" text="Ghana" xmlUrl="https://www.myjoyonline.com/feed/"  />
+<outline type="rss" text="Czech Republic" xmlUrl="https://www.praguemonitor.com/feed/"  />
+<outline type="rss" text="Chile" xmlUrl="https://santiagotimes.cl/feed/"  />
+<outline type="rss" text="Costa Rica" xmlUrl="https://ticotimes.net/feed"  />
+<outline type="rss" text="Tanzania" xmlUrl="https://flipboard.com/topic/tanzania.rss"  />
+<outline type="rss" text="Rwanda" xmlUrl="https://allafrica.com/tools/headlines/rdf/rwanda/headlines.rdf"  />
+<outline type="rss" text="Jordan" xmlUrl="https://flipboard.com/topic/jordan.rss"  />
+<outline type="rss" text="Kazakhstan" xmlUrl="https://astanatimes.com/feed/"  />
+<outline type="rss" text="Malta" xmlUrl="https://www.townofmaltany.gov/RSSFeed.aspx?ModID=1&amp;CID=All-newsflash.xml"  />
+<outline type="rss" text="Iceland" xmlUrl="https://grapevine.is/feed/"  />
+<outline type="rss" text="Panama" xmlUrl="https://newsroompanama.com/feed/"  />
+<outline type="rss" text="Peru" xmlUrl="https://andina.pe/ingles/rss.aspx"  />
+<outline type="rss" text="Botswana" xmlUrl="https://botswanaunplugged.com/feed"  />
+<outline type="rss" text="Iraq" xmlUrl="https://www.iraqinews.com/feed/"  />
+<outline type="rss" text="Fiji" xmlUrl="https://www.fbcnews.com.fj/feed/"  />
+<outline type="rss" text="Bulgaria" xmlUrl="https://sofiaglobe.com/feed/"  />
+<outline type="rss" text="Hungary" xmlUrl="https://bbj.hu/rss"  />
+</outline>
+<outline text="US States">
+<outline type="rss" text="Alabama" xmlUrl="https://alabamareflector.com/feed"  />
+<outline type="rss" text="Alaska" xmlUrl="https://alaskabeacon.com/feed"  />
+<outline type="rss" text="Arizona" xmlUrl="https://azfreenews.com/feed/"  />
+<outline type="rss" text="Arkansas" xmlUrl="https://arkansasadvocate.com/feed"  />
+<outline type="rss" text="California" xmlUrl="https://calmatters.org/feed"  />
+<outline type="rss" text="Colorado" xmlUrl="https://coloradonewsline.com/feed"  />
+<outline type="rss" text="Connecticut" xmlUrl="https://ctmirror.org/feed"  />
+<outline type="rss" text="Delaware" xmlUrl="https://spotlightdelaware.org/feed"  />
+<outline type="rss" text="Florida" xmlUrl="https://www.abcactionnews.com/news/state.rss"  />
+<outline type="rss" text="Georgia" xmlUrl="https://georgiarecorder.com/feed"  />
+<outline type="rss" text="Hawaii" xmlUrl="https://www.civilbeat.org/feed"  />
+<outline type="rss" text="Idaho" xmlUrl="https://idahocapitalsun.com/feed"  />
+<outline type="rss" text="Illinois" xmlUrl="https://capitolnewsillinois.com/feed"  />
+<outline type="rss" text="Indiana" xmlUrl="https://indianacapitalchronicle.com/feed"  />
+<outline type="rss" text="Iowa" xmlUrl="https://iowacapitaldispatch.com/feed"  />
+<outline type="rss" text="Kansas" xmlUrl="https://kansasreflector.com/feed"  />
+<outline type="rss" text="Kentucky" xmlUrl="https://kentuckylantern.com/feed"  />
+<outline type="rss" text="Louisiana" xmlUrl="https://lailluminator.com/feed"  />
+<outline type="rss" text="Maine" xmlUrl="https://mainemorningstar.com/feed"  />
+<outline type="rss" text="Maryland" xmlUrl="https://www.marylandmatters.org/feed"  />
+<outline type="rss" text="Massachusetts" xmlUrl="https://commonwealthbeacon.org/feed"  />
+<outline type="rss" text="Michigan" xmlUrl="https://www.mlive.com/arc/outboundfeeds/rss/?outputType=xml"  />
+<outline type="rss" text="Minnesota" xmlUrl="https://minnesotareformer.com/feed"  />
+<outline type="rss" text="Mississippi" xmlUrl="https://www.djournal.com/search/?f=rss&amp;t=article&amp;c=news/local"  />
+<outline type="rss" text="Missouri" xmlUrl="https://missouriindependent.com/feed"  />
+<outline type="rss" text="Montana" xmlUrl="https://dailymontanan.com/feed"  />
+<outline type="rss" text="Nebraska" xmlUrl="https://nebraskaexaminer.com/feed"  />
+<outline type="rss" text="Nevada" xmlUrl="https://thenevadaindependent.com/feed/"  />
+<outline type="rss" text="New Hampshire" xmlUrl="https://newhampshirebulletin.com/feed"  />
+<outline type="rss" text="New Jersey" xmlUrl="https://newjerseymonitor.com/feed"  />
+<outline type="rss" text="New Mexico" xmlUrl="https://sourcenm.com/feed"  />
+<outline type="rss" text="New York" xmlUrl="https://nysfocus.com/feed"  />
+<outline type="rss" text="North Carolina" xmlUrl="https://ncnewsline.com/feed"  />
+<outline type="rss" text="North-Dakota" xmlUrl="https://www.kvrr.com/feed/"  />
+<outline type="rss" text="Ohio" xmlUrl="https://www.news5cleveland.com/news/state.rss"  />
+<outline type="rss" text="Oklahoma" xmlUrl="https://oklahomavoice.com/feed"  />
+<outline type="rss" text="Oregon" xmlUrl="https://oregoncapitalchronicle.com/feed"  />
+<outline type="rss" text="Pennsylvania" xmlUrl="https://www.wfmz.com/search/?f=rss&amp;t=article&amp;c=news/area/pennsylvania&amp;l=50&amp;s=start_time&amp;sd=desc"  />
+<outline type="rss" text="Rhode Island" xmlUrl="https://rhodeislandcurrent.com/feed"  />
+<outline type="rss" text="South Carolina" xmlUrl="https://scdailygazette.com/feed"  />
+<outline type="rss" text="South Dakota" xmlUrl="https://southdakotasearchlight.com/feed"  />
+<outline type="rss" text="Tennessee" xmlUrl="https://tennesseelookout.com/feed"  />
+<outline type="rss" text="Texas" xmlUrl="https://www.ksat.com/arc/outboundfeeds/rss/category/news/local/?outputType=xml"  />
+<outline type="rss" text="Utah" xmlUrl="https://utahnewsdispatch.com/feed"  />
+<outline type="rss" text="Vermont" xmlUrl="https://vtdigger.org/feed"  />
+<outline type="rss" text="Virginia" xmlUrl="https://wtop.com/feed/"  />
+<outline type="rss" text="Washington" xmlUrl="https://washingtonstatestandard.com/feed"  />
+<outline type="rss" text="West-Virginia" xmlUrl="https://westvirginiawatch.com/feed"  />
+<outline type="rss" text="Wisconsin" xmlUrl="https://wisconsinexaminer.com/feed"  />
+<outline type="rss" text="Wyoming" xmlUrl="https://wyofile.com/feed"  />
+<outline type="rss" text="D.C." xmlUrl="https://washingtoncitypaper.com/feed/?partner-feed=wcp-smart-news"  /></outline>
+<outline text="World Capitals">
+<outline type="rss" text="Abu Dhabi News" xmlUrl="https://feeds.bignewsnetwork.com/category/b9f388ba82df9ba1"  />
+<outline type="rss" text="Adelaide News" xmlUrl="https://glamadelaide.com.au/feed/"  />
+<outline type="rss" text="Amsterdam News" xmlUrl="https://northerntimes.nl/feed/"  />
+<outline type="rss" text="Auckland News" xmlUrl="https://www.nzherald.co.nz/arc/outboundfeeds/rss/section/nz/?outputType=xml&amp;_website=nzh"  />
+<outline type="rss" text="Bangkok News" xmlUrl="https://www.bangkokpost.com/rss/data/most-recent.xml"  />
+<outline type="rss" text="Barcelona News" xmlUrl="https://feeds.thelocal.com/rss/es"  />
+<outline type="rss" text="Beijing News" xmlUrl="https://chinadigitaltimes.net/feed/"  />
+<outline type="rss" text="Belfast News" xmlUrl="https://www.belfastlive.co.uk/news/belfast-news/?service=rss"  />
+<outline type="rss" text="Belgium News" xmlUrl="https://www.thebulletin.be/rss.xml"  />
+<outline type="rss" text="Berlin News" xmlUrl="https://www.deutschland.de/en/feed-news/rss.xml"  />
+<outline type="rss" text="Birmingham (UK) News" xmlUrl="https://www.birminghammail.co.uk/?service=rss"  />
+<outline type="rss" text="Brisbane News" xmlUrl="https://www.brisbanetimes.com.au/rss/feed.xml"  />
+<outline type="rss" text="Bristol News" xmlUrl="https://www.bristolpost.co.uk/?service=rss"  />
+<outline type="rss" text="Calgary News" xmlUrl="https://www.calgarycitynews.com/feeds/posts/default?alt=rss"  />
+<outline type="rss" text="Cape Town News" xmlUrl="https://groundup.org.za/sitenews/rss/"  />
+<outline type="rss" text="Central Coast News" xmlUrl="https://kion546.com/feed/"  />
+<outline type="rss" text="Canberra News" xmlUrl="https://feeds.bignewsnetwork.com/category/88a08a1841f7e241"  />
+<outline type="rss" text="Cardiff News" xmlUrl="https://feeds.bignewsnetwork.com/category/e9a062e8e9b383b3"  />
+<outline type="rss" text="Christchurch News" xmlUrl="https://feeds.bignewsnetwork.com/category/aecd768a122e48d0"  />
+<outline type="rss" text="Dubai News" xmlUrl="https://feeds.bignewsnetwork.com/category/452e5186f1a5ee58"  />
+<outline type="rss" text="Dublin News" xmlUrl="https://feeds.bignewsnetwork.com/category/7344653b7bc16d1e"  />
+<outline type="rss" text="Delhi News" xmlUrl="https://feeds.bignewsnetwork.com/category/0c761f473ce62c0c"  />
+<outline type="rss" text="Edmonton News" xmlUrl="https://feeds.bignewsnetwork.com/category/1a2a540a520ac3a3"  />
+<outline type="rss" text="Glasgow News" xmlUrl="https://feeds.bignewsnetwork.com/category/76a5dd012faf3935"  />
+<outline type="rss" text="Jakarta" xmlUrl="https://feeds.bignewsnetwork.com/category/3b16857a51cb629f"  />
+<outline type="rss" text="Juneau News" xmlUrl="https://www.juneauempire.com/feed/"  />
+<outline type="rss" text="Kinshasa" xmlUrl="https://allafrica.com/tools/headlines/rdf/congo_kinshasa/headlines.rdf"  />
+<outline type="rss" text="Kolata" xmlUrl="https://feeds.bignewsnetwork.com/category/3529af50c55152d2"  />
+<outline type="rss" text="Liverpool" xmlUrl="https://feeds.bignewsnetwork.com/category/80e0b820462049bc"  />
+<outline type="rss" text="Madrid" xmlUrl="https://feeds.bignewsnetwork.com/category/5f6b7dbb2f33b847"  />
+<outline type="rss" text="Manchester" xmlUrl="https://feeds.bignewsnetwork.com/category/54761d1c174d3e31"  />
+<outline type="rss" text="Manila" xmlUrl="https://feeds.bignewsnetwork.com/category/3e5bbccc730d258c"  />
+<outline type="rss" text="Melbourne" xmlUrl="https://feeds.bignewsnetwork.com/category/52ad4973f134194e"  />
+<outline type="rss" text="Mexico City" xmlUrl="https://feeds.bignewsnetwork.com/category/968d25eaf1a5e264"  />
+<outline type="rss" text="Monte Carlo" xmlUrl="https://feeds.bignewsnetwork.com/category/98cd3304095e5a3a"  />
+<outline type="rss" text="Montreal" xmlUrl="https://feeds.bignewsnetwork.com/category/0e81b19a4e9dbfa6"  />
+<outline type="rss" text="Mumbai" xmlUrl="https://feeds.bignewsnetwork.com/category/913a4e774080a3e4"  />
+<outline type="rss" text="Munich" xmlUrl="https://feeds.bignewsnetwork.com/category/e1a25d8a4e3b3c9e"  />
+<outline type="rss" text="Ottawa" xmlUrl="https://feeds.bignewsnetwork.com/category/6954809072303e4f"  />
+<outline type="rss" text="Paris" xmlUrl="https://feeds.bignewsnetwork.com/category/fab36d240e1883d4"  />
+<outline type="rss" text="Perth" xmlUrl="https://feeds.bignewsnetwork.com/category/12878be9fc2ca79c"  />
+<outline type="rss" text="Quebec" xmlUrl="https://feeds.bignewsnetwork.com/category/e9c1066a88f6611f"  />
+<outline type="rss" text="Shanghai News" xmlUrl="https://feeds.bignewsnetwork.com/category/360231fd461d67ac"  />
+<outline type="rss" text="St Petersburg (Russia) News" xmlUrl="https://feeds.bignewsnetwork.com/category/70b0e247ff7c0078"  />
+<outline type="rss" text="Stockholm News" xmlUrl="https://feeds.bignewsnetwork.com/category/57b697f0c9d47333"  />
+<outline type="rss" text="Sydney News" xmlUrl="https://feeds.bignewsnetwork.com/category/ae0def0d9b645403"  />
+<outline type="rss" text="Toronto News" xmlUrl="https://feeds.bignewsnetwork.com/category/03cb86c5037f9622"  />
+<outline type="rss" text="Toyko News" xmlUrl="https://feeds.bignewsnetwork.com/category/e6040a2efc655265"  />
+<outline type="rss" text="Vancouver News" xmlUrl="https://feeds.bignewsnetwork.com/category/535f27099a41ff22"  />
+<outline type="rss" text="Winnipeg News" xmlUrl="https://feeds.bignewsnetwork.com/category/d5f5010e17416e63"  />
+<outline type="rss" text="Wellington News" xmlUrl="https://feeds.bignewsnetwork.com/category/e4b51aa2cfc36974"  />
+<outline type="rss" text="Yorkshire News" xmlUrl="https://feeds.bignewsnetwork.com/category/11bc08aaadd17c6d"  />
+</outline>
+<outline text="US Cities">
+<outline type="rss" text="Atlanta News" xmlUrl="https://www.fox5atlanta.com/rss/category/local-news"  />
+<outline type="rss" text="Austin News" xmlUrl="https://www.kxan.com/feed/"  />
+<outline type="rss" text="Baltimore News" xmlUrl="https://www.wbaltv.com/topstories-rss"  />
+<outline type="rss" text="Boston News" xmlUrl="https://www.boston.com/feed/"  />
+<outline type="rss" text="Brambleton News" xmlUrl="https://wtop.com/local/feed/"  />
+<outline type="rss" text="Buffalo News" xmlUrl="https://buffalonews.com/search/?f=rss&amp;t=article&amp;c=news/local&amp;l=50&amp;s=start_time&amp;sd=desc"  />
+<outline type="rss" text="Charlotte News" xmlUrl="https://spectrumlocalnews.com/services/contentfeed.nc%7ccharlotte%7cnews.landing.rss"  />
+<outline type="rss" text="Chicago News" xmlUrl="https://wgntv.com/feed/"  />
+<outline type="rss" text="Cleveland News" xmlUrl="https://fox8.com/tag/cleveland-news/feed/"  />
+<outline type="rss" text="Columbus News" xmlUrl="https://feeds.bignewsnetwork.com/category/a605ff6512fa302c"  />
+<outline type="rss" text="Dallas News" xmlUrl="https://feeds.bignewsnetwork.com/category/9f9b95cfe01d1f7d"  />
+<outline type="rss" text="Denver News" xmlUrl="https://feeds.bignewsnetwork.com/category/73aa4032e9682bab"  />
+<outline type="rss" text="Des Moines News" xmlUrl="https://feeds.feedburner.com/wholocalnews"  />
+<outline type="rss" text="Fort Worth News" xmlUrl="https://feeds.bignewsnetwork.com/category/879304e687903bb1"  />
+<outline type="rss" text="Honolulu News" xmlUrl="https://feeds.bignewsnetwork.com/category/a5a14b1515940e55"  />
+<outline type="rss" text="Houston News" xmlUrl="https://feeds.bignewsnetwork.com/category/edcb1def3c80d2e6"  />
+<outline type="rss" text="Indianapolis" xmlUrl="https://feeds.bignewsnetwork.com/category/43a9fd3724cda141"  />
+<outline type="rss" text="Kansas City" xmlUrl="https://feeds.bignewsnetwork.com/category/cc264e50ceab3697"  />
+<outline type="rss" text="Las Vegas" xmlUrl="https://feeds.bignewsnetwork.com/category/1e0899715fbc2697"  />
+<outline type="rss" text="Los Angeles" xmlUrl="https://feeds.bignewsnetwork.com/category/a7d0846f876c8187" />
+<outline type="rss" text="Louisville" xmlUrl="https://feeds.bignewsnetwork.com/category/b37b204308be6320"  />
+<outline type="rss" text="Memphis" xmlUrl="https://feeds.bignewsnetwork.com/category/ca80f72a3dd6ba88"  />
+<outline type="rss" text="Miami" xmlUrl="https://feeds.bignewsnetwork.com/category/9406bbb67f053bb2"  />
+<outline type="rss" text="Milwaukee" xmlUrl="https://feeds.bignewsnetwork.com/category/563d1c1db6cb5197"  />
+<outline type="rss" text="Minnapolis" xmlUrl="https://feeds.bignewsnetwork.com/category/3829a1ae5f48b796"  />
+<outline type="rss" text="Nashville" xmlUrl="https://feeds.bignewsnetwork.com/category/2ad232e9d3dc33e3"  />
+<outline type="rss" text="New Orleans" xmlUrl="https://feeds.bignewsnetwork.com/category/aa408b759025f381"  />
+<outline type="rss" text="New York" xmlUrl="https://feeds.bignewsnetwork.com/category/5a8b8c26522de7fd"  />
+<outline type="rss" text="Oaklahoma City" xmlUrl="https://feeds.bignewsnetwork.com/category/ade52738bf7d5fc8" />
+<outline type="rss" text="Philadelphia" xmlUrl="https://feeds.bignewsnetwork.com/category/ace588cfe31e6c8d"  />
+<outline type="rss" text="Phoenix" xmlUrl="https://feeds.bignewsnetwork.com/category/caf48823f1822eb3"  />
+<outline type="rss" text="San Antonio News" xmlUrl="https://feeds.bignewsnetwork.com/category/f18f75b7970654da"  />
+<outline type="rss" text="San Diego News" xmlUrl="https://feeds.bignewsnetwork.com/category/3f3115f526d2b2d1"  />
+<outline type="rss" text="San Francsico News" xmlUrl="https://feeds.bignewsnetwork.com/category/20134e53b4e12830"  />
+<outline type="rss" text="San Jose News" xmlUrl="https://feeds.bignewsnetwork.com/category/2d152a2dc9f192ff"  />
+<outline type="rss" text="Seattle News" xmlUrl="https://feeds.bignewsnetwork.com/category/a69648530d514cd5"  />
+</outline>
+<outline text="US Capitals">
+<outline type="rss" text="Albany, New York" xmlUrl="https://spectrumlocalnews.com/services/contentfeed.nys%7Ccapital-region%7Cnews.landing.rss"  />
+<outline type="rss" text="Annapolis, Maryland" xmlUrl="https://www.eyeonannapolis.net/feed/"  />
+<outline type="rss" text="Atlanta, Georgia" xmlUrl="https://www.fox5atlanta.com/rss/category/news"  />
+<outline type="rss" text="Augusta, Maine" xmlUrl="https://www.eaglecountryonline.com/news/local-news/feed.xml"  />
+<outline type="rss" text="Austin, Texas" xmlUrl="https://www.kxan.com/feed/"  />
+<outline type="rss" text="Baton Rouge, Louisiana" xmlUrl="https://feeds.feedburner.com/wbrz/news"  />
+<outline type="rss" text="Bismarck, North Dakota" xmlUrl="https://www.kxnet.com/feed/"  />
+<outline type="rss" text="Boise,Idaho" xmlUrl="https://www.kivitv.com/index.rss"  />
+<outline type="rss" text="Boston, Massachusetts" xmlUrl="https://marylandreporter.com/feed/"  />
+<outline type="rss" text="Carson City, Nevada" xmlUrl="https://www.carsonnow.org/feed"  />
+<outline type="rss" text="Charleston, West Virginia" xmlUrl="https://www.wowktv.com/feed/"  />
+<outline type="rss" text="Cheyenne, Wyoming" xmlUrl="https://capcity.news/feed/"  />
+<outline type="rss" text="Columbia, South Carolina" xmlUrl="https://www.abccolumbia.com/feed/"  />
+<outline type="rss" text="Columbus, Ohio" xmlUrl="https://www.nbc4i.com/feed/"  />
+<outline type="rss" text="Concord, New Hampshire" xmlUrl="https://www.wmur.com/topstories-rss"  />
+<outline type="rss" text="Denver, Colorado" xmlUrl="https://www.9news.com/feeds/syndication/rss/news/local"  />
+<outline type="rss" text="Des Moines, Iowa" xmlUrl="https://who13.com/feed/"  />
+<outline type="rss" text="Dover, Delaware" xmlUrl="https://delawarelive.com/feed/"  />
+<outline type="rss" text="Frankfort, Kentucky" xmlUrl="https://www.russellcountynewspapers.com/feed/"  />
+<outline type="rss" text="Harrisburg, Pennsylvania" xmlUrl="https://www.wgal.com/topstories-rss"  />
+<outline type="rss" text="Hartford, Connecticut" xmlUrl="https://www.wfsb.com/arc/outboundfeeds/rss/?outputType=xml"  />
+<outline type="rss" text="Helena, Montana" xmlUrl="https://www.kxlh.com/index.rss"  />
+<outline type="rss" text="Honolulu, Hawaii" xmlUrl="https://www.staradvertiser.com/feed/"  />
+<outline type="rss" text="Indianapolis, Indiana" xmlUrl="https://www.wrtv.com/index.rss"  />
+<outline type="rss" text="Jackson, Mississippi" xmlUrl="https://www.wjtv.com/feed/"  />
+<outline type="rss" text="Jefferson City, Missouri" xmlUrl="https://abc17news.com/feed/"  />
+<outline type="rss" text="Juneau, Alaska" xmlUrl="https://www.juneauempire.com/feed/"  />
+<outline type="rss" text="Lansing, Michigan" xmlUrl="https://www.wlns.com/feed/"  />
+<outline type="rss" text="Lincoln, Nebraska" xmlUrl="https://www.klkntv.com/feed/"  />
+<outline type="rss" text="Little Rock, Arkansas" xmlUrl="https://www.fox16.com/feed/"  />
+<outline type="rss" text="Madison, Wisconsin" xmlUrl="https://madison.com/search/?f=rss"  />
+<outline type="rss" text="Montgomery, Alabama" xmlUrl="https://www.waka.com/feed/"  />
+<outline type="rss" text="Montpelier, Vermont" xmlUrl="https://www.wcax.com/arc/outboundfeeds/whiz-rss/category/news/?outputType=xml&amp;sort=display_date:desc&amp;size=50"  />
+<outline type="rss" text="Nashville, Tennessee" xmlUrl="https://www.wkrn.com/feed/"  />
+<outline type="rss" text="Oklahoma City, Oklahoma" xmlUrl="https://kfor.com/feed/"  />
+<outline type="rss" text="Olympia,Washington" xmlUrl="https://www.thurstontalk.com/feed/"  />
+<outline type="rss" text="Phoenix, Arizona" xmlUrl="https://azfreenews.com/feed/"  />
+<outline type="rss" text="Pierre, South Dakota" xmlUrl="https://dakotafreepress.com/feed/"  />
+<outline type="rss" text="Providence, Rhode Island" xmlUrl="https://rhodeislandcurrent.com/feed/"  />
+<outline type="rss" text="Raleigh, North Carolina" xmlUrl="https://www.carolinajournal.com/feed/"  />
+<outline type="rss" text="Richmond, Virginia" xmlUrl="https://www.wric.com/feed/"  />
+<outline type="rss" text="Sacramento, California" xmlUrl="https://feeds.feedburner.com/CapitalPublicRadioStateGovernmentRSS"  />
+<outline type="rss" text="Saint Paul, Minnesota" xmlUrl="https://www.fox9.com/rss/category/news"  />
+<outline type="rss" text="Salem, Oregon" xmlUrl="https://www.salemreporter.com/feed/"  />
+<outline type="rss" text="Salt Lake City, Utah" xmlUrl="https://www.sltrib.com/arc/outboundfeeds/rss/?outputType=xml"  />
+<outline type="rss" text="Santa Fe,New Mexico" xmlUrl="https://www.sltrib.com/arc/outboundfeeds/rss/?outputType=xml"  />
+<outline type="rss" text="Springfield, Illinois" xmlUrl="https://capitolnewsillinois.com/feed/"  />
+<outline type="rss" text="Tallahassee, Florida" xmlUrl="https://tallahasseereports.com/feed/"  />
+<outline type="rss" text="Topeka, Kansas" xmlUrl="https://www.ksnt.com/feed/"  />
+<outline type="rss" text="Trenton, New Jersey" xmlUrl="https://www.nj.com/arc/outboundfeeds/rss/category/news/?outputType=xml"  />
+</outline>
+<outline text="Canada">
+<outline type="rss" text="Saskatoon News" xmlUrl="https://thestarphoenix.com/feed"  />
+<outline type="rss" text="Regina News" xmlUrl="https://leaderpost.com/feed"  />
+<outline type="rss" text="Windsor News" xmlUrl="https://windsorstar.com/feed"  />
+<outline type="rss" text="Brandon News" xmlUrl="https://www.brandonsun.com//feed"  />
+<outline type="rss" text="Esquire Entertainment" xmlUrl="https://www.esquire.com/rss/entertainment.xml/"  />
+<outline type="rss" text="NBC Entertainment" xmlUrl="https://feeds.nbcnews.com/today/public/popculture"  />
+<outline type="rss" text="Deadline Entertainment" xmlUrl="https://deadline.com/feed/"  />
+<outline type="rss" text="ABC Entertainment" xmlUrl="https://abcnews.go.com/abcnews/entertainmentheadlines"  />
+<outline type="rss" text="CBS Entertainment" xmlUrl="https://www.cbsnews.com/latest/rss/entertainment"  />
+<outline type="rss" text="LA Times Entertainment" xmlUrl="https://www.latimes.com/entertainment/rss2.0.xml"  />
+<outline type="rss" text="Variety Entertainment" xmlUrl="https://variety.com/feed/"  />
+<outline type="rss" text="CBC News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada"  />
+<outline type="rss" text="News" xmlUrl="https://flipboard.com/topic/canadiannews.rss"  />
+<outline type="rss" text="BBCI News" xmlUrl="https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"  />
+<outline type="rss" text="The Walrus News" xmlUrl="https://thewalrus.ca/feed/"  />
+<outline type="rss" text="Global News" xmlUrl="https://globalnews.ca/canada/feed/"  />
+<outline type="rss" text="Rabel News" xmlUrl="https://www.rebelnews.com/news.rss"  />
+<outline type="rss" text="CBC Politics" xmlUrl="http://rss.cbc.ca/lineup/politics.xml"  />
+<outline type="rss" text="Politics" xmlUrl="https://flipboard.com/topic/canadianpolitics.rss"  />
+<outline type="rss" text="Global Politics" xmlUrl="http://globalnews.ca/politics/feed/"  />
+<outline type="rss" text="New York Times" xmlUrl="http://topics.nytimes.com/top/news/international/countriesandterritories/canada/index.html?rss=1"  />
+<outline type="rss" text="CBC Business" xmlUrl="http://rss.cbc.ca/lineup/business.xml"  />
+<outline type="rss" text="Financial Post Business" xmlUrl="http://feeds.feedburner.com/FP_TopStories?format=xml"  />
+<outline type="rss" text="Business" xmlUrl="https://flipboard.com/topic/canadianbusiness.rss"  />
+<outline type="rss" text="Ottawa Citizen Health" xmlUrl="https://ottawacitizen.com/feed"  />
+<outline type="rss" text="CBC Sports" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-sports"  />
+<outline type="rss" text="CBC Tech" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-technology"  />
+<outline type="rss" text="British Columbia News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-britishcolumbia"  />
+<outline type="rss" text="Calgary News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-calgary"  />
+<outline type="rss" text="Edminton News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-edmonton"  />
+<outline type="rss" text="Hamilton News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-hamiltonnews"  />
+<outline type="rss" text="Kamloops" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-kamloops/"  />
+<outline type="rss" text="Kitchener News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-kitchenerwaterloo"  />
+<outline type="rss" text="Manitoba News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-manitoba"  />
+<outline type="rss" text="Montreal News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-montreal"  />
+<outline type="rss" text="New Brunswick News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-newbrunswick"  />
+<outline type="rss" text="New Foundland News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-newfoundland"  />
+<outline type="rss" text="Nova Scotia News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-novascotia"  />
+<outline type="rss" text="Ottawa News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-ottawa"  />
+<outline type="rss" text="Prince Edward Island News News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-pei"  />
+<outline type="rss" text="Saskatchewan News" xmlUrl="https://www.sasktoday.ca/rss"  />
+<outline type="rss" text="Sudbury News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-sudbury"  />
+<outline type="rss" text="Thunder Bay News" xmlUrl="https://www.cbc.ca/webfeed/rss/rss-canada-thunderbay"  />
+</outline>
+<outline text="United Kingdom">
+<outline type="rss" text="BBC News - UK" xmlUrl="https://feeds.bbci.co.uk/news/uk/rss.xml"  />
+<outline type="rss" text="BBC Politics" xmlUrl="https://feeds.bbci.co.uk/news/politics/rss.xml"  />
+<outline type="rss" text="Sky News Politics" xmlUrl="https://feeds.skynews.com/feeds/rss/politics.xml"  />
+<outline type="rss" text="The Guardian" xmlUrl="https://www.theguardian.com/uk/rss"  />
+<outline type="rss" text="Financial Times" xmlUrl="https://www.ft.com/rss/world/uk"  />
+<outline type="rss" text="Daily Express" xmlUrl="https://feeds.feedburner.com/daily-express-uk-news"  />
+<outline type="rss" text="Daily Mail" xmlUrl="https://www.dailymail.co.uk/news/index.rss"  />
+<outline type="rss" text="Daily Mirror" xmlUrl="https://www.mirror.co.uk/?service=rss"  />
+<outline type="rss" text="The Economist - Britain" xmlUrl="https://www.economist.com/britain/rss.xml"  />
+<outline type="rss" text="WalesOnline" xmlUrl="https://www.walesonline.co.uk/news/wales-news/?service=rss"  />
+<outline type="rss" text="BBC News - Wales" xmlUrl="https://feeds.bbci.co.uk/news/wales/rss.xml"  />
+<outline type="rss" text="North Wales Live" xmlUrl="https://www.dailypost.co.uk/news/north-wales-news/?service=rss"  />
+<outline type="rss" text="South Wales Argus" xmlUrl="https://www.southwalesargus.co.uk/news/rss/"  />
+<outline type="rss" text="Deadline News" xmlUrl="https://www.deadlinenews.co.uk/feed/"  />
+<outline type="rss" text="The Scotsman" xmlUrl="https://www.scotsman.com/rss"  />
+<outline type="rss" text="Daily Record" xmlUrl="https://www.dailyrecord.co.uk/?service=rss"  />
+<outline type="rss" text="STV News" xmlUrl="https://news.stv.tv/feed"  />
+<outline type="rss" text="BBC News - Scotland" xmlUrl="https://feeds.bbci.co.uk/news/scotland/rss.xml"  />
+<outline type="rss" text="Belfast Live" xmlUrl="https://www.belfastlive.co.uk/news/?service=rss"  />
+<outline type="rss" text="The Newsletter (Belfast)" xmlUrl="https://www.newsletter.co.uk/rss"  />
+<outline type="rss" text="Derry Journal" xmlUrl="https://www.derryjournal.com/rss"  />
+<outline type="rss" text="Slugger O'Toole (NI Politics)" xmlUrl="https://www.sluggerotoole.com/feed/"  />
+<outline type="rss" text="The Irish News" xmlUrl="https://www.irishnews.com/arc/outboundfeeds/rss/"  />
+<outline type="rss" text="Derry Journal" xmlUrl="https://www.derryjournal.com/rss"  />
+<outline type="rss" text="RTE" xmlUrl="https://www.rte.ie/feeds/rss/?index=/news/"  />
+<outline type="rss" text="The Journal.ie" xmlUrl="https://www.thejournal.ie/feed/"  />
+<outline type="rss" text="Manchester Evening News" xmlUrl="https://www.manchestereveningnews.co.uk/rss.xml"  />
+<outline type="rss" text="Birmingham Live" xmlUrl="https://www.birminghammail.co.uk/?service=rss"  />
+<outline type="rss" text="Liverpool Echo" xmlUrl="https://www.liverpoolecho.co.uk/news/?service=rss"  />
+<outline type="rss" text="London - Evening Standard" xmlUrl="https://www.standard.co.uk/news/politics/rss"  />
+<outline type="rss" text="Oxford Mail" xmlUrl="https://www.oxfordmail.co.uk/news/rss/"  /></outline>
+<outline text="Ireland">
+<outline type="rss" text="Dublin News" xmlUrl="http://feeds.dublinnews.com/rss/7344653b7bc16d1e"  />
+<outline type="rss" text="TechCentral" xmlUrl="http://www.techcentral.ie/feed/"  />
+<outline type="rss" text="Connacht Tribune" xmlUrl="https://connachttribune.ie/feed/"  />
+<outline type="rss" text="Cricket Ireland" xmlUrl="https://cricketireland.ie/feed/"   />
+<outline type="rss" text="Electric" xmlUrl="https://electric.ie/feed/"  />
+<outline type="rss" text="Evoke" xmlUrl="https://evoke.ie/feed"  />
+<outline type="rss" text="BreakingNews.ie" xmlUrl="https://feeds.breakingnews.ie/bntopstories?format=xml"  />
+<outline type="rss" text="Fleet" xmlUrl="https://fleet.ie/feed/"  />
+<outline type="rss" text="GCN" xmlUrl="https://gcn.ie/feed/"  />
+<outline type="rss" text="Irish Tech News" xmlUrl="https://irishtechnews.ie/feed/"  />
+<outline type="rss" text=" ITTN" xmlUrl="https://ittn.ie/feed/"  />
+<outline type="rss" text="Meanwhile in Ireland" xmlUrl="https://meanwhileinireland.com/feed/"  />
+<outline type="rss" text="Slugger O'Toole" xmlUrl="https://sluggerotoole.com/feed/"  />
+<outline type="rss" text="#TrinityNews" xmlUrl="https://trinitynews.ie/feed/" />
+<outline type="rss" text="#Adworld" xmlUrl="https://www.adworld.ie/feed/" />
+<outline type="rss" text="#Agriland" xmlUrl="https://www.agriland.ie/feed/" />
+<outline type="rss" text="#AnPhoblacht" xmlUrl="https://www.anphoblacht.com/feed" />
+<outline type="rss" text="#DerryJournal" xmlUrl="https://www.derryjournal.com/rss" />
+<outline type="rss" text="#DonegalDaily" xmlUrl="https://www.donegaldaily.com/feed/" />
+<outline type="rss" text="#EngineersIreland" xmlUrl="https://www.engineersireland.ie/Engineers-Journal/rss/10357" />
+<outline type="rss" text="#IMT" xmlUrl="https://www.imt.ie/feed/" />
+<outline type="rss" text="#IrishBoxing" xmlUrl="https://www.irish-boxing.com/feed/" />
+<outline type="rss" text="#IrishMirror" xmlUrl="https://www.irishmirror.ie/?service=rss" />
+<outline type="rss" text="#TheIrishNews" xmlUrl="https://www.irishnews.com/arc/outboundfeeds/rss/" />
+<outline type="rss" text="#KilkennyPeople" xmlUrl="https://www.kilkennypeople.ie/rss.jsp?sezione=92" />
+<outline type="rss" text="#LimerickLeader" xmlUrl="https://www.limerickleader.ie/rss.jsp?sezione=1" />
+<outline type="rss" text="#TheNewsletter" xmlUrl="https://www.newsletter.co.uk/rss" />
+<outline type="rss" text="#RSVP Live" xmlUrl="https://www.rsvplive.ie/?service=rss" />
+<outline type="rss" text="#RTÉ" xmlUrl="https://www.rte.ie/feeds/rss/?index=/news/" />
+<outline type="rss" text="#The42" xmlUrl="https://www.the42.ie/feed/" />
+<outline type="rss" text="#TheIrishWorld" xmlUrl="https://www.theirishworld.com/feed/" />
+<outline type="rss" text="#TheJournal" xmlUrl="https://www.thejournal.ie/feed/" />
+<outline type="rss" text="#TheSun" xmlUrl="https://www.thesun.ie/feed/" />
+<outline type="rss" text="#WarnerMusicIreland" xmlUrl="https://www.warnermusic.ie/news/feed/" />
+</outline>
+</body>
+</opml>
