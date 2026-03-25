@@ -245,9 +245,11 @@ async function autoLoadAllFeeds() {
         loadingDiv.textContent = 'All feeds loaded successfully! ✓';
         loadingDiv.style.color = 'green';
         changeFavicon('success');
+            window.scrollTo(0, document.body.scrollHeight);
     } else {
         loadingDiv.textContent = 'Processing complete. Some feeds failed to load.';
         loadingDiv.style.color = 'orange';
+            window.scrollTo(0, document.body.scrollHeight);
     }
 
     setTimeout(() => {
@@ -255,6 +257,7 @@ async function autoLoadAllFeeds() {
         setTimeout(() => {
             loadingDiv.style.display = 'none';
             loadingDiv.style.color = '';
+                window.scrollTo(0, document.body.scrollHeight);
         }, 1500);
     }, 2500);
 
