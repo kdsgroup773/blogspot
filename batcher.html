@@ -7,8 +7,8 @@
     <title>Universal News Batcher</title>
     <style>
         :root {
-            --x-blue: #1DA1F2; --m-purple: #6364ff; --sub-orange: #ff6719;
-            --t-blue: #35465c; --p-orange: #ff4500; --li-blue: #0077b5;
+            --tum-blue: #35465c; --m-purple: #6364ff; --sub-orange: #ff6719;
+            --p-orange: #ff4500; --li-blue: #0077b5; --pri-teal: #00d5ff;
             --long-dark: #2c3e50; --success: #27ae60;
         }
 
@@ -132,7 +132,7 @@
             <div class="column-content" id="p-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--t-blue)"><span>Primal (Nostr)</span><span id="pri-count" class="batch-count-pill">0</span></div>
+            <div class="column-header" style="color:var(--pri-teal)"><span>Primal (Nostr)</span><span id="pri-count" class="batch-count-pill">0</span></div>
             <div class="column-content" id="pri-area"></div>
         </div>
         <div class="column">
@@ -140,8 +140,8 @@
             <div class="column-content" id="li-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--x-blue)"><span>X/Twitter</span><span id="x-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="x-area"></div>
+            <div class="column-header" style="color:var(--tum-blue)"><span>Tumblr</span><span id="tum-count" class="batch-count-pill">0</span></div>
+            <div class="column-content" id="tum-area"></div>
         </div>
     </div>
 </div>
@@ -156,7 +156,7 @@ const config = [
     { id: 'p-area', countId: 'p-count', limit: 3000, label: 'Paragraph', format: 'rich', key: 'paragraph' },
     { id: 'pri-area', countId: 'pri-count', limit: 3000, label: 'Primal', format: 'rich', key: 'primal' },
     { id: 'li-area', countId: 'li-count', limit: 3000, label: 'LinkedIn', format: 'plain', key: 'linkedin' },
-    { id: 'x-area', countId: 'x-count', limit: 410, label: 'X/Twitter', format: 'plain', key: 'x' }
+    { id: 'tum-area', countId: 'tum-count', limit: 4096, label: 'Tumblr', format: 'plain', key: 'tumblr' }
 ];
 
 function clearInput() { document.getElementById('rawInput').value = ""; }
