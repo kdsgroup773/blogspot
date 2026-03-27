@@ -25,9 +25,7 @@
             padding: 15px 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 1000;
             border-bottom: 2px solid #ddd;
         }
@@ -47,10 +45,9 @@
         .dashboard-wrapper {
             margin-top: 220px;
             height: calc(100vh - 220px);
-            overflow-x: auto !important;
+            overflow-x: auto;
             overflow-y: hidden;
             padding: 20px;
-            display: block;
             box-sizing: border-box;
         }
 
@@ -60,7 +57,6 @@
             gap: 20px; 
             align-items: flex-start;
             height: 100%;
-            padding-bottom: 10px;
         }
 
         .column {
@@ -75,7 +71,7 @@
         }
 
         .column-content { 
-            overflow-y: auto !important; 
+            overflow-y: auto; 
             flex-grow: 1; 
             padding-right: 5px;
         }
@@ -87,19 +83,16 @@
         }
 
         .batch-count-pill { font-size: 10px; background: #eee; color: #666; padding: 2px 8px; border-radius: 10px; }
-
         .batch-card { border: 1px solid #e1e4e8; border-radius: 8px; margin-bottom: 12px; padding: 10px; background: #fafafa; }
         .batch-card.copied { border: 2px solid var(--success); background: #f0fff4; }
         .batch-text { font-size: 11px; white-space: pre-wrap; color: #333; line-height: 1.5; }
         .hidden-html { display: none; }
-
         .btn-copy { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
 
         ::-webkit-scrollbar { height: 12px; width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; border: 2px solid #f1f1f1; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
     </style>
 </head>
 <body>
@@ -148,10 +141,29 @@
 
 <script>
 const bridge = new BroadcastChannel('social_post_bridge');
-const BRANDING_FOOTER = " ";
+
+// Your rotating URLs list
+const ROTATING_URLS = [
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-continents.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-countries-of-world.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-united-states.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-countries-of-world_16.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-cities-in-united-states.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-capitals-in-united.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-capitals-of-world.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-canada.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-united-kingdom.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-ireland.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-breaking-news.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-business-news.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-markets.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-news.html",
+    "https://kensbookinfo.blogspot.com/2026/03/today-is.html",
+    "https://kensbookinfo.blogspot.com/2026/03/latest-cultural-news.html"
+];
 
 const config = [
-    { id: 'm-area', countId: 'm-count', limit: 750, label: 'Mastodon', format: 'plain', key: 'mastodon' },
+    { id: 'm-area', countId: 'm-count', limit: 480, label: 'Mastodon', format: 'plain', key: 'mastodon' },
     { id: 'sub-area', countId: 'sub-count', limit: 3000, label: 'Substack', format: 'plain', key: 'substack' },
     { id: 'p-area', countId: 'p-count', limit: 3000, label: 'Paragraph', format: 'rich', key: 'paragraph' },
     { id: 'pri-area', countId: 'pri-count', limit: 3000, label: 'Primal', format: 'rich', key: 'primal' },
@@ -172,10 +184,12 @@ function generateAll() {
     const input = document.getElementById('rawInput').value;
     const lines = input.split('\n').filter(l => l.trim().length > 5);
     
+    // Global counter tracks index across ALL columns
+    let globalUrlIndex = 0;
+
     config.forEach(p => {
         const container = document.getElementById(p.id);
         container.innerHTML = "";
-
         let currentBatchText = "";
         let currentBatchHtml = "";
         let batchCounter = 0;
@@ -189,21 +203,24 @@ function generateAll() {
             let htmlEntry = "";
 
             if (p.format === 'rich') {
-                let tag = "ref=substack";
-                if (p.label === 'Paragraph') tag = "ref=paragraph";
-                if (p.label === 'Primal') tag = "s=primal";
-
-                htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc; font-family: sans-serif;">${title} - </a><br><br>`;
+                let tag = (p.label === 'Paragraph') ? "ref=paragraph" : (p.label === 'Primal' ? "s=primal" : "ref=substack");
+                htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
             } else {
                 textEntry = `${title}\n${url}\n\n`;
             }
 
-            const footerToUse = (p.label === 'Mastodon') ? "" : BRANDING_FOOTER;
+            // Preview the next rotating URL
+            const rotatingUrl = ROTATING_URLS[globalUrlIndex % ROTATING_URLS.length];
+            const footerText = `\nSource: ${rotatingUrl}`;
+            const footerHtml = `<br>Source: <a href="${rotatingUrl}">${rotatingUrl}</a>`;
 
-            if ((currentBatchText + textEntry + footerToUse).length > p.limit) {
+            // If entry + footer exceeds limit, cut the batch
+            if ((currentBatchText + textEntry + footerText).length > p.limit) {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                addCard(container, currentBatchText + footerText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? footerHtml : ""), p.format, p.key);
+                
+                globalUrlIndex++; // Only increment after finishing a card
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
@@ -211,9 +228,15 @@ function generateAll() {
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
+            // Final batch in the current column
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
-                addCard(container, currentBatchText + footerToUse, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br>${footerToUse.replace(/\n/g, '<br>')}` : ""), p.format, p.key);
+                const finalUrl = ROTATING_URLS[globalUrlIndex % ROTATING_URLS.length];
+                const finalFooterText = `\nSource: ${finalUrl}`;
+                const finalFooterHtml = `<br>Source: <a href="${finalUrl}">${finalUrl}</a>`;
+                
+                addCard(container, currentBatchText + finalFooterText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? finalFooterHtml : ""), p.format, p.key);
+                globalUrlIndex++;
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
@@ -230,7 +253,7 @@ function addCard(container, content, title, htmlContent, format, key) {
             <button class="btn-copy" onclick="copyDynamic(this, '${format}')">Copy</button>
         </div>
         <div class="batch-text">${content}</div>
-        <div class="hidden-html">${htmlContent || ''}</div>
+        <div class="hidden-html">${htmlContent}</div>
     `;
     container.appendChild(card);
 }
