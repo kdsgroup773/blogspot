@@ -144,22 +144,22 @@ const bridge = new BroadcastChannel('social_post_bridge');
 
 // Your rotating URLs list
 const ROTATING_URLS = [
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-continents.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-countries-of-world.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-united-states.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-countries-of-world_16.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-cities-in-united-states.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-capitals-in-united.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-capitals-of-world.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-canada.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-united-kingdom.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-ireland.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-breaking-news.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-business-news.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news-from-markets.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-news.html",
-    "https://kensbookinfo.blogspot.com/2026/03/today-is.html",
-    "https://kensbookinfo.blogspot.com/2026/03/latest-cultural-news.html"
+    "View all the Continents news https://kensbookinfo.blogspot.com/2026/03/latest-news-from-continents.html",
+    "View all World Country news https://kensbookinfo.blogspot.com/2026/03/latest-news-from-countries-of-world.html",
+    "View all news from States in the US news https://kensbookinfo.blogspot.com/2026/03/latest-news-from-united-states.html",
+    "View all news from Cities in the World https://kensbookinfo.blogspot.com/2026/03/latest-news-from-countries-of-world_16.html",
+    "View all news from Cities in the US https://kensbookinfo.blogspot.com/2026/03/latest-news-from-cities-in-united-states.html",
+    "View all news from Capitals in the US https://kensbookinfo.blogspot.com/2026/03/latest-news-from-capitals-in-united.html",
+    "View all news from Capitals in the World https://kensbookinfo.blogspot.com/2026/03/latest-news-from-capitals-of-world.html",
+    "View all news from Canada https://kensbookinfo.blogspot.com/2026/03/latest-news-from-canada.html",
+    "View all news from the UK https://kensbookinfo.blogspot.com/2026/03/latest-news-from-united-kingdom.html",
+    "View all news from Ireland https://kensbookinfo.blogspot.com/2026/03/latest-news-from-ireland.html",
+    "View all the latest breaking news https://kensbookinfo.blogspot.com/2026/03/latest-breaking-news.html",
+    "View all news from the business sector https://kensbookinfo.blogspot.com/2026/03/latest-business-news.html",
+    "View all news from the markets https://kensbookinfo.blogspot.com/2026/03/latest-news-from-markets.html",
+    "View all latest news https://kensbookinfo.blogspot.com/2026/03/latest-news.html",
+    "View all of Today Is... https://kensbookinfo.blogspot.com/2026/03/today-is.html",
+    "View all cultural news https://kensbookinfo.blogspot.com/2026/03/latest-cultural-news.html"
 ];
 
 const config = [
@@ -212,8 +212,8 @@ function generateAll() {
 
             // Preview the next rotating URL
             const rotatingUrl = ROTATING_URLS[globalUrlIndex % ROTATING_URLS.length];
-            const footerText = `\nSource: ${rotatingUrl}`;
-            const footerHtml = `<br>Source: <a href="${rotatingUrl}">${rotatingUrl}</a>`;
+            const footerText = `\n${rotatingUrl}`;
+            const footerHtml = `<br><a href="${rotatingUrl}">${rotatingUrl}</a>`;
 
             // If entry + footer exceeds limit, cut the batch
             if ((currentBatchText + textEntry + footerText).length > p.limit) {
@@ -232,8 +232,8 @@ function generateAll() {
             if (index === lines.length - 1 && currentBatchText.trim() !== "") {
                 batchCounter++;
                 const finalUrl = ROTATING_URLS[globalUrlIndex % ROTATING_URLS.length];
-                const finalFooterText = `\nSource: ${finalUrl}`;
-                const finalFooterHtml = `<br>Source: <a href="${finalUrl}">${finalUrl}</a>`;
+                const finalFooterText = `\n${finalUrl}`;
+                const finalFooterHtml = `<br><a href="${finalUrl}">${finalUrl}</a>`;
                 
                 addCard(container, currentBatchText + finalFooterText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? finalFooterHtml : ""), p.format, p.key);
                 globalUrlIndex++;
