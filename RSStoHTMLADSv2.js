@@ -5,9 +5,6 @@ const proxyList = [
         'https://api.allorigins.win/raw?url=',
         'https://api.codetabs.com/v1/proxy?quest=',
         'https://cors.lol/?url=',
-        'https://api.allorigins.io/get?url=',
-        'https://api.proxyscrape.com/v2/?request=get&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all&url=',
-        'https://cors-anywhere.azm.workers.dev/',
         'https://wispy-thunder-5150.the-kds-group.workers.dev/?url='
 ];
 // --- fetchWithRetry function (moved to global scope) ---
@@ -68,7 +65,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 console.error(lastError.message);
                 continue;
             }
-            const items = xmlDoc.querySelectorAll('item');
+            const items = xmlDoc.querySelectorAll('item, entry');
             if (items.length === 0) {
                 lastError = new Error(`No RSS items found in feed using ${proxyBaseUrl}. Feed might be empty or structured differently.`);
                 console.warn(lastError.message);
