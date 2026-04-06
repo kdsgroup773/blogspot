@@ -85,87 +85,79 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     throw new Error(`All proxy attempts failed to fetch the feed. Last error: ${lastError ? lastError.message : 'Unknown error'}`);
 }
 // --- fetchAndDisplayFeed function ---
+// --- fetchAndDisplayFeed function (Optimized) ---
 async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
-    // Declare fullOptionId here, outside of the try block
-    let fullOptionId = ''; 
     console.log(`fetchAndDisplayFeed called for: ${sourceText}, with optionId: "${optionId}"`);
+    
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
+        
         if (isSingleFeed) {
             document.getElementById('rss-feed-message').style.display = 'none';
             displayContainer.innerHTML = '';
         }
-        const items = xmlDoc.querySelectorAll('item');
+
+        // FIX 1: Select both 'item' (RSS) and 'entry' (YouTube/Atom)
+        const items = xmlDoc.querySelectorAll('item, entry');
         let sectionHtml = '';
         sectionHtml += `<h3>${sourceText}</h3>`;
         sectionHtml += '<ul style="list-style: none; padding: 0;">';
             
         items.forEach(item => {
-    let title = item.querySelector('title')?.textContent || 'No Title';
-    const pubDateStr = item.querySelector('pubDate')?.textContent;
-    const linkUrl = item.querySelector('link')?.textContent || '#'; // Get the actual URL
-    let maxLen = 50; 
+            // --- 1. DATA EXTRACTION ---
+            let title = item.querySelector('title')?.textContent || 'No Title';
+            const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
+            
+            let linkUrl = '#';
+            const linkElem = item.querySelector('link');
+            if (linkElem) {
+                // If it has an href (YouTube), use it. Otherwise use textContent (RSS).
+                linkUrl = linkElem.getAttribute('href') || linkElem.textContent || '#';
+            }
 
-    // 1. Title Trimming Logic (remains the same)
-    if (title.includes(":")) {
-        title = title.substring(title.indexOf(":") + 1).trim();
-    }
+            // --- 2. FORMATTING LOGIC ---
+            let maxLen = 50; 
+            if (title.includes(":")) {
+                title = title.substring(title.indexOf(":") + 1).trim();
+            }
 
-    if (title.length > maxLen) {
-        let nextSpace = title.indexOf(" ", maxLen);
-        if (nextSpace !== -1) {
-            title = title.substring(0, nextSpace) + "...";
-        } else if (title.length > (maxLen + 20)) { 
-            title = title.substring(0, maxLen) + "...";
-        }
-    }
+            if (title.length > maxLen) {
+                let nextSpace = title.indexOf(" ", maxLen);
+                if (nextSpace !== -1) {
+                    title = title.substring(0, nextSpace) + "...";
+                } else if (title.length > (maxLen + 20)) { 
+                    title = title.substring(0, maxLen) + "...";
+                }
+            }
 
-    // 2. Date Logic (remains the same)
-    let date = null;
-    if (pubDateStr) {
-        try {
-            date = new Date(pubDateStr);
-            if (isNaN(date.getTime())) date = null;
-        } catch (e) { date = null; }
-    }
+            let date = null;
+            if (pubDateStr) {
+                try {
+                    date = new Date(pubDateStr);
+                    if (isNaN(date.getTime())) date = null;
+                } catch (e) { date = null; }
+            }
 
-    // 3. Build the HTML with the hidden URL
-    sectionHtml += `<li>`;
-    
-    // Add Date
-    const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
-    sectionHtml += `${displayDate} `;
+            // --- 3. HTML GENERATION ---
+            const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
+            sectionHtml += `<li>${displayDate} <strong>${sourceText}</strong>: `;
+            sectionHtml += `<a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a></li>`;
+        });
 
-    // Add Source
-    sectionHtml += `<strong>${sourceText}</strong>: `;
-
-    // The Magic: Wrap the title in the link and skip displaying the URL string
-    sectionHtml += `<a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a>`;
-
-    // Append the ID/Fragment if it exists (for your dynamic jumps)
-    // if (optionId) {
-    //    sectionHtml += ` <span style="font-size: 0.8em; color: #888;">(${optionId})</span>`;
-    // }
-
-    sectionHtml += `</li>`;
-});
         sectionHtml += '</ul>';
         displayContainer.innerHTML += sectionHtml;
+
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
-        // The error here is that fullOptionId is not defined in this scope.
-        // It's a local variable to the autoLoadAllFeeds or manualLoad function.
-        // To fix this, you need to pass it as an argument to fetchAndDisplayFeed.
         const errorMessage = error.message.substring(0, 100);
+        
         if (isSingleFeed) {
             document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed from URL:<br> ${feedUrl}<br>Reason: ${error.message}</p>`;
+            // FIX 2: Use feedUrl (the parameter) instead of fullOptionId
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed.<br>Reason: ${errorMessage}</p>`;
         } else {
-            // This part is for the autoLoadAllFeeds case
-            // The original code tried to use a variable called fullOptionId here.
-            // But it's not defined, causing the error.
-            // You should use the 'optionId' variable that is passed into the function.
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}' feed. Error: ${errorMessage}... URL: &lt;option id="${optionId}" value="${feedUrl}"&gt;&lt;/option&gt;</p>`;
+            // Use the optionId parameter passed into the function
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}'. Error: ${errorMessage}... (ID: ${optionId})</p>`;
         }
     }
 }
