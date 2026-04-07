@@ -1,12 +1,12 @@
 // Define proxyList globally, as it's a constant list
 const proxyList = [
+        'https://wispy-thunder-5150.the-kds-group.workers.dev/?url='
         'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
         'https://corsproxy.io/?url=',
         'https://api.allorigins.win/raw?url=',
         'https://api.codetabs.com/v1/proxy?quest=',
         'https://cors.lol/?url=',
-        'https://wispy-thunder-5150.the-kds-group.workers.dev/?url='
-];
+        ];
 // --- fetchWithRetry function (moved to global scope) ---
 async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
     try {
