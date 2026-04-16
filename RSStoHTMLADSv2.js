@@ -226,7 +226,8 @@ async function autoLoadAllFeeds() {
         // OPTIONAL: Add a tiny "breather" delay (500ms) to help your CPU/Chrome tabs
         await new Promise(res => setTimeout(res, 500));
     }
-
+    // --- ADD THE 5 BLANK LINES HERE ---
+    container.innerHTML += '<br><br><br><br><br>';
     // --- Final Status Logic ---
     if (allSucceeded) {
         loadingDiv.textContent = 'All feeds loaded successfully! ✓';
