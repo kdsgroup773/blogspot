@@ -120,7 +120,7 @@
             <div class="column-content" id="m-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--sub-orange)"><span>Substack</span><span id="sub-count" class="batch-count-pill">0</span></div>
+            <div class="column-header" style="color:var(--sub-orange)"><span>primal</span><span id="sub-count" class="batch-count-pill">0</span></div>
             <div class="column-content" id="sub-area"></div>
         </div>
         <div class="column">
@@ -174,7 +174,7 @@ const ROTATING_URLS = [
 
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 700, label: 'Mastodon', format: 'plain', key: 'mastodon' },
-    { id: 'sub-area', countId: 'sub-count', limit: 2900, label: 'Substack', format: 'plain', key: 'substack' },
+    { id: 'sub-area', countId: 'sub-count', limit: 2900, label: 'primal', format: 'plain', key: 'primal' },
     { id: 'p-area', countId: 'p-count', limit: 2900, label: 'Paragraph', format: 'rich', key: 'paragraph' },
     { id: 'pri-area', countId: 'pri-count', limit: 2900, label: 'Primal', format: 'rich', key: 'primal' },
     { id: 'bs-area', countId: 'bs-count', limit: 400, label: 'BlueSky', format: 'rich', key: 'bluesky' },
@@ -214,7 +214,7 @@ function generateAll() {
             if (p.format === 'rich') {
                 let tag = (p.label === 'Paragraph') ? "ref=paragraph" : 
                           (p.label === 'Primal' ? "s=primal" : 
-                          (p.label === 'BlueSky' ? "ref=bsky" : "ref=substack"));
+                          (p.label === 'BlueSky' ? "ref=bsky" : "ref=primal"));
                 
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
