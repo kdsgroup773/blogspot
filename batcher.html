@@ -10,7 +10,8 @@
             --tum-blue: #35465c; --m-purple: #6364ff; --sub-orange: #ff6719;
             --p-orange: #ff4500; --li-blue: #0077b5; --pri-teal: #00d5ff;
             --bs-blue: #0085ff; --long-dark: #2c3e50; --success: #27ae60;
-            --discord-blurple: #5865F2; /* Added Discord Brand Color */
+            --discord-blurple: #5865F2; 
+            --snort-gold: #f5a623; /* Added Snort Brand Color */
         }
 
         body, html {
@@ -125,8 +126,12 @@
             <div class="column-content" id="d-area"></div>
         </div>
         <div class="column">
-            <div class="column-header" style="color:var(--pri-teal)"><span>Primal (Nostr)</span><span id="pri-count" class="batch-count-pill">0</span></div>
+            <div class="column-header" style="color:var(--pri-teal)"><span>Primal</span><span id="pri-count" class="batch-count-pill">0</span></div>
             <div class="column-content" id="pri-area"></div>
+        </div>
+        <div class="column">
+            <div class="column-header" style="color:var(--snort-gold)"><span>Snort</span><span id="snort-count" class="batch-count-pill">0</span></div>
+            <div class="column-content" id="snort-area"></div>
         </div>
         <div class="column">
             <div class="column-header" style="color:var(--sub-orange)"><span>Nostr.me</span><span id="sub-count" class="batch-count-pill">0</span></div>
@@ -148,10 +153,7 @@
         <div class="column">
             <div class="column-header" style="color:var(--tum-blue)"><span>Tumblr</span><span id="tum-count" class="batch-count-pill">0</span></div>
             <div class="column-content" id="tum-area"></div>
-        </div>                                
-        <div class="column">
-            <div class="column-header" style="color:var(--tum-blue)"><span>Spacer</span><span id="tum-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="tum-area"></div>
+        </div>                                     
     </div>
 </div>
 
@@ -179,7 +181,8 @@ const ROTATING_URLS = [
 
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 700, label: 'Mastodon', format: 'plain', key: 'mastodon' },
-    { id: 'd-area', countId: 'd-count', limit: 1800, label: 'Discord', format: 'plain', key: 'discord' }, // Added Discord config
+    { id: 'd-area', countId: 'd-count', limit: 1800, label: 'Discord', format: 'plain', key: 'discord' },
+    { id: 'snort-area', countId: 'snort-count', limit: 2900, label: 'Snort', format: 'rich', key: 'snort' },
     { id: 'sub-area', countId: 'sub-count', limit: 2900, label: 'Substack', format: 'plain', key: 'Substack' },
     { id: 'p-area', countId: 'p-count', limit: 2900, label: 'Paragraph', format: 'rich', key: 'paragraph' },
     { id: 'pri-area', countId: 'pri-count', limit: 2900, label: 'Primal', format: 'rich', key: 'primal' },
@@ -221,7 +224,8 @@ function generateAll() {
             if (p.format === 'rich') {
                 let tag = (p.label === 'Paragraph') ? "ref=paragraph" : 
                           (p.label === 'Primal' ? "s=primal" : 
-                          (p.label === 'BlueSky' ? "ref=bsky" : "ref=primal"));
+                          (p.label === 'Snort' ? "s=snort" :
+                          (p.label === 'BlueSky' ? "ref=bsky" : "ref=primal")));
                 
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
