@@ -86,7 +86,6 @@
 
         .batch-count-pill { font-size: 10px; background: #eee; color: #666; padding: 2px 8px; border-radius: 10px; }
         
-        /* Box Hover and Cursor Styles */
         .batch-card { 
             border: 1px solid #e1e4e8; 
             border-radius: 8px; 
@@ -94,17 +93,17 @@
             padding: 10px; 
             background: #fafafa; 
             cursor: pointer; 
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            transition: all 0.2s ease;
             outline: none;
         }
+        
         .batch-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            background: #fdfdfd;
-        }
-        .batch-card:focus {
             border-color: var(--bs-blue);
+            background: #f0f7ff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .batch-card.copied { border: 2px solid var(--success); background: #f0fff4; }
+
+        .batch-card.copied { border: 2px solid var(--success) !important; background: #f0fff4 !important; }
         
         .batch-text { font-size: 11px; white-space: pre-wrap; color: #333; line-height: 1.5; pointer-events: none; }
         .hidden-html { display: none; }
@@ -136,7 +135,6 @@
 
 <div class="dashboard-wrapper">
     <div class="dashboard" id="dashboard">
-        <!-- Columns as defined in your config -->
         <div class="column"><div class="column-header" style="color:var(--m-purple)"><span>Mastodon</span><span id="m-count" class="batch-count-pill">0</span></div><div class="column-content" id="m-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--discord-blurple)"><span>Discord</span><span id="d-count" class="batch-count-pill">0</span></div><div class="column-content" id="d-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Primal</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
@@ -151,6 +149,7 @@
 
 <script>
 const bridge = new BroadcastChannel('social_post_bridge');
+let currentlyHoveredCard = null; // Track card for keyboard shortcut
 
 const ROTATING_URLS = [
     "View all the Continents news https://kensbookinfo.blogspot.com/2026/03/latest-news-from-continents.html",
@@ -255,33 +254,39 @@ function addCard(container, content, title, htmlContent, format, key) {
     const card = document.createElement('div');
     card.className = 'batch-card';
     card.setAttribute('data-platform', key);
-    card.setAttribute('tabindex', '0'); // Makes it focusable for Enter key
+    card.setAttribute('data-format', format);
     
     card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <small><b>${title}</b></small>
-            <button class="btn-copy" onclick="event.stopPropagation(); copyDynamic(this, '${format}')">Copy</button>
+            <button class="btn-copy">Copy</button>
         </div>
         <div class="batch-text">${content}</div>
         <div class="hidden-html">${htmlContent}</div>
     `;
 
-    // Click to copy handler
-    card.addEventListener('click', function() {
-        const btn = this.querySelector('.btn-copy');
-        copyDynamic(btn, format);
+    // 1. Mouse Click Event
+    card.addEventListener('click', function(e) {
+        copyDynamic(this.querySelector('.btn-copy'), format);
     });
 
-    // Enter key to copy handler
-    card.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            const btn = this.querySelector('.btn-copy');
-            copyDynamic(btn, format);
-        }
-    });
+    // 2. Hover tracking for Keyboard Shortcut
+    card.addEventListener('mouseenter', () => currentlyHoveredCard = card);
+    card.addEventListener('mouseleave', () => currentlyHoveredCard = null);
 
     container.appendChild(card);
 }
+
+// 3. Global Keyboard Listener (Enter Key)
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && currentlyHoveredCard) {
+        // Prevent default behavior (like scrolling) when copying via keyboard
+        e.preventDefault(); 
+        const btn = currentlyHoveredCard.querySelector('.btn-copy');
+        const format = currentlyHoveredCard.getAttribute('data-format');
+        copyDynamic(btn, format);
+    }
+});
 
 async function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
@@ -293,7 +298,10 @@ async function copyDynamic(btn, format) {
         btn.innerText = "✓"; 
         btn.classList.add('active-copy'); 
         card.classList.add('copied'); 
-        setTimeout(() => { btn.innerText = "Copy"; btn.classList.remove('active-copy'); }, 2000);
+        setTimeout(() => { 
+            btn.innerText = "Copy"; 
+            btn.classList.remove('active-copy'); 
+        }, 2000);
     };
 
     try {
