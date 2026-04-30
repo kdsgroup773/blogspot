@@ -11,7 +11,7 @@
             --p-orange: #ff4500; --li-blue: #0077b5; --pri-teal: #00d5ff;
             --bs-blue: #0085ff; --long-dark: #2c3e50; --success: #27ae60;
             --discord-blurple: #5865F2; 
-            --snort-gold: #f5a623; /* Added Snort Brand Color */
+            --snort-gold: #f5a623;
         }
 
         body, html {
@@ -85,9 +85,28 @@
         }
 
         .batch-count-pill { font-size: 10px; background: #eee; color: #666; padding: 2px 8px; border-radius: 10px; }
-        .batch-card { border: 1px solid #e1e4e8; border-radius: 8px; margin-bottom: 12px; padding: 10px; background: #fafafa; }
+        
+        /* Box Hover and Cursor Styles */
+        .batch-card { 
+            border: 1px solid #e1e4e8; 
+            border-radius: 8px; 
+            margin-bottom: 12px; 
+            padding: 10px; 
+            background: #fafafa; 
+            cursor: pointer; 
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            outline: none;
+        }
+        .batch-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: #fdfdfd;
+        }
+        .batch-card:focus {
+            border-color: var(--bs-blue);
+        }
         .batch-card.copied { border: 2px solid var(--success); background: #f0fff4; }
-        .batch-text { font-size: 11px; white-space: pre-wrap; color: #333; line-height: 1.5; }
+        
+        .batch-text { font-size: 11px; white-space: pre-wrap; color: #333; line-height: 1.5; pointer-events: none; }
         .hidden-html { display: none; }
         .btn-copy { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
@@ -116,48 +135,17 @@
 </div>
 
 <div class="dashboard-wrapper">
-    <div class="dashboard">
-        <div class="column">
-            <div class="column-header" style="color:var(--m-purple)"><span>Mastodon</span><span id="m-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="m-area"></div>
-        </div>
-        <div class="column">
-            <div class="column-header" style="color:var(--discord-blurple)"><span>Discord</span><span id="d-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="d-area"></div>
-        </div>
-        <div class="column">
-            <div class="column-header" style="color:var(--pri-teal)"><span>Primal</span><span id="pri-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="pri-area"></div>
-        </div>
-        <div class="column">
-            <div class="column-header" style="color:var(--snort-gold)"><span>Snort</span><span id="snort-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="snort-area"></div>
-        </div>
-        <div class="column">
-            <div class="column-header" style="color:var(--sub-orange)"><span>Nostr.me</span><span id="sub-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="sub-area"></div>
-        </div>
-        <div class="column">
-            <div class="column-header" style="color:var(--p-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="p-area"></div>
-        </div>
-
-        <div class="column">
-            <div class="column-header" style="color:var(--bs-blue)"><span>BlueSky</span><span id="bs-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="bs-area"></div>
-        </div>
-        <div class="column">
-            <div class="column-header" style="color:var(--li-blue)"><span>LinkedIn</span><span id="li-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="li-area"></div>
-        </div>
-        <div class="column">
-            <div class="column-header" style="color:var(--tum-blue)"><span>Tumblr</span><span id="tum-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="tum-area"></div>
-        </div>                                     
-            <div class="column">
-            <div class="column-header" style="color:var(--tum-blue)"><span>Tumblr</span><span id="tum-count" class="batch-count-pill">0</span></div>
-            <div class="column-content" id="tum-area"></div>
-        </div>                                     
+    <div class="dashboard" id="dashboard">
+        <!-- Columns as defined in your config -->
+        <div class="column"><div class="column-header" style="color:var(--m-purple)"><span>Mastodon</span><span id="m-count" class="batch-count-pill">0</span></div><div class="column-content" id="m-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--discord-blurple)"><span>Discord</span><span id="d-count" class="batch-count-pill">0</span></div><div class="column-content" id="d-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Primal</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--snort-gold)"><span>Snort</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--sub-orange)"><span>Nostr.me</span><span id="sub-count" class="batch-count-pill">0</span></div><div class="column-content" id="sub-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="p-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--bs-blue)"><span>BlueSky</span><span id="bs-count" class="batch-count-pill">0</span></div><div class="column-content" id="bs-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--li-blue)"><span>LinkedIn</span><span id="li-count" class="batch-count-pill">0</span></div><div class="column-content" id="li-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Tumblr</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
     </div>
 </div>
 
@@ -267,14 +255,31 @@ function addCard(container, content, title, htmlContent, format, key) {
     const card = document.createElement('div');
     card.className = 'batch-card';
     card.setAttribute('data-platform', key);
+    card.setAttribute('tabindex', '0'); // Makes it focusable for Enter key
+    
     card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <small><b>${title}</b></small>
-            <button class="btn-copy" onclick="copyDynamic(this, '${format}')">Copy</button>
+            <button class="btn-copy" onclick="event.stopPropagation(); copyDynamic(this, '${format}')">Copy</button>
         </div>
         <div class="batch-text">${content}</div>
         <div class="hidden-html">${htmlContent}</div>
     `;
+
+    // Click to copy handler
+    card.addEventListener('click', function() {
+        const btn = this.querySelector('.btn-copy');
+        copyDynamic(btn, format);
+    });
+
+    // Enter key to copy handler
+    card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const btn = this.querySelector('.btn-copy');
+            copyDynamic(btn, format);
+        }
+    });
+
     container.appendChild(card);
 }
 
