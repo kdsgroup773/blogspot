@@ -47,6 +47,93 @@
                 }
             }
         }
+        // References to DOM elements
+const video = document.getElementById('video-feed');
+const startButton = document.getElementById('start-button');
+const statusElement = document.getElementById('status');
+const messageBox = document.getElementById('message-box');
+let stream = null; 
+
+// Function to display messages gracefully
+function displayMessage(text, isError = false) {
+    messageBox.textContent = text;
+    messageBox.style.display = 'block';
+    messageBox.className = 'fixed top-20 right-20 p-3 rounded-lg text-white z-10 shadow-lg';
+    
+    if (isError) {
+        messageBox.style.backgroundColor = '#dc2626'; 
+        statusElement.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
+        statusElement.classList.add('bg-red-100', 'text-red-800');
+        statusElement.textContent = `Error: ${text}`;
+    } else {
+        messageBox.style.backgroundColor = '#10b981'; 
+    }
+    
+    setTimeout(() => {
+        messageBox.style.display = 'none';
+    }, 5000);
+}
+
+// Function to start the webcam and microphone
+async function startMedia() {
+    if (stream) {
+        displayMessage("Media is already running!", false);
+        return;
+    }
+
+    // UPDATED: Set audio to true
+    const constraints = {
+        video: true,
+        audio: true
+    };
+
+    // CRITICAL: Mute the video element so you don't hear yourself
+    video.muted = true; 
+
+    statusElement.textContent = "Requesting camera and microphone permission...";
+    
+    try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        stream = mediaStream;
+        video.srcObject = stream;
+        
+        await video.play();
+
+        statusElement.classList.remove('bg-yellow-100', 'text-yellow-800');
+        statusElement.classList.add('bg-green-100', 'text-green-800');
+        statusElement.textContent = "Camera & Mic access granted! Live feed active.";
+        startButton.textContent = "Media Running";
+        startButton.disabled = true;
+
+        displayMessage("Webcam and Microphone successfully started!", false);
+
+    } catch (err) {
+        let errorMsg;
+        if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+            errorMsg = "Permission denied. Please allow camera and microphone access in your browser settings.";
+        } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+            errorMsg = "Required devices not found. Ensure your webcam and mic are connected.";
+        } else {
+            errorMsg = `An error occurred: ${err.name}`;
+        }
+        
+        displayMessage(errorMsg, true);
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+}
+
+startButton.addEventListener('click', startMedia);
+
+window.addEventListener('beforeunload', () => {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+});
     </script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
