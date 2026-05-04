@@ -2,8 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JS Webcam Demo</title>
-    <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEirhTlEB7oDHID2L0Wp9QOVfhwykLNVVcARpu8gydNBsfQ3fuBmjpGlHXT4EpmXB7zTrLa5z6VzE4votCKwBr_Nj20-kUyRASALTxFQF0roWU_t67fL3qX-uCHyZOdq0cN5oaiLv7JwCkgvkKLw98Sh3YTlc4ZqzC2iRhOPq-MJmWB2kxReVz9sMRsVo9U/s320/security-camera-icon-video-surveillance-600nw-2498783595.webp">
+    <title>Webcam & Mic Meter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .video-container {
@@ -20,88 +19,117 @@
             object-fit: cover;
             border-radius: 0.75rem;
         }
-        #message-box {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* Meter Styling */
+        .meter-container {
+            width: 100%;
+            max-width: 600px;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+            border: 1px solid #d1d5db;
+        }
+        #volume-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+            transition: width 0.1s ease-out;
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
 
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Webcam & Mic Access</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Webcam & Audio Meter</h1>
 
     <div id="status" class="text-center text-lg mb-8 p-3 rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-300">
-        Click the button below to start.
+        Click start to activate media and volume meter.
     </div>
 
-    <div class="video-container rounded-xl overflow-hidden mb-8">
-        <!-- Muted here to prevent audio feedback loop during local testing -->
+    <div class="video-container rounded-xl overflow-hidden">
         <video id="video-feed" autoplay playsinline muted></video>
     </div>
+
+    <!-- Volume Meter UI -->
+    <div class="meter-container">
+        <div id="volume-bar"></div>
+    </div>
+    <p class="text-sm text-gray-500 mt-2 mb-8">Microphone Activity</p>
 
     <button id="start-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-full shadow-lg transition duration-300 transform hover:scale-105 active:scale-95">
         Start Media
     </button>
     
-    <div id="message-box" role="alert"></div>
+    <div id="message-box" class="hidden fixed top-20 right-20 p-3 rounded-lg text-white z-10 shadow-lg"></div>
 
     <script>
-        // All logic moved here to the bottom of the body
         const video = document.getElementById('video-feed');
         const startButton = document.getElementById('start-button');
         const statusElement = document.getElementById('status');
-        const messageBox = document.getElementById('message-box');
-        let stream = null; 
-
-        function displayMessage(text, isError = false) {
-            messageBox.textContent = text;
-            messageBox.style.display = 'block';
-            messageBox.style.backgroundColor = isError ? '#dc2626' : '#10b981';
-            messageBox.className = 'fixed top-20 right-20 p-3 rounded-lg text-white z-10 shadow-lg';
-            
-            if (isError) {
-                statusElement.classList.replace('bg-yellow-100', 'bg-red-100');
-                statusElement.classList.replace('text-yellow-800', 'text-red-800');
-                statusElement.textContent = `Error: ${text}`;
-            }
-            
-            setTimeout(() => { messageBox.style.display = 'none'; }, 5000);
-        }
+        const volumeBar = document.getElementById('volume-bar');
+        let stream = null;
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
+        let animationId = null;
 
         async function startMedia() {
             if (stream) return;
 
-            const constraints = { video: true, audio: true };
-
             try {
-                statusElement.textContent = "Requesting permissions...";
-                const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                stream = mediaStream;
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 video.srcObject = stream;
                 await video.play();
 
+                // Setup Audio Meter
+                setupAudioMeter(stream);
+
                 statusElement.className = "text-center text-lg mb-8 p-3 rounded-lg bg-green-100 text-green-800 border border-green-300";
-                statusElement.textContent = "Live feed active (Mic & Camera).";
+                statusElement.textContent = "Live feed & Mic meter active.";
                 startButton.textContent = "Running";
                 startButton.disabled = true;
-
-                displayMessage("Access granted!", false);
             } catch (err) {
-                displayMessage(err.name === "NotAllowedError" ? "Permission denied." : "Device error.", true);
+                statusElement.textContent = "Error: Access denied or device missing.";
+                statusElement.className = "bg-red-100 text-red-800 p-3 rounded-lg";
             }
+        }
+
+        function setupAudioMeter(stream) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioContext.createMediaStreamSource(stream);
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+
+            updateMeter();
+        }
+
+        function updateMeter() {
+            analyser.getByteFrequencyData(dataArray);
+
+            // Calculate average volume level
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            let average = sum / dataArray.length;
+
+            // Map the average (0-255) to a percentage for the CSS width
+            let volumePercent = Math.min(100, (average / 128) * 100);
+            volumeBar.style.width = volumePercent + "%";
+
+            animationId = requestAnimationFrame(updateMeter);
         }
 
         startButton.addEventListener('click', startMedia);
 
         window.addEventListener('beforeunload', () => {
             if (stream) stream.getTracks().forEach(track => track.stop());
+            if (audioContext) audioContext.close();
+            if (animationId) cancelAnimationFrame(animationId);
         });
     </script>
 </body>
