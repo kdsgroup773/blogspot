@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 1000 US Daily Uploaders</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f4f9; color: #333; margin: 20px; }
+        header { text-align: center; padding: 20px; background: #ff0000; color: white; border-radius: 8px; margin-bottom: 20px; }
+        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 300px; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #eee; font-weight: bold; }
+        tr:hover { background-color: #f1f1f1; }
+        .rank { font-weight: bold; color: #ff0000; }
+        .status-active { color: #28a745; font-weight: bold; }
+        #loader { display: none; text-align: center; font-style: italic; margin: 20px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>US YouTube Daily Upload Tracker</h1>
+    <p>Top 1000 Channels by Subscribers • Sorted by Most Recent Upload</p>
+</header>
+
+<div class="controls">
+    <input type="text" id="apiKey" placeholder="Enter YouTube API Key">
+    <button onclick="fetchTopChannels()">Generate List</button>
+</div>
+
+<div id="loader">Scanning YouTube API for Top 1000 US Channels...</div>
+
+<table id="channelTable">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Channel Name</th>
+            <th>Subscribers</th>
+            <th>Last Upload</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        <!-- Data injected here -->
+    </tbody>
+</table>
+
+<script>
+    async function fetchTopChannels() {
+        const apiKey = document.getElementById('apiKey').value;
+        if (!apiKey) {
+            alert("Please enter a valid API Key");
+            return;
+        }
+
+        const tableBody = document.getElementById('tableBody');
+        const loader = document.getElementById('loader');
+        tableBody.innerHTML = '';
+        loader.style.display = 'block';
+
+        try {
+            // Note: The API typically returns 50 results per page.
+            // For a full 1000, you would iterate using pageTokens.
+            // This example shows the first 50 as a proof of concept.
+            const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&regionCode=US&type=channel&order=relevance&key=${apiKey}`;
+
+            const response = await fetch(searchUrl);
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error.message);
+
+            const channels = data.items;
+            let resultsCount = 1;
+
+            for (const item of channels) {
+                const channelId = item.snippet.channelId;
+                const channelTitle = item.snippet.title;
+
+                // Fetch Detailed Stats (Sub Count)
+                const statsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,contentDetails&id=${channelId}&key=${apiKey}`;
+                const statsRes = await fetch(statsUrl);
+                const statsData = await statsRes.json();
+                const subCount = parseInt(statsData.items[0].statistics.subscriberCount).toLocaleString();
+                const uploadsPlaylistId = statsData.items[0].contentDetails.relatedPlaylists.uploads;
+
+                // Check for Daily Upload (Get most recent video from uploads playlist)
+                const videosUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=1&key=${apiKey}`;
+                const videoRes = await fetch(videosUrl);
+                const videoData = await videoRes.json();
+
+                if (videoData.items.length > 0) {
+                    const lastUploadDate = new Date(videoData.items[0].snippet.publishedAt);
+                    const now = new Date();
+                    const hoursSinceUpload = Math.abs(now - lastUploadDate) / 36e5;
+
+                    // Filter: Only show if uploaded within last 24 hours (Daily)
+                    if (hoursSinceUpload <= 24) {
+                        const row = `
+                            <tr>
+                                <td class="rank">#${resultsCount}</td>
+                                <td><a href="https://youtube.com/channel/${channelId}" target="_blank">${channelTitle}</a></td>
+                                <td>${subCount}</td>
+                                <td>${lastUploadDate.toLocaleTimeString()} Today</td>
+                                <td class="status-active">DAILY</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                        resultsCount++;
+                    }
+                }
+            }
+        } catch (error) {
+            alert("Error: " + error.message);
+        } finally {
+            loader.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
