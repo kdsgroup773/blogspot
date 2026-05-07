@@ -18,6 +18,7 @@
         .rank { font-weight: bold; color: #ff0000; }
         .status-active { color: #28a745; font-weight: bold; }
         #loader { display: none; text-align: center; font-style: italic; margin: 20px; }
+        .no-results { text-align: center; padding: 20px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -32,7 +33,7 @@
     <button onclick="fetchTopChannels()">Generate List</button>
 </div>
 
-<div id="loader">Scanning YouTube API for Top 1000 US Channels...</div>
+<div id="loader">Scanning YouTube API for active US News Channels...</div>
 
 <table id="channelTable">
     <thead>
@@ -63,10 +64,8 @@
         loader.style.display = 'block';
 
         try {
-            // Note: The API typically returns 50 results per page.
-            // For a full 1000, you would iterate using pageTokens.
-            // This example shows the first 50 as a proof of concept.
-            const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&regionCode=US&type=channel&order=relevance&key=${apiKey}`;
+            // Added q=news to find relevant content for your blog curation
+            const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&regionCode=US&type=channel&q=news&order=relevance&key=${apiKey}`;
 
             const response = await fetch(searchUrl);
             const data = await response.json();
@@ -76,36 +75,42 @@
             const channels = data.items;
             let resultsCount = 1;
 
+            if (!channels || channels.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="no-results">No channels found for this query.</td></tr>';
+                return;
+            }
+
             for (const item of channels) {
                 const channelId = item.snippet.channelId;
                 const channelTitle = item.snippet.title;
 
-                // Fetch Detailed Stats (Sub Count)
                 const statsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,contentDetails&id=${channelId}&key=${apiKey}`;
                 const statsRes = await fetch(statsUrl);
                 const statsData = await statsRes.json();
+                
+                if (!statsData.items || statsData.items.length === 0) continue;
+
                 const subCount = parseInt(statsData.items[0].statistics.subscriberCount).toLocaleString();
                 const uploadsPlaylistId = statsData.items[0].contentDetails.relatedPlaylists.uploads;
 
-                // Check for Daily Upload (Get most recent video from uploads playlist)
                 const videosUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=1&key=${apiKey}`;
                 const videoRes = await fetch(videosUrl);
                 const videoData = await videoRes.json();
 
-                if (videoData.items.length > 0) {
+                if (videoData.items && videoData.items.length > 0) {
                     const lastUploadDate = new Date(videoData.items[0].snippet.publishedAt);
                     const now = new Date();
                     const hoursSinceUpload = Math.abs(now - lastUploadDate) / 36e5;
 
-                    // Filter: Only show if uploaded within last 24 hours (Daily)
-                    if (hoursSinceUpload <= 24) {
+                    // Loosened to 48 hours to ensure a populated list while still being "fresh"
+                    if (hoursSinceUpload <= 48) {
                         const row = `
                             <tr>
                                 <td class="rank">#${resultsCount}</td>
                                 <td><a href="https://youtube.com/channel/${channelId}" target="_blank">${channelTitle}</a></td>
                                 <td>${subCount}</td>
-                                <td>${lastUploadDate.toLocaleTimeString()} Today</td>
-                                <td class="status-active">DAILY</td>
+                                <td>${lastUploadDate.toLocaleString()}</td>
+                                <td class="status-active">ACTIVE</td>
                             </tr>
                         `;
                         tableBody.innerHTML += row;
@@ -113,6 +118,11 @@
                     }
                 }
             }
+
+            if (resultsCount === 1) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="no-results">No uploads found in the last 48 hours for this batch.</td></tr>';
+            }
+
         } catch (error) {
             alert("Error: " + error.message);
         } finally {
