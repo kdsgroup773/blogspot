@@ -144,7 +144,6 @@
         <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Nostter</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--discord-blurple)"><span>Discord</span><span id="d-count" class="batch-count-pill">0</span></div><div class="column-content" id="d-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Primal</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Nostter</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="nos-area"></div></div>
     </div>
 </div>
 
@@ -180,7 +179,7 @@ const config = [
     { id: 'pri-area', countId: 'pri-count', limit: 4000, label: 'Primal', format: 'plain', key: 'primal' },
     { id: 'bs-area', countId: 'bs-count', limit: 400, label: 'BlueSky', format: 'plain', key: 'bluesky' },
     { id: 'li-area', countId: 'li-count', limit: 400, label: 'Coracle', format: 'plain', key: 'coracle' },
-    { id: 'nos-area', countId: 'tum-count', limit: 2900, label: 'Nostter', format: 'rich', key: 'nostter' }
+    { id: 'tum-area', countId: 'tum-count', limit: 2900, label: 'Nostter', format: 'rich', key: 'nostter' }
 ];
 
 function clearInput() { document.getElementById('rawInput').value = ""; }
