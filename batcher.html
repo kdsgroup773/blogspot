@@ -139,6 +139,7 @@
         <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Nostter</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--bs-blue)"><span>BlueSky</span><span id="bs-count" class="batch-count-pill">0</span></div><div class="column-content" id="bs-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="p-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nosotros</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="nos-area"></div></div>
         <!---->
         <div class="column"><div class="column-header" style="color:var(--li-blue)"><span>Coracle</span><span id="li-count" class="batch-count-pill">0</span></div><div class="column-content" id="li-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--sub-orange)"><span>Nostr.me</span><span id="sub-count" class="batch-count-pill">0</span></div><div class="column-content" id="sub-area"></div></div>
@@ -187,7 +188,8 @@ const config = [
     { id: 'pri-area', countId: 'pri-count', limit: 4000, label: 'Primal', format: 'plain', key: 'primal' },
     { id: 'bs-area', countId: 'bs-count', limit: 400, label: 'BlueSky', format: 'plain', key: 'bluesky' },
     { id: 'li-area', countId: 'li-count', limit: 4000, label: 'Coracle', format: 'plain', key: 'coracle' },
-    { id: 'tum-area', countId: 'tum-count', limit: 2900, label: 'Nostter', format: 'rich', key: 'nostter' }
+    { id: 'tum-area', countId: 'tum-count', limit: 3000, label: 'Nostter', format: 'rich', key: 'nostter' },
+    { id: 'nosum-area', countId: 'nos-count', limit: 3000, label: 'Nosotros', format: 'rich', key: 'nosotros' }
 ];
 
 function clearInput() { document.getElementById('rawInput').value = ""; }
