@@ -234,7 +234,7 @@ function generateAll() {
             if (p.format === 'rich') {
                 let tag = (p.label === 'Paragraph') ? "ref=paragraph" : 
                           (p.label === 'Primal' ? "s=primal" : 
-                          (p.label === 'BlueSky' ? "ref=bsky" : "ref=primal")));
+                          (p.label === 'BlueSky' ? "ref=bsky" : "ref=primal"));
                 
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
