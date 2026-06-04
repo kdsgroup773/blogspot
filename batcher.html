@@ -191,7 +191,7 @@ const ROTATING_URLS = [
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 700, label: 'Mastodon', format: 'plain', key: 'mastodon' },
 /*    { id: 'd-area', countId: 'd-count', limit: 1800, label: 'Discord', format: 'plain', key: 'discord' }, */
-    { id: 'snort-area', countId: 'snort-count', limit: 4000, label: 'Snort', format: 'markdown', key: 'snort' },
+    { id: 'snort-area', countId: 'snort-count', limit: 4000, label: 'Snort', format: 'plain', key: 'snort' },
     { id: 'sub-area', countId: 'sub-count', limit: 3000, label: 'Nostr.me', format: 'plain', key: 'nostr.me' },
     { id: 'p-area', countId: 'p-count', limit: 3000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
     { id: 'pri-area', countId: 'pri-count', limit: 4000, label: 'Primal', format: 'plain', key: 'primal' },
@@ -234,7 +234,7 @@ function generateAll() {
             if (p.format === 'rich') {
                 let tag = (p.label === 'Paragraph') ? "ref=paragraph" : 
                           (p.label === 'Primal' ? "s=primal" : 
-                          (p.label === 'Snort' ? "s=snort" :
+            /*              (p.label === 'Snort' ? "s=snort" :        */
                           (p.label === 'BlueSky' ? "ref=bsky" : "ref=primal")));
                 
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a><br><br>`;
