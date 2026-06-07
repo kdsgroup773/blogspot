@@ -2,7 +2,7 @@ document.write('<div class="separator" style="clear: both; text-align: center;">
 document.write('    <figure>'  );
 document.write('      <a target="_blank" href="https://giving.feedthechildren.org/-/NCCCGCSD?member=SDJMHXBL" style="display: flex; justify-content: center; align-items: center;">');
 document.write('        <img border="0" height="100" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvxPidOtpfTG4_ra0zO8KHhjs-6fjpKncmaAwVgdDSjbqq0l9Y3__NV3jZNb-qyq48VMyql-IqKUYbD-lbTbyGi7XSvZNrqlM9N4u82QBFRdrZfanyH2oyktv4byBDlu1GJ_P68D4MHx1ujqqjdb_A6kbI2BEBG3BU7MkaRYNh07KgSy0TVbOFDaPeFmw/s320/feedthechildren_logo_l.webp" width="360" />');
-document.write('        <figcaption>The website is now fully self-sustained thanks to your support. I would now like to pay it forward. Please consider passing your kindness on by donating directly to Save the Children. Thank you!</a>');
+document.write('        <figcaption>Please consider passing your kindness on by donating directly to Save the Children. Thank you!</a>');
 document.write('    </a>');
 document.write('    </figure>');
 document.write('  </div>');
