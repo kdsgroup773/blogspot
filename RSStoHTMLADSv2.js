@@ -130,12 +130,20 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
 
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
-        const errorMessage = error.message.substring(0, 100);
+        
+        // Escape special characters to print raw code HTML text visually safely
+        const safeOptionId = optionId.replace(/"/g, '&quot;');
+        const safeFeedUrl = feedUrl.replace(/"/g, '&quot;');
+        const safeSourceText = sourceText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        // Build the precise string layout you requested
+        const rawOptionTag = `&lt;option id="${safeOptionId}" value="${safeFeedUrl}"&gt;${safeSourceText}&lt;/option&gt;`;
+
         if (isSingleFeed) {
             document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = `<p style="color: red;">Failed to load '${sourceText}' feed.<br>Reason: ${errorMessage}</p>`;
+            displayContainer.innerHTML = `<p style="color: red;">Failed to load feed.<br>Code: <code>${rawOptionTag}</code></p>`;
         } else {
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load '${sourceText}'. Error: ${errorMessage}</p>`;
+            displayContainer.innerHTML += `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
         }
     }
 }
