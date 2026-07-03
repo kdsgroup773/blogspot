@@ -142,20 +142,19 @@
         <div class="column"><div class="column-header" style="color:var(--sub-orange)"><span>Jumble</span><span id="jumble-count" class="batch-count-pill">0</span></div><div class="column-content" id="jumble-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-green)"><span>Spectr</span><span id="spectr-count" class="batch-count-pill">0</span></div><div class="column-content" id="spectr-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Fevela</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--snort-gold)"><span>Yakkihonne NO</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--snort-gold)"><span>Snort NO</span><span id="snort-client-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-client-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pris-aqua)"><span>Linkedin</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-brown)"><span>Tumblr</span><span id="snort-client-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-client-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nosotros NO</span><span id="nosotros-count" class="batch-count-pill">0</span></div><div class="column-content" id="nosotros-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Coracle NO</span><span id="coracle-count" class="batch-count-pill">0</span></div><div class="column-content" id="coracle-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Nostria NO</span><span id="nostria-count" class="batch-count-pill">0</span></div><div class="column-content" id="nostria-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Spacer</span><span id="spacer-count" class="batch-count-pill">0</span></div><div class="column-content" id="spacer-area"></div></div>
     </div>
 </div>
-
 <script>
 const bridge = new BroadcastChannel('social_post_bridge');
 let currentlyHoveredCard = null;
 
-const ROTATING_URLS = [
+const ROTATING_URLS = [61000
     "View all the Continents news https://kensbookinfo.blogspot.com/2026/03/latest-news-from-continents.html",
     "View all World Country news https://kensbookinfo.blogspot.com/2026/03/latest-news-from-countries-of-world.html",
     "View all news from States in the US news https://kensbookinfo.blogspot.com/2026/03/latest-news-from-united-states.html",
@@ -192,12 +191,12 @@ const ROTATING_URLS = [
 
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 700, label: 'Mastodon', format: 'plain', key: 'mastodon' },
-    { id: 'snort-area', countId: 'snort-count', limit: 61000, label: 'Yakkihonne', format: 'plain', key: 'yakkihonne' },
+    { id: 'snort-area', countId: 'snort-count', limit: 3050, label: 'Linkedin', format: 'plain', key: 'yakkihonne' },
     { id: 'p-area', countId: 'p-count', limit: 61000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
     { id: 'pri-area', countId: 'pri-count', limit: 61000, label: 'Fevela', format: 'plain', key: 'primal' },
     { id: 'bs-area', countId: 'bs-count', limit: 384, label: 'BlueSky', format: 'plain', key: 'bluesky' },
     { id: 'tum-area', countId: 'tum-count', limit: 61000, label: 'Nostter', format: 'plain', key: 'nostter' },
-    { id: 'snort-client-area', countId: 'snort-client-count', limit: 61000, label: 'Snort', format: 'plain', key: 'snort' },
+    { id: 'snort-client-area', countId: 'snort-client-count', limit: 9000, label: 'Tumblr', format: 'markdown', key: 'snort' },
     { id: 'nosotros-area', countId: 'nosotros-count', limit: 61000, label: 'Nosotros', format: 'plain', key: 'nosotros' },
     { id: 'jumble-area', countId: 'jumble-count', limit: 61000, label: 'Jumble', format: 'plain', key: 'jumble' },
     { id: 'spectr-area', countId: 'spectr-count', limit: 61000, label: 'Spectr', format: 'plain', key: 'spectr' },
