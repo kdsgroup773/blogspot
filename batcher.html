@@ -137,16 +137,16 @@
     <div class="dashboard" id="dashboard">
         <div class="column"><div class="column-header" style="color:var(--m-purple)"><span>Mastodon</span><span id="m-count" class="batch-count-pill">0</span></div><div class="column-content" id="m-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--bs-blue)"><span>BlueSky</span><span id="bs-count" class="batch-count-pill">0</span></div><div class="column-content" id="bs-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Nostter</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="p-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Primal NO</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--snort-gold)"><span>Yakkihonne</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--snort-gold)"><span>Snort</span><span id="snort-client-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-client-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nosotros</span><span id="nosotros-count" class="batch-count-pill">0</span></div><div class="column-content" id="nosotros-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-blue)"><span>Nostter</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="p-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--sub-orange)"><span>Jumble</span><span id="jumble-count" class="batch-count-pill">0</span></div><div class="column-content" id="jumble-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--m-purple)"><span>Spectr</span><span id="spectr-count" class="batch-count-pill">0</span></div><div class="column-content" id="spectr-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Coracle</span><span id="coracle-count" class="batch-count-pill">0</span></div><div class="column-content" id="coracle-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Nostria</span><span id="nostria-count" class="batch-count-pill">0</span></div><div class="column-content" id="nostria-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-green)"><span>Spectr</span><span id="spectr-count" class="batch-count-pill">0</span></div><div class="column-content" id="spectr-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Fevela</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--snort-gold)"><span>Yakkihonne NO</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--snort-gold)"><span>Snort NO</span><span id="snort-client-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-client-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nosotros NO</span><span id="nosotros-count" class="batch-count-pill">0</span></div><div class="column-content" id="nosotros-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Coracle NO</span><span id="coracle-count" class="batch-count-pill">0</span></div><div class="column-content" id="coracle-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Nostria NO</span><span id="nostria-count" class="batch-count-pill">0</span></div><div class="column-content" id="nostria-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Spacer</span><span id="spacer-count" class="batch-count-pill">0</span></div><div class="column-content" id="spacer-area"></div></div>
     </div>
 </div>
@@ -194,7 +194,7 @@ const config = [
     { id: 'm-area', countId: 'm-count', limit: 700, label: 'Mastodon', format: 'plain', key: 'mastodon' },
     { id: 'snort-area', countId: 'snort-count', limit: 61000, label: 'Yakkihonne', format: 'plain', key: 'yakkihonne' },
     { id: 'p-area', countId: 'p-count', limit: 61000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
-    { id: 'pri-area', countId: 'pri-count', limit: 61000, label: 'Primal', format: 'plain', key: 'primal' },
+    { id: 'pri-area', countId: 'pri-count', limit: 61000, label: 'Fevela', format: 'plain', key: 'primal' },
     { id: 'bs-area', countId: 'bs-count', limit: 384, label: 'BlueSky', format: 'plain', key: 'bluesky' },
     { id: 'tum-area', countId: 'tum-count', limit: 61000, label: 'Nostter', format: 'plain', key: 'nostter' },
     { id: 'snort-client-area', countId: 'snort-client-count', limit: 61000, label: 'Snort', format: 'plain', key: 'snort' },
