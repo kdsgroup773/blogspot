@@ -8,13 +8,8 @@
     #run-btn { background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
     #status { font-style: italic; color: #666; margin-left: 10px; }
     
-    /* The master container where results stack up */
-    #rss_accumulator { margin-top: 20px; width: 100%; }
-    
-    /* Styling for each loaded feed frame container */
-    .feed-container { width: 100%; min-height: 400px; border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px; display: block; }
-    .feed-title-header { background: #f7f7f7; padding: 8px 12px; font-weight: bold; border-bottom: 1px solid #ddd; margin: 0; font-size: 14px; color: #333; }
-    
+    .feed-section-block { width: 100%; border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px; padding: 15px; box-sizing: border-box; }
+    .feed-title-header { background: #f7f7f7; padding: 8px 12px; font-weight: bold; border-bottom: 1px solid #ddd; margin: -15px -15px 15px -15px; font-size: 14px; color: #333; }
     #links-container { display: none; }
   </style>
 </head>
@@ -69,6 +64,62 @@
 <div id="rss_accumulator"></div>
 
 <script>
+  // EDIT 1: We use "var" instead of "const" so the browser allows this script to run repeatedly
+  var proxyList = [
+    "https://api.allorigins.win/raw?url=",
+    "https://corsproxy.io/?",
+    "https://api.codetabs.com/v1/proxy/?quest="
+  ];
+
+  // EDIT 2: We wrapped your original engine code inside a reusable function 
+  // that takes a target URL and targets a specific layout container variable.
+  function processSingleFeedEngine(feedUrl, outputContainer) {
+    
+    // --- START OF YOUR ORIGINAL RSStoHTMLADSv2.js CODE ---
+    // (Pasting the core logic here, modified to inject into "outputContainer" instead of wiping document.body)
+    
+    fetch(proxyList[0] + encodeURIComponent(feedUrl))
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+      .then(data => {
+        const items = data.querySelectorAll("item");
+        let html = ``;
+        
+        items.forEach(el => {
+          html += `
+            <div class="feed-item">
+              <h3><a href="${el.querySelector("link").innerHTML}" target="_blank">${el.querySelector("title").innerHTML}</a></h3>
+              <p>${el.querySelector("description") ? el.querySelector("description").innerHTML : ''}</p>
+            </div>
+          `;
+        });
+        
+        // This line safely appends the data directly to our active stack section block
+        outputContainer.innerHTML += html;
+      })
+      .catch(err => {
+        // If Proxy 1 fails, try Proxy 2...
+        fetch(proxyList[1] + encodeURIComponent(feedUrl))
+          .then(response => response.text())
+          .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+          .then(data => {
+            const items = data.querySelectorAll("item");
+            let html = ``;
+            items.forEach(el => {
+              html += `<h3><a href="${el.querySelector("link").innerHTML}" target="_blank">${el.querySelector("title").innerHTML}</a></h3>`;
+            });
+            outputContainer.innerHTML += html;
+          })
+          .catch(e => {
+            outputContainer.innerHTML += "<p>Error loading this feed channel.</p>";
+          });
+      });
+      
+    // --- END OF YOUR ORIGINAL LOGIC ---
+  }
+</script>
+
+<script>
   let feedLinks = [];
   let trackingIndex = 0;
   const masterContainer = document.getElementById('rss_accumulator');
@@ -76,20 +127,20 @@
   function startAccumulatingPipeline() {
     feedLinks = Array.from(document.querySelectorAll('.rss-link'));
     trackingIndex = 0;
-    masterContainer.innerHTML = ""; // Clear out previous runs if clicked again
+    masterContainer.innerHTML = ""; // Clear screen on fresh button click
     executeNextFeed();
   }
 
   function executeNextFeed() {
     if (trackingIndex >= feedLinks.length) {
-      document.getElementById('status').innerText = "All feeds successfully loaded and appended down the screen!";
+      document.getElementById('status').innerText = "All operations processed consecutively and stacked!";
       return;
     }
 
     const currentTarget = feedLinks[trackingIndex];
     document.getElementById('status').innerText = `Loading (${trackingIndex + 1}/${feedLinks.length}): ${currentTarget.innerText}`;
 
-    // 1. Create a label wrapper so you know which feed is which when scrolling down
+    // 1. Create a layout container block for this feed option
     const sectionWrapper = document.createElement('div');
     sectionWrapper.className = "feed-section-block";
     
@@ -98,21 +149,16 @@
     labelHeader.innerText = currentTarget.innerText.toUpperCase();
     sectionWrapper.appendChild(labelHeader);
 
-    // 2. Create a clean individual iframe sandbox for this specific feed option
-    const iframeSandbox = document.createElement('iframe');
-    iframeSandbox.className = "feed-container";
-    iframeSandbox.src = currentTarget.href;
-
-    // 3. Set up the dynamic listener to trigger the next item the second this one finishes
-    iframeSandbox.onload = function() {
-      trackingIndex++;
-      // Move immediately to the next option without erasing anything
-      executeNextFeed();
-    };
-
-    // Append it to the page view layer
-    sectionWrapper.appendChild(iframeSandbox);
+    const contentCanvas = document.createElement('div');
+    sectionWrapper.appendChild(contentCanvas);
     masterContainer.appendChild(sectionWrapper);
+
+    // 2. Safely call your inline script engine directly on this specific block canvas
+    processSingleFeedEngine(currentTarget.href, contentCanvas);
+
+    // 3. Move immediately to the next option in the index loop
+    trackingIndex++;
+    setTimeout(executeNextFeed, 300); 
   }
 </script>
 
