@@ -1,166 +1,288 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <link rel="icon" type="image/png" href="https://kdsgroup773.github.io/blogspot/rss.png">
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" id="favicon" href="https://kdsgroup773.github.io/blogspot/rss.png">
   <title>Batch RSS Feed Accumulator</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; margin: 0; }
-    #control-panel { padding-bottom: 10px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-    #run-btn { background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-    #status { font-style: italic; color: #666; margin-left: 10px; }
+    body { font-family: sans-serif; padding: 20px; margin: 0; background-color: #fcfcfc; }
+    #control-panel { padding-bottom: 15px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+    #run-btn { background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
+    #run-btn:hover { background-color: #218838; }
+    #status { font-style: italic; color: #666; margin-left: 10px; font-size: 14px; }
     
-    .feed-section-block { width: 100%; border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px; padding: 15px; box-sizing: border-box; }
-    .feed-title-header { background: #f7f7f7; padding: 8px 12px; font-weight: bold; border-bottom: 1px solid #ddd; margin: -15px -15px 15px -15px; font-size: 14px; color: #333; }
+    .feed-section-block { width: 100%; border: 1px solid #ddd; margin-bottom: 20px; border-radius: 4px; padding: 15px; box-sizing: border-box; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .feed-title-header { background: #f7f7f7; padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #ddd; margin: -15px -15px 10px -15px; font-size: 14px; color: #111; border-radius: 4px 4px 0 0; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .feed-items-list { list-style: none; padding: 0; margin: 0; }
+    .feed-item { padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; line-height: 1.4; }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-item a { color: #0066cc; text-decoration: none; font-weight: 500; }
+    .feed-item a:hover { text-decoration: underline; }
+    .feed-item .item-date { color: #777; font-size: 12px; margin-right: 8px; font-family: monospace; }
+    .feed-item .feed-source-tag { color: #555; font-weight: bold; margin-right: 4px; }
+    
+    .error-msg { color: #dc3545; font-size: 13px; font-style: italic; margin: 5px 0; }
+    .loading-msg { color: #0066cc; font-size: 13px; font-style: italic; }
     #links-container { display: none; }
   </style>
+  <script>
+    const proxyList = [
+        'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
+        'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
+        'https://corsproxy.io/?url=',
+        'https://api.allorigins.win/raw?url=',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://cors.lol/?url=',
+    ];
+
+    let feedLinks = [];
+    let trackingIndex = 0;
+    let anyFeedFailed = false;
+    let isPipelineActive = false;
+
+    // --- Core Network Loop with Auto-Retry Execution ---
+    async function fetchWithRetry(url, statusTextElement, options = {}, retries = 2, delay = 2000) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                if (response.status === 408 && retries > 0) {
+                    console.warn(`Proxy 408 timeout for ${url}, retrying...`);
+                    if (statusTextElement) statusTextElement.innerText = `Retrying due to timeout (${retries} left)...`;
+                    await new Promise(res => setTimeout(res, delay));
+                    return fetchWithRetry(url, statusTextElement, options, retries - 1, delay * 2);
+                }
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response;
+        } catch (error) {
+            if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('timeout'))) {
+                console.warn(`Fetch failed for ${url}, retrying...`);
+                if (statusTextElement) statusTextElement.innerText = `Network drop. Retrying (${retries} left)...`;
+                await new Promise(res => setTimeout(res, delay));
+                return fetchWithRetry(url, statusTextElement, options, retries - 1, delay);
+            } else {
+                throw error;
+            }
+        }
+    }
+
+    // --- Proxy Fallback Controller ---
+    async function fetchWithProxyFallback(targetFeedUrl, statusTextElement) {
+        let lastError = null;
+        for (let i = 0; i < proxyList.length; i++) {
+            const proxyBaseUrl = proxyList[i];
+            let proxiedUrl = (proxyBaseUrl.includes('codetabs.com')) 
+                ? proxyBaseUrl + encodeURIComponent(targetFeedUrl)
+                : proxyBaseUrl + targetFeedUrl;
+            
+            console.log(`Attempting Proxy ${i + 1}/${proxyList.length}`);
+            try {
+                const response = await fetchWithRetry(proxiedUrl, statusTextElement);
+                const xmlString = await response.text();
+                
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+                if (xmlDoc.querySelector("parsererror")) {
+                    lastError = new Error("XML Structural Parsing Error.");
+                    continue;
+                }
+                
+                const items = xmlDoc.querySelectorAll('entry').length > 0 
+                    ? xmlDoc.querySelectorAll('entry') 
+                    : xmlDoc.querySelectorAll('item');
+
+                if (items.length === 0) {
+                    lastError = new Error("No usable RSS elements found inside XML.");
+                    continue;
+                }
+                return xmlDoc;
+            } catch (error) {
+                lastError = error;
+            }
+        }
+        throw new Error(lastError ? lastError.message : 'All selected route proxies failed.');
+    }
+
+    // --- Sequence Controller Pipeline ---
+    function startAccumulatingPipeline() {
+        if (isPipelineActive) return;
+        isPipelineActive = true;
+        
+        feedLinks = Array.from(document.querySelectorAll('.rss-link'));
+        trackingIndex = 0;
+        anyFeedFailed = false;
+        document.getElementById('rss_accumulator').innerHTML = ""; 
+        executeNextFeed();
+    }
+
+    async function executeNextFeed() {
+        const masterContainer = document.getElementById('rss_accumulator');
+        const mainStatus = document.getElementById('status');
+
+        if (trackingIndex >= feedLinks.length) {
+            isPipelineActive = false;
+            if (!anyFeedFailed) {
+                mainStatus.innerText = "All feeds loaded successfully! ✓";
+                mainStatus.style.color = "green";
+                const favicon = document.getElementById('favicon');
+                if (favicon) favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg';
+            } else {
+                mainStatus.innerText = "Processing complete. Some data fragments could not be fetched.";
+                mainStatus.style.color = "orange";
+            }
+            window.scrollTo(0, document.body.scrollHeight);
+            return;
+        }
+
+        const currentTarget = feedLinks[trackingIndex];
+        mainStatus.style.color = "blue";
+        mainStatus.innerText = `Processing (${trackingIndex + 1}/${feedLinks.length}): ${currentTarget.innerText}`;
+
+        // Create Container Block Layout
+        const sectionWrapper = document.createElement('div');
+        sectionWrapper.className = "feed-section-block";
+        
+        const labelHeader = document.createElement('p');
+        labelHeader.className = "feed-title-header";
+        labelHeader.innerText = currentTarget.innerText;
+        sectionWrapper.appendChild(labelHeader);
+
+        const contentBody = document.createElement('div');
+        contentBody.className = "loading-msg";
+        contentBody.innerText = "Loading dynamic feed objects...";
+        sectionWrapper.appendChild(contentBody);
+        masterContainer.appendChild(sectionWrapper);
+
+        try {
+            const xmlDoc = await fetchWithProxyFallback(currentTarget.href, contentBody);
+            
+            const items = xmlDoc.querySelectorAll('entry').length > 0 
+                ? xmlDoc.querySelectorAll('entry') 
+                : xmlDoc.querySelectorAll('item');
+
+            contentBody.className = "";
+            contentBody.innerText = ""; 
+
+            const listContainer = document.createElement('ul');
+            listContainer.className = "feed-items-list";
+
+            items.forEach(item => {
+                let title = item.querySelector('title')?.textContent || 'No Title';
+                const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
+                
+                let linkUrl = '#';
+                const linkElem = item.querySelector('link');
+                if (linkElem) {
+                    linkUrl = linkElem.getAttribute('href') || linkElem.textContent || '#';
+                }
+
+                // Title String Sanitization
+                if (title.includes(":")) {
+                    title = title.substring(title.indexOf(":") + 1).trim();
+                }
+                let maxLen = 50;
+                if (title.length > maxLen) {
+                    let nextSpace = title.indexOf(" ", maxLen);
+                    title = nextSpace !== -1 ? title.substring(0, nextSpace) + "..." : title.substring(0, maxLen) + "...";
+                }
+
+                // Date Formatting
+                let date = null;
+                if (pubDateStr) {
+                    date = new Date(pubDateStr);
+                    if (isNaN(date.getTime())) date = null;
+                }
+                const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
+
+                // Build Item Node Assembly
+                const listItem = document.createElement('li');
+                listItem.className = "feed-item";
+
+                const dateSpan = document.createElement('span');
+                dateSpan.className = "item-date";
+                dateSpan.innerText = displayDate;
+                listItem.appendChild(dateSpan);
+
+                const sourceSpan = document.createElement('span');
+                sourceSpan.className = "feed-source-tag";
+                sourceSpan.innerText = `${currentTarget.innerText}:`;
+                listItem.appendChild(sourceSpan);
+
+                const anchorLink = document.createElement('a');
+                anchorLink.href = linkUrl;
+                anchorLink.target = "_blank";
+                anchorLink.innerText = title;
+                listItem.appendChild(anchorLink);
+
+                listContainer.appendChild(listItem);
+            });
+
+            contentBody.appendChild(listContainer);
+
+        } catch (err) {
+            anyFeedFailed = true;
+            contentBody.className = "error-msg";
+            
+            const safeFeedUrl = currentTarget.href.replace(/"/g, '&quot;');
+            const safeText = currentTarget.innerText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            contentBody.innerHTML = `Could not load: <code>&lt;a href="${safeFeedUrl}"&gt;${safeText}&lt;/a&gt;</code> — Reason: ${err.message}`;
+        }
+
+        trackingIndex++;
+        setTimeout(executeNextFeed, 500);
+    }
+  </script>
 </head>
 <body>
 
 <div id="control-panel">
   <div class="separator" style="clear: both;">
-    <img alt="" border="0" height="80" width="80" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
+    <img alt="RSS logo" border="0" height="80" width="80" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
   </div> 
   <br>
   <button id="run-btn" onclick="startAccumulatingPipeline()">Run All Consecutively</button>
-  <span id="status">Ready to stack feeds down the page.</span>
+  <span id="status">Ready to stack headers down the page.</span>
 </div>
 
 <div id="links-container">
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Continents-RSS-Feed.html">continents-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Countries-RSS-Feed.html">countries-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/States-RSS-Feeds.html">states-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Cities-RSS-Feed.html">world-cities-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/US-Cities-RSS-Feed.html">us-cities-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/World-Capitals-RSS-Feed.html">world-capitals-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/US-Capitals-RSS-Feed.html">us-capitals-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Canada-RSS-Feed.html">canada-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Ireland-RSS-Feed.html">ireland-rss-feed</a>   
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/UK-RSS-Feed.html">uk-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Breaking-News-RSS Feed.html">breaking-news-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Business-RSS-Feed.html">business-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Markets-RSS-Feed.html">markets-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/News-RSS-Feed.html">news-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Today-Is-RSS-Feed.html">today-is-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Cultural-RSS-Feed.html">cultural-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Food-RSS-Feed.html">food-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Interest-RSS-Feed.html">general-interest-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Health-RSS-Feed.html">health-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/AI-RSS-Feed.html">ai-rss-feed</a>    
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/IT-RSS-Feed.html">it-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Media-RSS-Feed.html">media-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Opinions-RSS-Feed.html">opinions-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Politics-RSS-Feed.html">politics-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/RD-RSS-Feed.html">rd-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Religion-RSS-Feed.html">religion-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Science-RSS-Feed.html">science-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Sports-RSS-Feed.html">sports-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Books-RSS-Feed.html">books-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Various-RSS-Feed.html">various-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/24-7-PR-RSS-Feed.html">24-7-pr-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/YouTube-RSS-Feed-Beta.html">YouTube-RSS-Feed-Beta</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Comic-Strips-RSS-Feed.html">comic-strips-rss-feed</a>
-  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Redo-RSS-Feed.html">redo-rss-feed</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Continents-RSS-Feed.html">CONTINENTS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Countries-RSS-Feed.html">COUNTRIES-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/States-RSS-Feeds.html">STATES-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Cities-RSS-Feed.html">WORLD-CITIES-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/US-Cities-RSS-Feed.html">US-CITIES-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/World-Capitals-RSS-Feed.html">WORLD-CAPITALS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/US-Capitals-RSS-Feed.html">US-CAPITALS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Canada-RSS-Feed.html">CANADA-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Ireland-RSS-Feed.html">IRELAND-RSS-FEED</a>   
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/UK-RSS-Feed.html">UK-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Breaking-News-RSS Feed.html">BREAKING-NEWS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Business-RSS-Feed.html">BUSINESS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Markets-RSS-Feed.html">MARKETS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/News-RSS-Feed.html">NEWS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Today-Is-RSS-Feed.html">TODAY-IS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Cultural-RSS-Feed.html">CULTURAL-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Food-RSS-Feed.html">FOOD-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Interest-RSS-Feed.html">GENERAL-INTEREST-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Health-RSS-Feed.html">HEALTH-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/AI-RSS-Feed.html">AI-RSS-FEED</a>    
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/IT-RSS-Feed.html">IT-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Media-RSS-Feed.html">MEDIA-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Opinions-RSS-Feed.html">OPINIONS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Politics-RSS-Feed.html">POLITICS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/RD-RSS-Feed.html">RD-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Religion-RSS-Feed.html">RELIGION-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Science-RSS-Feed.html">SCIENCE-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Sports-RSS-Feed.html">SPORTS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Books-RSS-Feed.html">BOOKS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Various-RSS-Feed.html">VARIOUS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/24-7-PR-RSS-Feed.html">24-7-PR-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/YouTube-RSS-Feed-Beta.html">YOUTUBE-RSS-FEED-BETA</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Comic-Strips-RSS-Feed.html">COMIC-STRIPS-RSS-FEED</a>
+  <a class="rss-link" href="https://kdsgroup773.github.io/blogspot/Redo-RSS-Feed.html">REDO-RSS-FEED</a>
 </div>
 
 <div id="rss_accumulator"></div>
-
-<script>
-  // EDIT 1: We use "var" instead of "const" so the browser allows this script to run repeatedly
-  var proxyList = [
-    "https://api.allorigins.win/raw?url=",
-    "https://corsproxy.io/?",
-    "https://api.codetabs.com/v1/proxy/?quest="
-  ];
-
-  // EDIT 2: We wrapped your original engine code inside a reusable function 
-  // that takes a target URL and targets a specific layout container variable.
-  function processSingleFeedEngine(feedUrl, outputContainer) {
-    
-    // --- START OF YOUR ORIGINAL RSStoHTMLADSv2.js CODE ---
-    // (Pasting the core logic here, modified to inject into "outputContainer" instead of wiping document.body)
-    
-    fetch(proxyList[0] + encodeURIComponent(feedUrl))
-      .then(response => response.text())
-      .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
-      .then(data => {
-        const items = data.querySelectorAll("item");
-        let html = ``;
-        
-        items.forEach(el => {
-          html += `
-            <div class="feed-item">
-              <h3><a href="${el.querySelector("link").innerHTML}" target="_blank">${el.querySelector("title").innerHTML}</a></h3>
-              <p>${el.querySelector("description") ? el.querySelector("description").innerHTML : ''}</p>
-            </div>
-          `;
-        });
-        
-        // This line safely appends the data directly to our active stack section block
-        outputContainer.innerHTML += html;
-      })
-      .catch(err => {
-        // If Proxy 1 fails, try Proxy 2...
-        fetch(proxyList[1] + encodeURIComponent(feedUrl))
-          .then(response => response.text())
-          .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
-          .then(data => {
-            const items = data.querySelectorAll("item");
-            let html = ``;
-            items.forEach(el => {
-              html += `<h3><a href="${el.querySelector("link").innerHTML}" target="_blank">${el.querySelector("title").innerHTML}</a></h3>`;
-            });
-            outputContainer.innerHTML += html;
-          })
-          .catch(e => {
-            outputContainer.innerHTML += "<p>Error loading this feed channel.</p>";
-          });
-      });
-      
-    // --- END OF YOUR ORIGINAL LOGIC ---
-  }
-</script>
-
-<script>
-  let feedLinks = [];
-  let trackingIndex = 0;
-  const masterContainer = document.getElementById('rss_accumulator');
-
-  function startAccumulatingPipeline() {
-    feedLinks = Array.from(document.querySelectorAll('.rss-link'));
-    trackingIndex = 0;
-    masterContainer.innerHTML = ""; // Clear screen on fresh button click
-    executeNextFeed();
-  }
-
-  function executeNextFeed() {
-    if (trackingIndex >= feedLinks.length) {
-      document.getElementById('status').innerText = "All operations processed consecutively and stacked!";
-      return;
-    }
-
-    const currentTarget = feedLinks[trackingIndex];
-    document.getElementById('status').innerText = `Loading (${trackingIndex + 1}/${feedLinks.length}): ${currentTarget.innerText}`;
-
-    // 1. Create a layout container block for this feed option
-    const sectionWrapper = document.createElement('div');
-    sectionWrapper.className = "feed-section-block";
-    
-    const labelHeader = document.createElement('p');
-    labelHeader.className = "feed-title-header";
-    labelHeader.innerText = currentTarget.innerText.toUpperCase();
-    sectionWrapper.appendChild(labelHeader);
-
-    const contentCanvas = document.createElement('div');
-    sectionWrapper.appendChild(contentCanvas);
-    masterContainer.appendChild(sectionWrapper);
-
-    // 2. Safely call your inline script engine directly on this specific block canvas
-    processSingleFeedEngine(currentTarget.href, contentCanvas);
-
-    // 3. Move immediately to the next option in the index loop
-    trackingIndex++;
-    setTimeout(executeNextFeed, 300); 
-  }
-</script>
 
 </body>
 </html>
