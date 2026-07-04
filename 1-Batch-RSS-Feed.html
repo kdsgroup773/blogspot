@@ -28,6 +28,7 @@
   </style>
   <script>
     const proxyList = [
+        '', // CRITICAL: Attempt direct, local domain fetch first (bypasses CORS entirely)
         'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
         'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
         'https://corsproxy.io/?url=',
@@ -70,13 +71,24 @@
     // --- Proxy Fallback Controller ---
     async function fetchWithProxyFallback(targetFeedUrl, statusTextElement) {
         let lastError = null;
+        const cleanTargetUrl = targetFeedUrl.trim();
+
         for (let i = 0; i < proxyList.length; i++) {
             const proxyBaseUrl = proxyList[i];
-            let proxiedUrl = (proxyBaseUrl.includes('codetabs.com')) 
-                ? proxyBaseUrl + encodeURIComponent(targetFeedUrl)
-                : proxyBaseUrl + targetFeedUrl;
             
-            console.log(`Attempting Proxy ${i + 1}/${proxyList.length}`);
+            // Build URL safely depending on whether we are hitting local files or external proxies
+            let proxiedUrl = '';
+            if (proxyBaseUrl === '') {
+                proxiedUrl = cleanTargetUrl;
+                console.log(`Attempting Direct Fetch (Same Origin)`);
+            } else if (proxyBaseUrl.includes('codetabs.com')) {
+                proxiedUrl = proxyBaseUrl + encodeURIComponent(cleanTargetUrl);
+                console.log(`Attempting Proxy ${i}/${proxyList.length - 1}: Codetabs`);
+            } else {
+                proxiedUrl = proxyBaseUrl + encodeURIComponent(cleanTargetUrl);
+                console.log(`Attempting Proxy ${i}/${proxyList.length - 1}`);
+            }
+            
             try {
                 const response = await fetchWithRetry(proxiedUrl, statusTextElement);
                 const xmlString = await response.text();
@@ -101,7 +113,7 @@
                 lastError = error;
             }
         }
-        throw new Error(lastError ? lastError.message : 'All selected route proxies failed.');
+        throw new Error(lastError ? lastError.message : 'All communication pathways blocked by browser CORS safety controls.');
     }
 
     // --- Sequence Controller Pipeline ---
@@ -230,7 +242,7 @@
         }
 
         trackingIndex++;
-        setTimeout(executeNextFeed, 500);
+        setTimeout(executeNextFeed, 600); // 600ms pacing is safe now since it queries your own local files first
     }
   </script>
 </head>
