@@ -8,7 +8,7 @@ const proxyList = [
 ];
 
 // --- fetchWithRetry function ---
-async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {async function loadFeed(url) {
+async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
     try {
         const response = await fetch(url, options);
         
