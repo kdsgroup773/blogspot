@@ -1,4 +1,3 @@
-// Define proxyList globally, as it's a constant list
 const proxyList = [
     'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
     'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
@@ -9,9 +8,21 @@ const proxyList = [
 ];
 
 // --- fetchWithRetry function ---
-async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
+async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {async function loadFeed(url) {
     try {
         const response = await fetch(url, options);
+        
+        // Handle 429 Rate Limits directly inside the retry handler
+        if (response.status === 429 && retries > 0) {
+            console.warn(`Hit a 429 Rate Limit for ${url}. Cooling down for 3s... (${retries} retries left)`);
+            const msgElem = document.getElementById('rss-feed-message');
+            if (msgElem) msgElem.textContent = `Rate limit hit. Cooling down for 3s...`;
+            
+            // Enforce a strict 3-second pause to let the target server's tracking frame reset
+            await new Promise(res => setTimeout(res, 3000));
+            return fetchWithRetry(url, options, retries - 1, delay);
+        }
+
         if (!response.ok) {
             if (response.status === 408 && retries > 0) {
                 console.warn(`Proxy 408 timeout for ${url}, retrying in ${delay / 1000}s... (${retries} retries left)`);
@@ -61,7 +72,6 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 continue;
             }
             
-            // Fixed double matching: Check entry first (YouTube Atom), drop back to item (Standard RSS)
             const items = xmlDoc.querySelectorAll('entry').length > 0 
                 ? xmlDoc.querySelectorAll('entry') 
                 : xmlDoc.querySelectorAll('item');
@@ -89,7 +99,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
             displayContainer.innerHTML = '';
         }
 
-        // Smart selection: prevents selecting both if a proxy duplicates structures
         const items = xmlDoc.querySelectorAll('entry').length > 0 
             ? xmlDoc.querySelectorAll('entry') 
             : xmlDoc.querySelectorAll('item');
@@ -131,12 +140,10 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
         
-        // Escape special characters to print raw code HTML text visually safely
         const safeOptionId = optionId.replace(/"/g, '&quot;');
         const safeFeedUrl = feedUrl.replace(/"/g, '&quot;');
         const safeSourceText = sourceText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-        // Build the precise string layout you requested
         const rawOptionTag = `&lt;option id="${safeOptionId}" value="${safeFeedUrl}"&gt;${safeSourceText}&lt;/option&gt;`;
 
         if (isSingleFeed) {
@@ -197,7 +204,9 @@ async function autoLoadAllFeeds() {
         } catch (error) {
             allSucceeded = false;
         }
-        await new Promise(res => setTimeout(res, 500));
+        
+        // INCREASED DELAY: Switched from 500ms to 1500ms to soften sequential hits to target domains
+        await new Promise(res => setTimeout(res, 1500));
     }
     
     container.innerHTML += '<br><br><br><br><br>';
@@ -220,11 +229,10 @@ async function autoLoadAllFeeds() {
     }, 2500);
 }
 
-// --- Mutex Guard added to prevent double fires from event hookups ---
 let isAutoLoadActive = false;
 
 async function autoLoad() {
-    if (isAutoLoadActive) return; // Break loop if already running
+    if (isAutoLoadActive) return; 
     isAutoLoadActive = true;
 
     const wlh = window.location.href;
