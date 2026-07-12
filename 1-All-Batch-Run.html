@@ -12,6 +12,9 @@ const proxyList = [
     'https://cors.lol/?url=',
 ];
 
+// Global execution lock to prevent any overlaps
+window.isBatchRunning = false;
+
 // --- fetchWithRetry function ---
 async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
     try {
@@ -172,19 +175,26 @@ async function manualLoad() {
     return;
 }
 
-// --- autoLoadAllFeeds function ---
+// --- autoLoadAllFeeds function (STRICT ONE-AT-A-TIME) ---
 async function autoLoadAllFeeds() {
+    // If a batch run loop is already executing, reject this call entirely to prevent collision.
+    if (window.isBatchRunning) {
+        console.warn("A sequential batch run is already processing. Preventing overlap.");
+        return;
+    }
+
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
 
-    // Structural Check: Abort early if the critical DOM elements aren't ready yet
     if (!selectElement || !container || !loadingDiv) {
-        console.warn("Required DOM elements elements are missing. Deferring execution.");
+        console.warn("Required DOM elements are missing. Deferring execution.");
         return;
     }
 
-    // HARD CONTROL LOCK: Ensure instance tokens track correctly
+    // Activate the hard process lock
+    window.isBatchRunning = true;
+
     const currentToken = Date.now().toString() + Math.random().toString();
     window.currentQueueInstance = currentToken;
 
@@ -206,9 +216,9 @@ async function autoLoadAllFeeds() {
     const totalFeeds = staticFeedQueue.length;
 
     for (let i = 0; i < totalFeeds; i++) {
-        // LOCK ENFORCEMENT: Terminate instantly if token changes
+        // Break instantly if instance token changes midway
         if (window.currentQueueInstance !== currentToken) {
-            console.warn("Parallel queue execution detected. Terminating duplicate sequence loop branch.");
+            window.isBatchRunning = false;
             return;
         }
 
@@ -216,16 +226,17 @@ async function autoLoadAllFeeds() {
         loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
         loadingDiv.style.color = 'blue';
 
-        try {
-            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, container, false, currentFeed.id);
-        } catch (error) {
-            allSucceeded = false;
-        }
+        // Await completion of this feed ENTIRELY before continuing the loop sequence
+        await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, container, false, currentFeed.id);
         
+        // Explicit 1.5 second delay AFTER processing completes, ensuring a true sequential gap
         await new Promise(res => setTimeout(res, 1500));
     }
     
-    if (window.currentQueueInstance !== currentToken) return;
+    if (window.currentQueueInstance !== currentToken) {
+        window.isBatchRunning = false;
+        return;
+    }
 
     container.innerHTML += '<br><br><br><br><br>';
     if (allSucceeded) {
@@ -237,6 +248,9 @@ async function autoLoadAllFeeds() {
         loadingDiv.style.color = 'orange';
     }
     window.scrollTo(0, document.body.scrollHeight);
+
+    // Release the lock when completely finished
+    window.isBatchRunning = false;
 
     setTimeout(() => {
         if (window.currentQueueInstance !== currentToken) return;
@@ -288,11 +302,10 @@ async function autoLoad() {
             if (container) container.innerHTML = '';
             
             await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, container, true, optionElement.id);
-            return; // EXIT STRATEGY: Hard return stops full batch from kicking off on a hash hit
+            return;
         }
     }
     
-    // Run the full sequential queue ONLY if there is no hash routing match found
     await autoLoadAllFeeds();
 }
 
@@ -303,8 +316,6 @@ async function changeFavicon(status) {
     }
 }
 
-// Using DOMContentLoaded ensures your dropdown options and structural container divs 
-// exist in the DOM architecture completely before the batch queue process evaluates them.
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoLoad);
 } else {
