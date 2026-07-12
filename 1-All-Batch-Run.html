@@ -98,8 +98,9 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         
         if (isSingleFeed) {
-            document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = '';
+            const msgElem = document.getElementById('rss-feed-message');
+            if (msgElem) msgElem.style.display = 'none';
+            if (displayContainer) displayContainer.innerHTML = '';
         }
 
         const items = xmlDoc.querySelectorAll('entry').length > 0 
@@ -138,7 +139,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         });
 
         sectionHtml += '</ul>';
-        displayContainer.innerHTML += sectionHtml;
+        if (displayContainer) displayContainer.innerHTML += sectionHtml;
 
     } catch (error) {
         console.error(`Error loading feed for ${sourceText}:`, error);
@@ -150,10 +151,11 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         const rawOptionTag = `&lt;option id="${safeOptionId}" value="${safeFeedUrl}"&gt;${safeSourceText}&lt;/option&gt;`;
 
         if (isSingleFeed) {
-            document.getElementById('rss-feed-message').style.display = 'none';
-            displayContainer.innerHTML = `<p style="color: red;">Failed to load feed.<br>Code: <code>${rawOptionTag}</code></p>`;
+            const msgElem = document.getElementById('rss-feed-message');
+            if (msgElem) msgElem.style.display = 'none';
+            if (displayContainer) displayContainer.innerHTML = `<p style="color: red;">Failed to load feed.<br>Code: <code>${rawOptionTag}</code></p>`;
         } else {
-            displayContainer.innerHTML += `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
+            if (displayContainer) displayContainer.innerHTML += `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
         }
     }
 }
@@ -172,13 +174,19 @@ async function manualLoad() {
 
 // --- autoLoadAllFeeds function ---
 async function autoLoadAllFeeds() {
-    // HARD CONTROL LOCK: Ensure instance tokens track correctly
-    const currentToken = Date.now().toString() + Math.random().toString();
-    window.currentQueueInstance = currentToken;
-
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
+
+    // Structural Check: Abort early if the critical DOM elements aren't ready yet
+    if (!selectElement || !container || !loadingDiv) {
+        console.warn("Required DOM elements elements are missing. Deferring execution.");
+        return;
+    }
+
+    // HARD CONTROL LOCK: Ensure instance tokens track correctly
+    const currentToken = Date.now().toString() + Math.random().toString();
+    window.currentQueueInstance = currentToken;
 
     loadingDiv.textContent = 'Preparing to load feeds sequentially...';
     loadingDiv.style.display = 'block';
@@ -243,17 +251,21 @@ async function autoLoadAllFeeds() {
 
 // --- Primary Entry Point Guard ---
 async function autoLoad() {
-    // Structural isolation guard: Stop execution if initialization has already happened
     if (window.autoLoadInitialized) {
         console.log("AutoLoad already caught by parent execution pipeline. Skipping duplicate call.");
         return;
     }
     window.autoLoadInitialized = true;
 
+    const selectElement = document.getElementById('Choice');
+    if (!selectElement) {
+        console.warn("Choice dropdown element not found during initialization.");
+        return;
+    }
+
     const wlh = window.location.href;
     if (wlh.includes("#")) {
         const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
-        const selectElement = document.getElementById('Choice');
         let optionElement = null;
 
         for (let i = 1; i < selectElement.options.length; i++) {
@@ -268,9 +280,13 @@ async function autoLoad() {
             selectElement.value = optionElement.value;
             const container = document.getElementById('rss-feed-container');
             const loadingDiv = document.getElementById('rss-feed-message');
-            loadingDiv.textContent = `Loading feed for ${optionElement.textContent}...`;
-            loadingDiv.style.display = 'block';
-            container.innerHTML = '';
+            
+            if (loadingDiv) {
+                loadingDiv.textContent = `Loading feed for ${optionElement.textContent}...`;
+                loadingDiv.style.display = 'block';
+            }
+            if (container) container.innerHTML = '';
+            
             await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, container, true, optionElement.id);
             return; // EXIT STRATEGY: Hard return stops full batch from kicking off on a hash hit
         }
@@ -287,9 +303,13 @@ async function changeFavicon(status) {
     }
 }
 
-// Because the script is entirely inline in your batch run file on GitHub, 
-// we execute immediately upon script tag assessment rather than hanging on listeners.
-autoLoad();
+// Using DOMContentLoaded ensures your dropdown options and structural container divs 
+// exist in the DOM architecture completely before the batch queue process evaluates them.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoLoad);
+} else {
+    autoLoad();
+}
 </script>
   </head>
 <body>
