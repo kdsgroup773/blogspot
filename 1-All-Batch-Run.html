@@ -12,18 +12,18 @@
     'https://cors.lol/?url=',
 ];
 
+let isAutoLoadActive = false;
+
 // --- fetchWithRetry function ---
 async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
     try {
         const response = await fetch(url, options);
         
-        // Handle 429 Rate Limits directly inside the retry handler
         if (response.status === 429 && retries > 0) {
             console.warn(`Hit a 429 Rate Limit for ${url}. Cooling down for 3s... (${retries} retries left)`);
             const msgElem = document.getElementById('rss-feed-message');
             if (msgElem) msgElem.textContent = `Rate limit hit. Cooling down for 3s...`;
             
-            // Enforce a strict 3-second pause to let the target server's tracking frame reset
             await new Promise(res => setTimeout(res, 3000));
             return fetchWithRetry(url, options, retries - 1, delay);
         }
@@ -160,7 +160,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
     }
 }
 
-// FIXED: Removed 'async' keyword so it returns the string immediately rather than a Pending Promise
 function extractOptionNumberId(fullOptionId) {
     if (fullOptionId && fullOptionId.includes('#')) {
         const parts = fullOptionId.split('#');
@@ -170,27 +169,15 @@ function extractOptionNumberId(fullOptionId) {
 }
 
 async function manualLoad() {
-    const selectElement = document.getElementById('Choice');
-    const rssFeedUrl = selectElement.value;
-    const selectedOption = selectElement.options[selectElement.selectedIndex];
-    const container = document.getElementById('rss-feed-container');
-    const loadingDiv = document.getElementById('rss-feed-message');
-
-    if (selectElement.selectedIndex === 0) {
-        container.innerHTML = '<p>Please select an interest to load the feed.</p>';
-        loadingDiv.style.display = 'none';
-        return;
-    }
-    loadingDiv.textContent = 'Loading RSS feed...';
-    loadingDiv.style.display = 'block';
-    container.innerHTML = '';
-    
-    // FIXED: Added await here so the manual single-feed triggers behave sequentially
-    await fetchAndDisplayFeed(rssFeedUrl, selectedOption.textContent, container, true, selectedOption.id);
+    // BLOCKED: Human will never click, but if code triggers it mistakenly, drop out instantly
+    return;
 }
 
 // --- autoLoadAllFeeds function ---
 async function autoLoadAllFeeds() {
+    if (isAutoLoadActive) return;
+    isAutoLoadActive = true;
+
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
@@ -199,21 +186,33 @@ async function autoLoadAllFeeds() {
     loadingDiv.style.display = 'block';
     container.innerHTML = '';
 
-    let allSucceeded = true;
-    const totalFeeds = selectElement.options.length - 1;
-
+    // FIX: Snapshot all option properties into an immutable array before beginning the loop
+    const staticFeedQueue = [];
     for (let i = 1; i < selectElement.options.length; i++) {
-        const option = selectElement.options[i];
-        loadingDiv.textContent = `Loading (${i}/${totalFeeds}): ${option.textContent}...`;
+        const opt = selectElement.options[i];
+        staticFeedQueue.push({
+            value: opt.value,
+            text: opt.textContent,
+            id: opt.id
+        });
+    }
+
+    let allSucceeded = true;
+    const totalFeeds = staticFeedQueue.length;
+
+    // FIX: Iterate strictly across our closed local data array structure
+    for (let i = 0; i < totalFeeds; i++) {
+        const currentFeed = staticFeedQueue[i];
+        loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
         loadingDiv.style.color = 'blue';
 
         try {
-            await fetchAndDisplayFeed(option.value, option.textContent, container, false, option.id);
+            // Strictly await completion of the current layout block before next line step handles
+            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, container, false, currentFeed.id);
         } catch (error) {
             allSucceeded = false;
         }
         
-        // INCREASED DELAY: Switched from 500ms to 1500ms to soften sequential hits to target domains
         await new Promise(res => setTimeout(res, 1500));
     }
     
@@ -233,16 +232,12 @@ async function autoLoadAllFeeds() {
         setTimeout(() => {
             loadingDiv.style.display = 'none';
             loadingDiv.style.color = '';
+            isAutoLoadActive = false; // Reset lock when loop has completely finished
         }, 1500);
     }, 2500);
 }
 
-let isAutoLoadActive = false;
-
 async function autoLoad() {
-    if (isAutoLoadActive) return; 
-    isAutoLoadActive = true;
-
     const wlh = window.location.href;
     if (wlh.includes("#")) {
         const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
@@ -250,7 +245,6 @@ async function autoLoad() {
         let optionElement = null;
 
         for (let i = 1; i < selectElement.options.length; i++) {
-            // FIXED: Since extractOptionNumberId is synchronous now, this text evaluation matches cleanly
             if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
                 optionElement = selectElement.options[i];
                 break;
@@ -258,6 +252,8 @@ async function autoLoad() {
         }
         
         if (optionElement) {
+            if (isAutoLoadActive) return;
+            isAutoLoadActive = true;
             selectElement.value = optionElement.value;
             const container = document.getElementById('rss-feed-container');
             const loadingDiv = document.getElementById('rss-feed-message');
@@ -271,7 +267,6 @@ async function autoLoad() {
     }
     
     await autoLoadAllFeeds();
-    isAutoLoadActive = false;
 }
 
 async function changeFavicon(status) {
@@ -285,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     autoLoad();
 });  
 </script>
-     </head>
+  </head>
 <body>
 <select style="display: none;" id="Choice" name="Choice" onchange="manualLoad();" class="bg-white text-black">
      <option selected disabled>Choose an Interest</option>
