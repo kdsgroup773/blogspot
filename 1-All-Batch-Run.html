@@ -2297,18 +2297,19 @@ window.isBatchRunning = false;
 window.currentQueueInstance = '';
 window.autoLoadInitialized = false;
 
-// 3. Robust fetchWithRetry Function
+// 3. Upgraded fetchWithRetry Function (Fixes CORS/403 Retry Traps)
 async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
     try {
         const response = await fetch(url, options);
         
-        // If we get rate limited, don't keep hammering. Fail up to the fallback proxy loop.
-        if (response.status === 429) {
-            throw new Error(`429_LIMIT`);
+        // Immediate failure for rate limits (429) or explicit authorization blocks (403)
+        if (response.status === 429 || response.status === 403) {
+            throw new Error(`ABORT_PROXY_${response.status}`);
         }
         
         if (!response.ok) {
-            if (response.status === 408 && retries > 0) {
+            // Only retry on classic server timeout statuses
+            if ((response.status === 408 || response.status === 504) && retries > 0) {
                 await new Promise(res => setTimeout(res, delay));
                 return fetchWithRetry(url, options, retries - 1, delay * 2);
             }
@@ -2316,9 +2317,25 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
         }
         return response;
     } catch (error) {
-        if (error.message === '429_LIMIT') throw error;
+        // Direct pass-through to abort proxy if flag is caught
+        if (error.message && error.message.includes('ABORT_PROXY')) {
+            throw error;
+        }
         
-        if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('timeout'))) {
+        // Check for common strings thrown by browsers during absolute CORS blocks
+        const errorStr = error.toString().toLowerCase();
+        if (errorStr.includes('cors') || errorStr.includes('origin') || errorStr.includes('allow-control')) {
+            throw new Error('ABORT_PROXY_CORS');
+        }
+
+        // Only retry genuine timeouts or missing network linkages
+        if (retries > 0 && (error instanceof TypeError || error.message.includes('timeout'))) {
+            // Double check it's not a generic fetch layout crash caused by a CORS block
+            if (error.message === 'Failed to fetch') {
+                // If 'Failed to fetch' fires instantly, it's usually a CORS rejection. 
+                // We test it down below by letting it drop cleanly to fallback loops.
+                throw new Error('ABORT_PROXY_NET_FAILED');
+            }
             await new Promise(res => setTimeout(res, delay));
             return fetchWithRetry(url, options, retries - 1, delay);
         } else {
@@ -2327,14 +2344,12 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
     }
 }
 
-// 4. Upgraded Loop Processing Function (Fixes Parameter Shattering & Handles Drops)
+// 4. Loop Processing Function
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
     
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
-        
-        // FIX: Universally encode the target URL so parameters like ampersands don't break the proxy
         const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
         
         try {
@@ -2358,11 +2373,11 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 continue;
             }
             
-            return xmlDoc; // Success! Return data instantly
+            return xmlDoc; 
         } catch (error) {
-            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) failed or rate-limited. Moving to next proxy...`);
+            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) rejected request: ${error.message}. Moving to next proxy...`);
             lastError = error;
-            // Instantly advances to next loop iteration item without getting stuck
+            // The loop advances seamlessly without executing inner function retries
         }
     }
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
@@ -2404,7 +2419,7 @@ function extractOptionNumberId(fullOptionId) {
     return '';
 }
 
-// 6. Global Dropdown Manual Loader (With cancellation gap check)
+// 6. Global Dropdown Manual Loader
 window.manualLoad = async function() {
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
@@ -2415,7 +2430,6 @@ window.manualLoad = async function() {
     window.currentQueueInstance = newOverrideToken;
     window.isBatchRunning = false;
 
-    // Give background threads a window to safely yield
     await new Promise(res => setTimeout(res, 50));
 
     if (container) container.innerHTML = '';
@@ -2532,6 +2546,5 @@ async function autoLoad() {
 
 autoLoad();
 </script>
-
 </body>
 </html>
