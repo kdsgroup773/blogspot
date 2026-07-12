@@ -2,7 +2,7 @@
   <head>
     <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png">
     <img alt="" border="0"  height="160" width="160" data-original-height="800" data-original-width="800" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
-    <script>
+   <script>
 // 1. Core Config & Proxy Options
 const proxyList = [
     'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
@@ -18,25 +18,27 @@ window.isBatchRunning = false;
 window.currentQueueInstance = '';
 window.autoLoadInitialized = false;
 
-// 3. fetchWithRetry Helper Function
-async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
+// 3. Robust fetchWithRetry Function
+async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
     try {
         const response = await fetch(url, options);
-        if (response.status === 429 && retries > 0) {
-            const msgElem = document.getElementById('rss-feed-message');
-            if (msgElem) msgElem.textContent = `Rate limit hit. Cooling down for 3s...`;
-            await new Promise(res => setTimeout(res, 3000));
-            return fetchWithRetry(url, options, retries - 1, delay);
+        
+        // If we get rate limited, don't keep hammering. Fail up to the fallback proxy loop.
+        if (response.status === 429) {
+            throw new Error(`429_LIMIT`);
         }
+        
         if (!response.ok) {
             if (response.status === 408 && retries > 0) {
                 await new Promise(res => setTimeout(res, delay));
                 return fetchWithRetry(url, options, retries - 1, delay * 2);
             }
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`HTTP_${response.status}`);
         }
         return response;
     } catch (error) {
+        if (error.message === '429_LIMIT') throw error;
+        
         if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('timeout'))) {
             await new Promise(res => setTimeout(res, delay));
             return fetchWithRetry(url, options, retries - 1, delay);
@@ -46,27 +48,45 @@ async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
     }
 }
 
-// 4. fetchWithProxyFallback Loop Processing Function
+// 4. Upgraded Loop Processing Function (Fixes Parameter Shattering & Handles Drops)
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
+    
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
-        let proxiedUrl = proxyBaseUrl.includes('codetabs.com') ? proxyBaseUrl + encodeURIComponent(targetFeedUrl) : proxyBaseUrl + targetFeedUrl;
+        
+        // FIX: Universally encode the target URL so parameters like ampersands don't break the proxy
+        const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
+        
         try {
             const response = await fetchWithRetry(proxiedUrl);
-            if (!response.ok) continue;
             const xmlString = await response.text();
+            
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-            if (xmlDoc.querySelector("parsererror")) continue;
-            const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
-            if (items.length === 0) continue;
-            return xmlDoc;
+            
+            if (xmlDoc.querySelector("parsererror")) {
+                lastError = new Error(`XML Parsing Error via proxy ${i + 1}`);
+                continue;
+            }
+            
+            const items = xmlDoc.querySelectorAll('entry').length > 0 
+                ? xmlDoc.querySelectorAll('entry') 
+                : xmlDoc.querySelectorAll('item');
+
+            if (items.length === 0) {
+                lastError = new Error(`No RSS items found via proxy ${i + 1}`);
+                continue;
+            }
+            
+            return xmlDoc; // Success! Return data instantly
         } catch (error) {
+            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) failed or rate-limited. Moving to next proxy...`);
             lastError = error;
+            // Instantly advances to next loop iteration item without getting stuck
         }
     }
-    throw new Error(lastError ? lastError.message : 'All proxies failed.');
+    throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
 }
 
 // 5. fetchAndDisplayFeed Core Layout Generator
@@ -105,19 +125,18 @@ function extractOptionNumberId(fullOptionId) {
     return '';
 }
 
-// 6. Global Dropdown Manual Loader (With strategic clearance delay)
+// 6. Global Dropdown Manual Loader (With cancellation gap check)
 window.manualLoad = async function() {
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
     if (!selectElement || !selectElement.value) return;
 
-    // Invalidate running batch instantly via new instance token
     const newOverrideToken = 'manual-override-' + Date.now();
     window.currentQueueInstance = newOverrideToken;
     window.isBatchRunning = false;
 
-    // Operational break: Allow the background thread loops to finish exiting
+    // Give background threads a window to safely yield
     await new Promise(res => setTimeout(res, 50));
 
     if (container) container.innerHTML = '';
@@ -159,9 +178,8 @@ async function autoLoadAllFeeds() {
 
     const totalFeeds = staticFeedQueue.length;
     for (let i = 0; i < totalFeeds; i++) {
-        // Pre-fetch cancellation safety check
         if (window.currentQueueInstance !== currentToken) {
-            console.log("Auto-load loop terminated by manual choice.");
+            window.isBatchRunning = false;
             return;
         }
 
@@ -173,13 +191,12 @@ async function autoLoadAllFeeds() {
 
         await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, feedBlockNode, false, currentFeed.id);
         
-        // Post-fetch cancellation safety check
         if (window.currentQueueInstance !== currentToken) {
-            console.log("Auto-load loop terminated mid-fetch.");
+            window.isBatchRunning = false;
             return;
         }
 
-        // Pacing delay separation to protect proxy connections
+        // 1.5-second spacing delay to prevent hitting proxy limits too fast
         await new Promise(res => setTimeout(res, 1500));
     }
     
@@ -234,7 +251,6 @@ async function autoLoad() {
     await autoLoadAllFeeds();
 }
 
-// Execute directly now that script is safely positioned at the bottom
 autoLoad();
 </script>
 
