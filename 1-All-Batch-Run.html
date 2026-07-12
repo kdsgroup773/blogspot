@@ -3,323 +3,330 @@
     <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png">
     <img alt="" border="0"  height="160" width="160" data-original-height="800" data-original-width="800" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
 <script>
-const proxyList = [
-    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
-    'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
-    'https://corsproxy.io/?url=',
-    'https://api.allorigins.win/raw?url=',
-    'https://api.codetabs.com/v1/proxy?quest=',
-    'https://cors.lol/?url=',
-];
+// --- STRICT ATOMIC INITIALIZATION GUARD ---
+// This check runs synchronously the microsecond the script tag is parsed,
+// slamming the door shut on any duplicate script injections or simultaneous event hooks.
+if (window.autoLoadPipelineActive) {
+    console.warn("Blocking duplicate script execution track early.");
+} else {
+    window.autoLoadPipelineActive = true;
 
-// Global execution lock to prevent any overlaps
-window.isBatchRunning = false;
+    const proxyList = [
+        'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
+        'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
+        'https://corsproxy.io/?url=',
+        'https://api.allorigins.win/raw?url=',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://cors.lol/?url=',
+    ];
 
-// --- fetchWithRetry function ---
-async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
-    try {
-        const response = await fetch(url, options);
-        
-        if (response.status === 429 && retries > 0) {
-            console.warn(`Hit a 429 Rate Limit for ${url}. Cooling down for 3s... (${retries} retries left)`);
-            const msgElem = document.getElementById('rss-feed-message');
-            if (msgElem) msgElem.textContent = `Rate limit hit. Cooling down for 3s...`;
+    // Global process tracking variables
+    window.isBatchRunning = false;
+    window.autoLoadInitialized = false;
+
+    // --- fetchWithRetry function ---
+    async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
+        try {
+            const response = await fetch(url, options);
             
-            await new Promise(res => setTimeout(res, 3000));
-            return fetchWithRetry(url, options, retries - 1, delay);
-        }
-
-        if (!response.ok) {
-            if (response.status === 408 && retries > 0) {
-                console.warn(`Proxy 408 timeout for ${url}, retrying in ${delay / 1000}s... (${retries} retries left)`);
-                await new Promise(res => setTimeout(res, delay));
-                return fetchWithRetry(url, options, retries - 1, delay * 2);
+            if (response.status === 429 && retries > 0) {
+                console.warn(`Hit a 429 Rate Limit for ${url}. Cooling down for 3s... (${retries} retries left)`);
+                const msgElem = document.getElementById('rss-feed-message');
+                if (msgElem) msgElem.textContent = `Rate limit hit. Cooling down for 3s...`;
+                
+                await new Promise(res => setTimeout(res, 3000));
+                return fetchWithRetry(url, options, retries - 1, delay);
             }
-            throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
-        }
-        return response;
-    } catch (error) {
-        if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('Network request failed') || error.message.includes('timeout') || error.message.includes('ERR_CONNECTION_REFUSED'))) {
-            console.warn(`Fetch failed (network/timeout error for ${url}), retrying in ${delay / 1000}s... (${retries} retries left)`);
-            const msgElem = document.getElementById('rss-feed-message');
-            if (msgElem) msgElem.textContent = `Retrying in ${delay / 1000}s... (${retries} retries left)`;
-            await new Promise(res => setTimeout(res, delay));
-            return fetchWithRetry(url, options, retries - 1, delay);
-        } else {
-            throw error;
+
+            if (!response.ok) {
+                if (response.status === 408 && retries > 0) {
+                    console.warn(`Proxy 408 timeout for ${url}, retrying in ${delay / 1000}s... (${retries} retries left)`);
+                    await new Promise(res => setTimeout(res, delay));
+                    return fetchWithRetry(url, options, retries - 1, delay * 2);
+                }
+                throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+            }
+            return response;
+        } catch (error) {
+            if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('Network request failed') || error.message.includes('timeout') || error.message.includes('ERR_CONNECTION_REFUSED'))) {
+                console.warn(`Fetch failed (network/timeout error for ${url}), retrying in ${delay / 1000}s... (${retries} retries left)`);
+                const msgElem = document.getElementById('rss-feed-message');
+                if (msgElem) msgElem.textContent = `Retrying in ${delay / 1000}s... (${retries} retries left)`;
+                await new Promise(res => setTimeout(res, delay));
+                return fetchWithRetry(url, options, retries - 1, delay);
+            } else {
+                throw error;
+            }
         }
     }
-}
 
-// --- fetchWithProxyFallback Function ---
-async function fetchWithProxyFallback(targetFeedUrl, proxies) {
-    let lastError = null;
-    for (let i = 0; i < proxies.length; i++) {
-        const proxyBaseUrl = proxies[i];
-        let proxiedUrl;
-        if (proxyBaseUrl.includes('codetabs.com') || !proxyBaseUrl.includes('crossorigin.me') && !proxyBaseUrl.includes('thingproxy.freeboard.io')) {
-            proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
-        } else {
-            proxiedUrl = proxyBaseUrl + targetFeedUrl;
-        }
-        
-        console.log(`Attempting with proxy ${i + 1}/${proxies.length}: ${proxyBaseUrl}`);
-        try {
-            const response = await fetchWithRetry(proxiedUrl);
-            if (!response.ok) {
-                lastError = new Error(`Proxy ${proxyBaseUrl} returned non-OK status: ${response.status}`);
-                continue;
-            }
-            const xmlString = await response.text();
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-            if (xmlDoc.querySelector("parsererror")) {
-                lastError = new Error(`XML Parsing Error from ${proxyBaseUrl}`);
-                continue;
+    // --- fetchWithProxyFallback Function ---
+    async function fetchWithProxyFallback(targetFeedUrl, proxies) {
+        let lastError = null;
+        for (let i = 0; i < proxies.length; i++) {
+            const proxyBaseUrl = proxies[i];
+            let proxiedUrl;
+            if (proxyBaseUrl.includes('codetabs.com') || !proxyBaseUrl.includes('crossorigin.me') && !proxyBaseUrl.includes('thingproxy.freeboard.io')) {
+                proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
+            } else {
+                proxiedUrl = proxyBaseUrl + targetFeedUrl;
             }
             
+            console.log(`Attempting with proxy ${i + 1}/${proxies.length}: ${proxyBaseUrl}`);
+            try {
+                const response = await fetchWithRetry(proxiedUrl);
+                if (!response.ok) {
+                    lastError = new Error(`Proxy ${proxyBaseUrl} returned non-OK status: ${response.status}`);
+                    continue;
+                }
+                const xmlString = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+                if (xmlDoc.querySelector("parsererror")) {
+                    lastError = new Error(`XML Parsing Error from ${proxyBaseUrl}`);
+                    continue;
+                }
+                
+                const items = xmlDoc.querySelectorAll('entry').length > 0 
+                    ? xmlDoc.querySelectorAll('entry') 
+                    : xmlDoc.querySelectorAll('item');
+
+                if (items.length === 0) {
+                    lastError = new Error(`No RSS items found in feed using ${proxyBaseUrl}`);
+                    continue;
+                }
+                return xmlDoc;
+            } catch (error) {
+                lastError = error;
+            }
+        }
+        throw new Error(lastError ? lastError.message : 'All proxies failed.');
+    }
+
+    // --- fetchAndDisplayFeed function ---
+    async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
+        console.log(`fetchAndDisplayFeed called for: ${sourceText}`);
+        try {
+            const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
+            
+            if (isSingleFeed) {
+                const msgElem = document.getElementById('rss-feed-message');
+                if (msgElem) msgElem.style.display = 'none';
+                if (displayContainer) displayContainer.innerHTML = '';
+            }
+
             const items = xmlDoc.querySelectorAll('entry').length > 0 
                 ? xmlDoc.querySelectorAll('entry') 
                 : xmlDoc.querySelectorAll('item');
 
-            if (items.length === 0) {
-                lastError = new Error(`No RSS items found in feed using ${proxyBaseUrl}`);
-                continue;
-            }
-            return xmlDoc;
+            let sectionHtml = `<h3>${sourceText}</h3><ul style="list-style: none; padding: 0;">`;
+                
+            items.forEach(item => {
+                let title = item.querySelector('title')?.textContent || 'No Title';
+                const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
+                
+                let linkUrl = '#';
+                const linkElem = item.querySelector('link');
+                if (linkElem) {
+                    linkUrl = linkElem.getAttribute('href') || linkElem.textContent || '#';
+                }
+
+                let maxLen = 50; 
+                if (title.includes(":")) {
+                    title = title.substring(title.indexOf(":") + 1).trim();
+                }
+                if (title.length > maxLen) {
+                    let nextSpace = title.indexOf(" ", maxLen);
+                    title = nextSpace !== -1 ? title.substring(0, nextSpace) + "..." : title.substring(0, maxLen) + "...";
+                }
+
+                let date = null;
+                if (pubDateStr) {
+                    date = new Date(pubDateStr);
+                    if (isNaN(date.getTime())) date = null;
+                }
+
+                const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
+                sectionHtml += `<li>${displayDate} <strong>${sourceText}</strong>: <a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a></li>`;
+            });
+
+            sectionHtml += '</ul>';
+            if (displayContainer) displayContainer.innerHTML += sectionHtml;
+
         } catch (error) {
-            lastError = error;
-        }
-    }
-    throw new Error(lastError ? lastError.message : 'All proxies failed.');
-}
-
-// --- fetchAndDisplayFeed function ---
-async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSingleFeed = false, optionId = '') {
-    console.log(`fetchAndDisplayFeed called for: ${sourceText}`);
-    try {
-        const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
-        
-        if (isSingleFeed) {
-            const msgElem = document.getElementById('rss-feed-message');
-            if (msgElem) msgElem.style.display = 'none';
-            if (displayContainer) displayContainer.innerHTML = '';
-        }
-
-        const items = xmlDoc.querySelectorAll('entry').length > 0 
-            ? xmlDoc.querySelectorAll('entry') 
-            : xmlDoc.querySelectorAll('item');
-
-        let sectionHtml = `<h3>${sourceText}</h3><ul style="list-style: none; padding: 0;">`;
+            console.error(`Error loading feed for ${sourceText}:`, error);
             
-        items.forEach(item => {
-            let title = item.querySelector('title')?.textContent || 'No Title';
-            const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
-            
-            let linkUrl = '#';
-            const linkElem = item.querySelector('link');
-            if (linkElem) {
-                linkUrl = linkElem.getAttribute('href') || linkElem.textContent || '#';
+            const safeOptionId = optionId.replace(/"/g, '&quot;');
+            const safeFeedUrl = feedUrl.replace(/"/g, '&quot;');
+            const safeSourceText = sourceText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            const rawOptionTag = `&lt;option id="${safeOptionId}" value="${safeFeedUrl}"&gt;${safeSourceText}&lt;/option&gt;`;
+
+            if (isSingleFeed) {
+                const msgElem = document.getElementById('rss-feed-message');
+                if (msgElem) msgElem.style.display = 'none';
+                if (displayContainer) displayContainer.innerHTML = `<p style="color: red;">Failed to load feed.<br>Code: <code>${rawOptionTag}</code></p>`;
+            } else {
+                if (displayContainer) displayContainer.innerHTML += `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
             }
-
-            let maxLen = 50; 
-            if (title.includes(":")) {
-                title = title.substring(title.indexOf(":") + 1).trim();
-            }
-            if (title.length > maxLen) {
-                let nextSpace = title.indexOf(" ", maxLen);
-                title = nextSpace !== -1 ? title.substring(0, nextSpace) + "..." : title.substring(0, maxLen) + "...";
-            }
-
-            let date = null;
-            if (pubDateStr) {
-                date = new Date(pubDateStr);
-                if (isNaN(date.getTime())) date = null;
-            }
-
-            const displayDate = date ? date.toLocaleDateString() : new Date().toLocaleDateString();
-            sectionHtml += `<li>${displayDate} <strong>${sourceText}</strong>: <a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a></li>`;
-        });
-
-        sectionHtml += '</ul>';
-        if (displayContainer) displayContainer.innerHTML += sectionHtml;
-
-    } catch (error) {
-        console.error(`Error loading feed for ${sourceText}:`, error);
-        
-        const safeOptionId = optionId.replace(/"/g, '&quot;');
-        const safeFeedUrl = feedUrl.replace(/"/g, '&quot;');
-        const safeSourceText = sourceText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-        const rawOptionTag = `&lt;option id="${safeOptionId}" value="${safeFeedUrl}"&gt;${safeSourceText}&lt;/option&gt;`;
-
-        if (isSingleFeed) {
-            const msgElem = document.getElementById('rss-feed-message');
-            if (msgElem) msgElem.style.display = 'none';
-            if (displayContainer) displayContainer.innerHTML = `<p style="color: red;">Failed to load feed.<br>Code: <code>${rawOptionTag}</code></p>`;
-        } else {
-            if (displayContainer) displayContainer.innerHTML += `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
         }
     }
-}
 
-function extractOptionNumberId(fullOptionId) {
-    if (fullOptionId && fullOptionId.includes('#')) {
-        const parts = fullOptionId.split('#');
-        return parts[parts.length - 1];
+    function extractOptionNumberId(fullOptionId) {
+        if (fullOptionId && fullOptionId.includes('#')) {
+            const parts = fullOptionId.split('#');
+            return parts[parts.length - 1];
+        }
+        return '';
     }
-    return '';
-}
 
-async function manualLoad() {
-    return;
-}
-
-// --- autoLoadAllFeeds function (STRICT ONE-AT-A-TIME) ---
-async function autoLoadAllFeeds() {
-    // If a batch run loop is already executing, reject this call entirely to prevent collision.
-    if (window.isBatchRunning) {
-        console.warn("A sequential batch run is already processing. Preventing overlap.");
+    async function manualLoad() {
         return;
     }
 
-    const selectElement = document.getElementById('Choice');
-    const container = document.getElementById('rss-feed-container');
-    const loadingDiv = document.getElementById('rss-feed-message');
+    // --- autoLoadAllFeeds function (STRICT ONE-AT-A-TIME) ---
+    async function autoLoadAllFeeds() {
+        if (window.isBatchRunning) {
+            console.warn("A sequential batch run is already processing. Preventing overlap.");
+            return;
+        }
 
-    if (!selectElement || !container || !loadingDiv) {
-        console.warn("Required DOM elements are missing. Deferring execution.");
-        return;
-    }
+        const selectElement = document.getElementById('Choice');
+        const container = document.getElementById('rss-feed-container');
+        const loadingDiv = document.getElementById('rss-feed-message');
 
-    // Activate the hard process lock
-    window.isBatchRunning = true;
+        if (!selectElement || !container || !loadingDiv) {
+            console.warn("Required DOM elements are missing. Deferring execution.");
+            return;
+        }
 
-    const currentToken = Date.now().toString() + Math.random().toString();
-    window.currentQueueInstance = currentToken;
+        window.isBatchRunning = true;
 
-    loadingDiv.textContent = 'Preparing to load feeds sequentially...';
-    loadingDiv.style.display = 'block';
-    container.innerHTML = '';
+        const currentToken = Date.now().toString() + Math.random().toString();
+        window.currentQueueInstance = currentToken;
 
-    const staticFeedQueue = [];
-    for (let i = 1; i < selectElement.options.length; i++) {
-        const opt = selectElement.options[i];
-        staticFeedQueue.push({
-            value: opt.value,
-            text: opt.textContent,
-            id: opt.id
-        });
-    }
+        loadingDiv.textContent = 'Preparing to load feeds sequentially...';
+        loadingDiv.style.display = 'block';
+        container.innerHTML = '';
 
-    let allSucceeded = true;
-    const totalFeeds = staticFeedQueue.length;
+        const staticFeedQueue = [];
+        for (let i = 1; i < selectElement.options.length; i++) {
+            const opt = selectElement.options[i];
+            staticFeedQueue.push({
+                value: opt.value,
+                text: opt.textContent,
+                id: opt.id
+            });
+        }
 
-    for (let i = 0; i < totalFeeds; i++) {
-        // Break instantly if instance token changes midway
+        let allSucceeded = true;
+        const totalFeeds = staticFeedQueue.length;
+
+        for (let i = 0; i < totalFeeds; i++) {
+            if (window.currentQueueInstance !== currentToken) {
+                window.isBatchRunning = false;
+                return;
+            }
+
+            const currentFeed = staticFeedQueue[i];
+            loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
+            loadingDiv.style.color = 'blue';
+
+            // Explicitly await the entire execution stack of this item before loop incrementing
+            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, container, false, currentFeed.id);
+            
+            await new Promise(res => setTimeout(res, 1500));
+        }
+        
         if (window.currentQueueInstance !== currentToken) {
             window.isBatchRunning = false;
             return;
         }
 
-        const currentFeed = staticFeedQueue[i];
-        loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
-        loadingDiv.style.color = 'blue';
+        container.innerHTML += '<br><br><br><br><br>';
+        if (allSucceeded) {
+            loadingDiv.textContent = 'All feeds loaded successfully! ✓';
+            loadingDiv.style.color = 'green';
+            changeFavicon('success');
+        } else {
+            loadingDiv.textContent = 'Processing complete. Some feeds failed to load.';
+            loadingDiv.style.color = 'orange';
+        }
+        window.scrollTo(0, document.body.scrollHeight);
 
-        // Await completion of this feed ENTIRELY before continuing the loop sequence
-        await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, container, false, currentFeed.id);
-        
-        // Explicit 1.5 second delay AFTER processing completes, ensuring a true sequential gap
-        await new Promise(res => setTimeout(res, 1500));
-    }
-    
-    if (window.currentQueueInstance !== currentToken) {
         window.isBatchRunning = false;
-        return;
-    }
 
-    container.innerHTML += '<br><br><br><br><br>';
-    if (allSucceeded) {
-        loadingDiv.textContent = 'All feeds loaded successfully! ✓';
-        loadingDiv.style.color = 'green';
-        changeFavicon('success');
-    } else {
-        loadingDiv.textContent = 'Processing complete. Some feeds failed to load.';
-        loadingDiv.style.color = 'orange';
-    }
-    window.scrollTo(0, document.body.scrollHeight);
-
-    // Release the lock when completely finished
-    window.isBatchRunning = false;
-
-    setTimeout(() => {
-        if (window.currentQueueInstance !== currentToken) return;
-        loadingDiv.textContent = 'All feeds have been processed.';
         setTimeout(() => {
             if (window.currentQueueInstance !== currentToken) return;
-            loadingDiv.style.display = 'none';
-            loadingDiv.style.color = '';
-        }, 1500);
-    }, 2500);
-}
-
-// --- Primary Entry Point Guard ---
-async function autoLoad() {
-    if (window.autoLoadInitialized) {
-        console.log("AutoLoad already caught by parent execution pipeline. Skipping duplicate call.");
-        return;
-    }
-    window.autoLoadInitialized = true;
-
-    const selectElement = document.getElementById('Choice');
-    if (!selectElement) {
-        console.warn("Choice dropdown element not found during initialization.");
-        return;
+            loadingDiv.textContent = 'All feeds have been processed.';
+            setTimeout(() => {
+                if (window.currentQueueInstance !== currentToken) return;
+                loadingDiv.style.display = 'none';
+                loadingDiv.style.color = '';
+            }, 1500);
+        }, 2500);
     }
 
-    const wlh = window.location.href;
-    if (wlh.includes("#")) {
-        const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
-        let optionElement = null;
+    // --- Primary Entry Point Guard ---
+    async function autoLoad() {
+        if (window.autoLoadInitialized) {
+            return;
+        }
+        window.autoLoadInitialized = true;
 
-        for (let i = 1; i < selectElement.options.length; i++) {
-            if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
-                optionElement = selectElement.options[i];
-                break;
+        const selectElement = document.getElementById('Choice');
+        if (!selectElement) {
+            console.warn("Choice dropdown element not found during initialization.");
+            // Reset initialized state if the element isn't found so it can try again
+            window.autoLoadInitialized = false;
+            return;
+        }
+
+        const wlh = window.location.href;
+        if (wlh.includes("#")) {
+            const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
+            let optionElement = null;
+
+            for (let i = 1; i < selectElement.options.length; i++) {
+                if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
+                    optionElement = selectElement.options[i];
+                    break;
+                }
+            }
+            
+            if (optionElement) {
+                window.currentQueueInstance = 'hash-load-active';
+                selectElement.value = optionElement.value;
+                const container = document.getElementById('rss-feed-container');
+                const loadingDiv = document.getElementById('rss-feed-message');
+                
+                if (loadingDiv) {
+                    loadingDiv.textContent = `Loading feed for ${optionElement.textContent}...`;
+                    loadingDiv.style.display = 'block';
+                }
+                if (container) container.innerHTML = '';
+                
+                await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, container, true, optionElement.id);
+                return;
             }
         }
         
-        if (optionElement) {
-            window.currentQueueInstance = 'hash-load-active';
-            selectElement.value = optionElement.value;
-            const container = document.getElementById('rss-feed-container');
-            const loadingDiv = document.getElementById('rss-feed-message');
-            
-            if (loadingDiv) {
-                loadingDiv.textContent = `Loading feed for ${optionElement.textContent}...`;
-                loadingDiv.style.display = 'block';
-            }
-            if (container) container.innerHTML = '';
-            
-            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, container, true, optionElement.id);
-            return;
+        await autoLoadAllFeeds();
+    }
+
+    async function changeFavicon(status) {
+        if (status === 'success') {
+            const favicon = document.getElementById('favicon');
+            if (favicon) favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg';
         }
     }
-    
-    await autoLoadAllFeeds();
-}
 
-async function changeFavicon(status) {
-    if (status === 'success') {
-        const favicon = document.getElementById('favicon');
-        if (favicon) favicon.href = 'https://kdsgroup773.github.io/blogspot/success.jpeg';
+    // Single DOM listener hook strategy to completely eliminate multiple trigger sources
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', autoLoad);
+    } else {
+        autoLoad();
     }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', autoLoad);
-} else {
-    autoLoad();
 }
 </script>
   </head>
