@@ -2,259 +2,7 @@
   <head>
     <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png">
     <img alt="" border="0"  height="160" width="160" data-original-height="800" data-original-width="800" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
-   <script>
-// 1. Core Config & Proxy Options
-const proxyList = [
-    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
-    'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
-    'https://corsproxy.io/?url=',
-    'https://api.allorigins.win/raw?url=',
-    'https://api.codetabs.com/v1/proxy?quest=',
-    'https://cors.lol/?url=',
-];
-
-// 2. Global Control Handles
-window.isBatchRunning = false;
-window.currentQueueInstance = '';
-window.autoLoadInitialized = false;
-
-// 3. Robust fetchWithRetry Function
-async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
-    try {
-        const response = await fetch(url, options);
-        
-        // If we get rate limited, don't keep hammering. Fail up to the fallback proxy loop.
-        if (response.status === 429) {
-            throw new Error(`429_LIMIT`);
-        }
-        
-        if (!response.ok) {
-            if (response.status === 408 && retries > 0) {
-                await new Promise(res => setTimeout(res, delay));
-                return fetchWithRetry(url, options, retries - 1, delay * 2);
-            }
-            throw new Error(`HTTP_${response.status}`);
-        }
-        return response;
-    } catch (error) {
-        if (error.message === '429_LIMIT') throw error;
-        
-        if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('timeout'))) {
-            await new Promise(res => setTimeout(res, delay));
-            return fetchWithRetry(url, options, retries - 1, delay);
-        } else {
-            throw error;
-        }
-    }
-}
-
-// 4. Upgraded Loop Processing Function (Fixes Parameter Shattering & Handles Drops)
-async function fetchWithProxyFallback(targetFeedUrl, proxies) {
-    let lastError = null;
-    
-    for (let i = 0; i < proxies.length; i++) {
-        const proxyBaseUrl = proxies[i];
-        
-        // FIX: Universally encode the target URL so parameters like ampersands don't break the proxy
-        const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
-        
-        try {
-            const response = await fetchWithRetry(proxiedUrl);
-            const xmlString = await response.text();
-            
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-            
-            if (xmlDoc.querySelector("parsererror")) {
-                lastError = new Error(`XML Parsing Error via proxy ${i + 1}`);
-                continue;
-            }
-            
-            const items = xmlDoc.querySelectorAll('entry').length > 0 
-                ? xmlDoc.querySelectorAll('entry') 
-                : xmlDoc.querySelectorAll('item');
-
-            if (items.length === 0) {
-                lastError = new Error(`No RSS items found via proxy ${i + 1}`);
-                continue;
-            }
-            
-            return xmlDoc; // Success! Return data instantly
-        } catch (error) {
-            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) failed or rate-limited. Moving to next proxy...`);
-            lastError = error;
-            // Instantly advances to next loop iteration item without getting stuck
-        }
-    }
-    throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
-}
-
-// 5. fetchAndDisplayFeed Core Layout Generator
-async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSingleFeed = false, optionId = '') {
-    try {
-        const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
-        const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
-        let sectionHtml = `<h3>${sourceText}</h3><ul style="list-style: none; padding: 0;">`;
-            
-        items.forEach(item => {
-            let title = item.querySelector('title')?.textContent || 'No Title';
-            const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
-            let linkUrl = item.querySelector('link')?.getAttribute('href') || item.querySelector('link')?.textContent || '#';
-
-            if (title.includes(":")) title = title.substring(title.indexOf(":") + 1).trim();
-            if (title.length > 50) title = title.substring(0, 50) + "...";
-
-            let date = pubDateStr ? new Date(pubDateStr) : null;
-            const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
-            sectionHtml += `<li>${displayDate} <strong>${sourceText}</strong>: <a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a></li>`;
-        });
-
-        sectionHtml += '</ul>';
-        if (targetWrapperBlock) targetWrapperBlock.innerHTML = sectionHtml;
-    } catch (error) {
-        const rawOptionTag = `&lt;option id="${optionId}" value="${feedUrl}"&gt;${sourceText}&lt;/option&gt;`;
-        if (targetWrapperBlock) targetWrapperBlock.innerHTML = `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
-    }
-}
-
-function extractOptionNumberId(fullOptionId) {
-    if (fullOptionId && fullOptionId.includes('#')) {
-        const parts = fullOptionId.split('#');
-        return parts[parts.length - 1];
-    }
-    return '';
-}
-
-// 6. Global Dropdown Manual Loader (With cancellation gap check)
-window.manualLoad = async function() {
-    const selectElement = document.getElementById('Choice');
-    const container = document.getElementById('rss-feed-container');
-    const loadingDiv = document.getElementById('rss-feed-message');
-    if (!selectElement || !selectElement.value) return;
-
-    const newOverrideToken = 'manual-override-' + Date.now();
-    window.currentQueueInstance = newOverrideToken;
-    window.isBatchRunning = false;
-
-    // Give background threads a window to safely yield
-    await new Promise(res => setTimeout(res, 50));
-
-    if (container) container.innerHTML = '';
-    if (loadingDiv) {
-        loadingDiv.textContent = 'Loading selected single feed...';
-        loadingDiv.style.display = 'block';
-    }
-
-    const selectedOpt = selectElement.options[selectElement.selectedIndex];
-    const singleBlock = document.createElement('div');
-    if (container) container.appendChild(singleBlock);
-
-    await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, singleBlock, true, selectedOpt.id);
-    if (loadingDiv) loadingDiv.style.display = 'none';
-};
-
-// 7. Sequential Auto-Loader
-async function autoLoadAllFeeds() {
-    if (window.isBatchRunning) return;
-
-    const selectElement = document.getElementById('Choice');
-    const container = document.getElementById('rss-feed-container');
-    const loadingDiv = document.getElementById('rss-feed-message');
-    if (!selectElement || !container || !loadingDiv) return;
-
-    window.isBatchRunning = true;
-    const currentToken = Date.now().toString() + Math.random().toString();
-    window.currentQueueInstance = currentToken;
-
-    loadingDiv.textContent = 'Preparing to load feeds sequentially...';
-    loadingDiv.style.display = 'block';
-    container.innerHTML = '';
-
-    const staticFeedQueue = [];
-    for (let i = 1; i < selectElement.options.length; i++) {
-        const opt = selectElement.options[i];
-        staticFeedQueue.push({ value: opt.value, text: opt.textContent, id: opt.id });
-    }
-
-    const totalFeeds = staticFeedQueue.length;
-    for (let i = 0; i < totalFeeds; i++) {
-        if (window.currentQueueInstance !== currentToken) {
-            window.isBatchRunning = false;
-            return;
-        }
-
-        const currentFeed = staticFeedQueue[i];
-        loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
-
-        const feedBlockNode = document.createElement('div');
-        container.appendChild(feedBlockNode);
-
-        await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, feedBlockNode, false, currentFeed.id);
-        
-        if (window.currentQueueInstance !== currentToken) {
-            window.isBatchRunning = false;
-            return;
-        }
-
-        // 1.5-second spacing delay to prevent hitting proxy limits too fast
-        await new Promise(res => setTimeout(res, 1500));
-    }
-    
-    if (window.currentQueueInstance !== currentToken) return;
-
-    loadingDiv.textContent = 'All feeds processed! ✓';
-    window.isBatchRunning = false;
-    setTimeout(() => { 
-        if (window.currentQueueInstance === currentToken) {
-            loadingDiv.style.display = 'none'; 
-        }
-    }, 2000);
-}
-
-// 8. Launcher Pipeline Entry point
-async function autoLoad() {
-    if (window.autoLoadInitialized) return;
-    window.autoLoadInitialized = true;
-
-    const selectElement = document.getElementById('Choice');
-    if (!selectElement) {
-        window.autoLoadInitialized = false;
-        return;
-    }
-
-    const wlh = window.location.href;
-    if (wlh.includes("#")) {
-        const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
-        let optionElement = null;
-
-        for (let i = 1; i < selectElement.options.length; i++) {
-            if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
-                optionElement = selectElement.options[i];
-                break;
-            }
-        }
-        
-        if (optionElement) {
-            window.currentQueueInstance = 'hash-load-active';
-            selectElement.value = optionElement.value;
-            const container = document.getElementById('rss-feed-container');
-            const hashBlockNode = document.createElement('div');
-            if (container) {
-                container.innerHTML = '';
-                container.appendChild(hashBlockNode);
-            }
-            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, hashBlockNode, true, optionElement.id);
-            return;
-        }
-    }
-    
-    await autoLoadAllFeeds();
-}
-
-autoLoad();
-</script>
-
-  </head>
+    </head>
 <body>
 <select style="display: none;" id="Choice" name="Choice" onchange="manualLoad();" class="bg-white text-black">
      <option selected disabled>Choose an Interest</option>
@@ -2533,5 +2281,257 @@ autoLoad();
 <div id="rss-feed-message">
       </div>
 <p></p>
+<script>
+// 1. Core Config & Proxy Options
+const proxyList = [
+    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
+    'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://api.codetabs.com/v1/proxy?quest=',
+    'https://cors.lol/?url=',
+];
+
+// 2. Global Control Handles
+window.isBatchRunning = false;
+window.currentQueueInstance = '';
+window.autoLoadInitialized = false;
+
+// 3. Robust fetchWithRetry Function
+async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
+    try {
+        const response = await fetch(url, options);
+        
+        // If we get rate limited, don't keep hammering. Fail up to the fallback proxy loop.
+        if (response.status === 429) {
+            throw new Error(`429_LIMIT`);
+        }
+        
+        if (!response.ok) {
+            if (response.status === 408 && retries > 0) {
+                await new Promise(res => setTimeout(res, delay));
+                return fetchWithRetry(url, options, retries - 1, delay * 2);
+            }
+            throw new Error(`HTTP_${response.status}`);
+        }
+        return response;
+    } catch (error) {
+        if (error.message === '429_LIMIT') throw error;
+        
+        if (retries > 0 && (error instanceof TypeError || error.message.includes('Failed to fetch') || error.message.includes('timeout'))) {
+            await new Promise(res => setTimeout(res, delay));
+            return fetchWithRetry(url, options, retries - 1, delay);
+        } else {
+            throw error;
+        }
+    }
+}
+
+// 4. Upgraded Loop Processing Function (Fixes Parameter Shattering & Handles Drops)
+async function fetchWithProxyFallback(targetFeedUrl, proxies) {
+    let lastError = null;
+    
+    for (let i = 0; i < proxies.length; i++) {
+        const proxyBaseUrl = proxies[i];
+        
+        // FIX: Universally encode the target URL so parameters like ampersands don't break the proxy
+        const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
+        
+        try {
+            const response = await fetchWithRetry(proxiedUrl);
+            const xmlString = await response.text();
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+            
+            if (xmlDoc.querySelector("parsererror")) {
+                lastError = new Error(`XML Parsing Error via proxy ${i + 1}`);
+                continue;
+            }
+            
+            const items = xmlDoc.querySelectorAll('entry').length > 0 
+                ? xmlDoc.querySelectorAll('entry') 
+                : xmlDoc.querySelectorAll('item');
+
+            if (items.length === 0) {
+                lastError = new Error(`No RSS items found via proxy ${i + 1}`);
+                continue;
+            }
+            
+            return xmlDoc; // Success! Return data instantly
+        } catch (error) {
+            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) failed or rate-limited. Moving to next proxy...`);
+            lastError = error;
+            // Instantly advances to next loop iteration item without getting stuck
+        }
+    }
+    throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
+}
+
+// 5. fetchAndDisplayFeed Core Layout Generator
+async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSingleFeed = false, optionId = '') {
+    try {
+        const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
+        const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
+        let sectionHtml = `<h3>${sourceText}</h3><ul style="list-style: none; padding: 0;">`;
+            
+        items.forEach(item => {
+            let title = item.querySelector('title')?.textContent || 'No Title';
+            const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
+            let linkUrl = item.querySelector('link')?.getAttribute('href') || item.querySelector('link')?.textContent || '#';
+
+            if (title.includes(":")) title = title.substring(title.indexOf(":") + 1).trim();
+            if (title.length > 50) title = title.substring(0, 50) + "...";
+
+            let date = pubDateStr ? new Date(pubDateStr) : null;
+            const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
+            sectionHtml += `<li>${displayDate} <strong>${sourceText}</strong>: <a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a></li>`;
+        });
+
+        sectionHtml += '</ul>';
+        if (targetWrapperBlock) targetWrapperBlock.innerHTML = sectionHtml;
+    } catch (error) {
+        const rawOptionTag = `&lt;option id="${optionId}" value="${feedUrl}"&gt;${sourceText}&lt;/option&gt;`;
+        if (targetWrapperBlock) targetWrapperBlock.innerHTML = `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
+    }
+}
+
+function extractOptionNumberId(fullOptionId) {
+    if (fullOptionId && fullOptionId.includes('#')) {
+        const parts = fullOptionId.split('#');
+        return parts[parts.length - 1];
+    }
+    return '';
+}
+
+// 6. Global Dropdown Manual Loader (With cancellation gap check)
+window.manualLoad = async function() {
+    const selectElement = document.getElementById('Choice');
+    const container = document.getElementById('rss-feed-container');
+    const loadingDiv = document.getElementById('rss-feed-message');
+    if (!selectElement || !selectElement.value) return;
+
+    const newOverrideToken = 'manual-override-' + Date.now();
+    window.currentQueueInstance = newOverrideToken;
+    window.isBatchRunning = false;
+
+    // Give background threads a window to safely yield
+    await new Promise(res => setTimeout(res, 50));
+
+    if (container) container.innerHTML = '';
+    if (loadingDiv) {
+        loadingDiv.textContent = 'Loading selected single feed...';
+        loadingDiv.style.display = 'block';
+    }
+
+    const selectedOpt = selectElement.options[selectElement.selectedIndex];
+    const singleBlock = document.createElement('div');
+    if (container) container.appendChild(singleBlock);
+
+    await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, singleBlock, true, selectedOpt.id);
+    if (loadingDiv) loadingDiv.style.display = 'none';
+};
+
+// 7. Sequential Auto-Loader
+async function autoLoadAllFeeds() {
+    if (window.isBatchRunning) return;
+
+    const selectElement = document.getElementById('Choice');
+    const container = document.getElementById('rss-feed-container');
+    const loadingDiv = document.getElementById('rss-feed-message');
+    if (!selectElement || !container || !loadingDiv) return;
+
+    window.isBatchRunning = true;
+    const currentToken = Date.now().toString() + Math.random().toString();
+    window.currentQueueInstance = currentToken;
+
+    loadingDiv.textContent = 'Preparing to load feeds sequentially...';
+    loadingDiv.style.display = 'block';
+    container.innerHTML = '';
+
+    const staticFeedQueue = [];
+    for (let i = 1; i < selectElement.options.length; i++) {
+        const opt = selectElement.options[i];
+        staticFeedQueue.push({ value: opt.value, text: opt.textContent, id: opt.id });
+    }
+
+    const totalFeeds = staticFeedQueue.length;
+    for (let i = 0; i < totalFeeds; i++) {
+        if (window.currentQueueInstance !== currentToken) {
+            window.isBatchRunning = false;
+            return;
+        }
+
+        const currentFeed = staticFeedQueue[i];
+        loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
+
+        const feedBlockNode = document.createElement('div');
+        container.appendChild(feedBlockNode);
+
+        await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, feedBlockNode, false, currentFeed.id);
+        
+        if (window.currentQueueInstance !== currentToken) {
+            window.isBatchRunning = false;
+            return;
+        }
+
+        // 1.5-second spacing delay to prevent hitting proxy limits too fast
+        await new Promise(res => setTimeout(res, 1500));
+    }
+    
+    if (window.currentQueueInstance !== currentToken) return;
+
+    loadingDiv.textContent = 'All feeds processed! ✓';
+    window.isBatchRunning = false;
+    setTimeout(() => { 
+        if (window.currentQueueInstance === currentToken) {
+            loadingDiv.style.display = 'none'; 
+        }
+    }, 2000);
+}
+
+// 8. Launcher Pipeline Entry point
+async function autoLoad() {
+    if (window.autoLoadInitialized) return;
+    window.autoLoadInitialized = true;
+
+    const selectElement = document.getElementById('Choice');
+    if (!selectElement) {
+        window.autoLoadInitialized = false;
+        return;
+    }
+
+    const wlh = window.location.href;
+    if (wlh.includes("#")) {
+        const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
+        let optionElement = null;
+
+        for (let i = 1; i < selectElement.options.length; i++) {
+            if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
+                optionElement = selectElement.options[i];
+                break;
+            }
+        }
+        
+        if (optionElement) {
+            window.currentQueueInstance = 'hash-load-active';
+            selectElement.value = optionElement.value;
+            const container = document.getElementById('rss-feed-container');
+            const hashBlockNode = document.createElement('div');
+            if (container) {
+                container.innerHTML = '';
+                container.appendChild(hashBlockNode);
+            }
+            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, hashBlockNode, true, optionElement.id);
+            return;
+        }
+    }
+    
+    await autoLoadAllFeeds();
+}
+
+autoLoad();
+</script>
+
 </body>
 </html>
