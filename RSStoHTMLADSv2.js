@@ -7,9 +7,6 @@ const proxyList = [
     'https://cors.lol/?url=',
 ];
 
-// Master tracking variable to avoid overlapping automation loops
-let isAutoLoadActive = false;
-
 // --- fetchWithRetry function ---
 async function fetchWithRetry(url, options = {}, retries = 2, delay = 2000) {
     try {
@@ -98,8 +95,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         
         if (isSingleFeed) {
-            const msgElem = document.getElementById('rss-feed-message');
-            if (msgElem) msgElem.style.display = 'none';
+            document.getElementById('rss-feed-message').style.display = 'none';
             displayContainer.innerHTML = '';
         }
 
@@ -151,13 +147,11 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, displayContainer, isSing
         const rawOptionTag = `&lt;option id="${safeOptionId}" value="${safeFeedUrl}"&gt;${safeSourceText}&lt;/option&gt;`;
 
         if (isSingleFeed) {
-            const msgElem = document.getElementById('rss-feed-message');
-            if (msgElem) msgElem.style.display = 'none';
+            document.getElementById('rss-feed-message').style.display = 'none';
             displayContainer.innerHTML = `<p style="color: red;">Failed to load feed.<br>Code: <code>${rawOptionTag}</code></p>`;
         } else {
             displayContainer.innerHTML += `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
         }
-        throw error; // Re-throw so autoLoadAllFeeds can track the failure metrics correctly
     }
 }
 
@@ -170,12 +164,6 @@ function extractOptionNumberId(fullOptionId) {
 }
 
 function manualLoad() {
-    // Block input actions manually if an automated cycle is handling elements
-    if (isAutoLoadActive) {
-        console.warn("Cannot manually change feed while automatic loading is active.");
-        return;
-    }
-
     const selectElement = document.getElementById('Choice');
     const rssFeedUrl = selectElement.value;
     const selectedOption = selectElement.options[selectElement.selectedIndex];
@@ -184,13 +172,11 @@ function manualLoad() {
 
     if (selectElement.selectedIndex === 0) {
         container.innerHTML = '<p>Please select an interest to load the feed.</p>';
-        if (loadingDiv) loadingDiv.style.display = 'none';
+        loadingDiv.style.display = 'none';
         return;
     }
-    if (loadingDiv) {
-        loadingDiv.textContent = 'Loading RSS feed...';
-        loadingDiv.style.display = 'block';
-    }
+    loadingDiv.textContent = 'Loading RSS feed...';
+    loadingDiv.style.display = 'block';
     container.innerHTML = '';
     fetchAndDisplayFeed(rssFeedUrl, selectedOption.textContent, container, true, selectedOption.id);
 }
@@ -201,109 +187,82 @@ async function autoLoadAllFeeds() {
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
 
-    // UI Defense: Lock selector component to stop manual triggers during async sequence loops
-    if (selectElement) selectElement.disabled = true;
-
-    if (loadingDiv) {
-        loadingDiv.textContent = 'Preparing to load feeds sequentially...';
-        loadingDiv.style.display = 'block';
-    }
+    loadingDiv.textContent = 'Preparing to load feeds sequentially...';
+    loadingDiv.style.display = 'block';
     container.innerHTML = '';
 
     let allSucceeded = true;
-    const totalFeeds = selectElement ? selectElement.options.length - 1 : 0;
+    const totalFeeds = selectElement.options.length - 1;
 
-    if (selectElement) {
-        for (let i = 1; i < selectElement.options.length; i++) {
-            const option = selectElement.options[i];
-            if (loadingDiv) {
-                loadingDiv.textContent = `Loading (${i}/${totalFeeds}): ${option.textContent}...`;
-                loadingDiv.style.color = 'blue';
-            }
+    for (let i = 1; i < selectElement.options.length; i++) {
+        const option = selectElement.options[i];
+        loadingDiv.textContent = `Loading (${i}/${totalFeeds}): ${option.textContent}...`;
+        loadingDiv.style.color = 'blue';
 
-            try {
-                // Awaiting this guarantees linear progression
-                await fetchAndDisplayFeed(option.value, option.textContent, container, false, option.id);
-            } catch (error) {
-                allSucceeded = false;
-            }
-            
-            // Sequential Buffer Delay: 2-second timeout to mitigate aggressive rate limits
-            await new Promise(res => setTimeout(res, 2000));
+        try {
+            await fetchAndDisplayFeed(option.value, option.textContent, container, false, option.id);
+        } catch (error) {
+            allSucceeded = false;
         }
+        
+        // INCREASED DELAY: Switched from 500ms to 1500ms to soften sequential hits to target domains
+        await new Promise(res => setTimeout(res, 1500));
     }
     
     container.innerHTML += '<br><br><br><br><br>';
-    if (loadingDiv) {
-        if (allSucceeded) {
-            loadingDiv.textContent = 'All feeds loaded successfully! ✓';
-            loadingDiv.style.color = 'green';
-            changeFavicon('success');
-        } else {
-            loadingDiv.textContent = 'Processing complete. Some feeds failed to load.';
-            loadingDiv.style.color = 'orange';
-        }
+    if (allSucceeded) {
+        loadingDiv.textContent = 'All feeds loaded successfully! ✓';
+        loadingDiv.style.color = 'green';
+        changeFavicon('success');
+    } else {
+        loadingDiv.textContent = 'Processing complete. Some feeds failed to load.';
+        loadingDiv.style.color = 'orange';
     }
     window.scrollTo(0, document.body.scrollHeight);
 
-    // Re-enable selector controls
-    if (selectElement) selectElement.disabled = false;
-
     setTimeout(() => {
-        if (loadingDiv) {
-            loadingDiv.textContent = 'All feeds have been processed.';
-            setTimeout(() => {
-                loadingDiv.style.display = 'none';
-                loadingDiv.style.color = '';
-            }, 1500);
-        }
+        loadingDiv.textContent = 'All feeds have been processed.';
+        setTimeout(() => {
+            loadingDiv.style.display = 'none';
+            loadingDiv.style.color = '';
+        }, 1500);
     }, 2500);
 }
 
+let isAutoLoadActive = false;
+
 async function autoLoad() {
-    if (isAutoLoadActive) {
-        console.warn("An execution sequence is already running. Blocking redundant lifecycle loop.");
-        return; 
-    }
+    if (isAutoLoadActive) return; 
     isAutoLoadActive = true;
 
-    try {
-        const wlh = window.location.href;
-        if (wlh.includes("#")) {
-            const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
-            const selectElement = document.getElementById('Choice');
-            let optionElement = null;
+    const wlh = window.location.href;
+    if (wlh.includes("#")) {
+        const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
+        const selectElement = document.getElementById('Choice');
+        let optionElement = null;
 
-            if (selectElement) {
-                for (let i = 1; i < selectElement.options.length; i++) {
-                    if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
-                        optionElement = selectElement.options[i];
-                        break;
-                    }
-                }
-                
-                if (optionElement) {
-                    selectElement.value = optionElement.value;
-                    const container = document.getElementById('rss-feed-container');
-                    const loadingDiv = document.getElementById('rss-feed-message');
-                    if (loadingDiv) {
-                        loadingDiv.textContent = `Loading feed for ${optionElement.textContent}...`;
-                        loadingDiv.style.display = 'block';
-                    }
-                    container.innerHTML = '';
-                    await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, container, true, optionElement.id);
-                    return; // The finally block handles resetting isAutoLoadActive
-                }
+        for (let i = 1; i < selectElement.options.length; i++) {
+            if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
+                optionElement = selectElement.options[i];
+                break;
             }
         }
         
-        // Execute batch loading if no target hash routing rule matches
-        await autoLoadAllFeeds();
-    } catch (err) {
-        console.error("Critical automation sequence failure:", err);
-    } finally {
-        isAutoLoadActive = false; // Lock will open consistently here
+        if (optionElement) {
+            selectElement.value = optionElement.value;
+            const container = document.getElementById('rss-feed-container');
+            const loadingDiv = document.getElementById('rss-feed-message');
+            loadingDiv.textContent = `Loading feed for ${optionElement.textContent}...`;
+            loadingDiv.style.display = 'block';
+            container.innerHTML = '';
+            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, container, true, optionElement.id);
+            isAutoLoadActive = false;
+            return;
+        }
     }
+    
+    await autoLoadAllFeeds();
+    isAutoLoadActive = false;
 }
 
 function changeFavicon(status) {
@@ -313,9 +272,6 @@ function changeFavicon(status) {
     }
 }
 
-// Clean start inside standard event runtime
 document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('rss-feed-container');
-    if (container) container.innerHTML = '';
     autoLoad();
 });
