@@ -2371,15 +2371,36 @@ function extractOptionNumberId(fullOptionId) {
     return fullOptionId || '';
 }
 
-// 5. Core Logger - Replicates layout output string perfectly into single line formats
+// 5. Core Logger - Maps local hosting environment directly into kensbookinfo.blogspot.com structure
 async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, optionId = '') {
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
         
-        const basePageUrl = window.location.origin + window.location.pathname;
-        const targetCleanId = extractOptionNumberId(optionId);
-        const formattedBlogUrl = `${basePageUrl}#${targetCleanId}`;
+        // Base structure setup for your core production hub
+        const productionBase = "https://kensbookinfo.blogspot.com";
+        let targetCleanId = optionId || '';
+        let pagePath = "/p/etc-continents.html"; // Safe static structural fallback
+
+        // Extracts page details if the structural value is bound to the element id string
+        if (optionId && optionId.includes('.html')) {
+            const cleanArray = optionId.split('#');
+            if (cleanArray[0].startsWith('/') || cleanArray[0].startsWith('http')) {
+                try {
+                    const urlObj = new URL(cleanArray[0].startsWith('http') ? cleanArray[0] : productionBase + cleanArray[0]);
+                    pagePath = urlObj.pathname;
+                } catch(e) {
+                    pagePath = cleanArray[0];
+                }
+            } else {
+                pagePath = "/p/" + cleanArray[0];
+            }
+            targetCleanId = cleanArray[1] || '';
+        } else {
+            targetCleanId = extractOptionNumberId(optionId);
+        }
+
+        const formattedBlogUrl = `${productionBase}${pagePath}#${targetCleanId}`;
 
         for (let k = 0; k < items.length; k++) {
             const item = items[k];
@@ -2457,8 +2478,6 @@ async function loadAllFeedsContinuous() {
             // Managed inside logger catch block
         }
 
-        // Uniform individual delay directly after every single option processed.
-        // 2500ms (2.5 seconds) maintains a steady pace that avoids triggering 429 blocks.
         if (i < totalFeeds - 1) {
             await new Promise(res => setTimeout(res, 2500));
         }
