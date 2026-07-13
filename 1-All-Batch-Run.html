@@ -2299,7 +2299,7 @@ window.autoLoadInitialized = false;
 window.currentBatchIndex = 0;
 const BATCH_SIZE = 10;
 
-// 3. Upgraded fetchWithRetry Function (Fixes CORS/403 Retry Traps)
+// 3. Upgraded fetchWithRetry Function
 async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
     try {
         const response = await fetch(url, options);
@@ -2365,12 +2365,13 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
 }
 
-// 5. fetchAndDisplayFeed Core Layout Generator
+// 5. fetchAndDisplayFeed Core Layout Generator (REDIRECTED TO CONSOLE)
 async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSingleFeed = false, optionId = '') {
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
-        let sectionHtml = `<h3>${sourceText}</h3><ul style="list-style: none; padding: 0;">`;
+        
+        console.log(`%c[SUCCESS] ${sourceText} (${optionId}) - Found ${items.length} items`, 'color: #00ff00; font-weight: bold;');
             
         for (let k = 0; k < items.length; k++) {
             const item = items[k];
@@ -2383,15 +2384,12 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSi
 
             let date = pubDateStr ? new Date(pubDateStr) : null;
             const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
-            sectionHtml += `<li>${displayDate} <strong>${sourceText}</strong>: <a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a></li>`;
+            
+            // Log each individual item entry details to the console
+            console.log(`   ↳ ${displayDate} | ${title} -> ${linkUrl}`);
         }
-
-        sectionHtml += '</ul>';
-        if (targetWrapperBlock) targetWrapperBlock.innerHTML = sectionHtml;
     } catch (error) {
-        console.error(`Fetch failure inside presentation loop for URL: ${feedUrl}`, error);
-        const rawOptionTag = `&lt;option id="${optionId}" value="${feedUrl}"&gt;${sourceText}&lt;/option&gt;`;
-        if (targetWrapperBlock) targetWrapperBlock.innerHTML = `<p style="color: orange;">Could not load: <code>${rawOptionTag}</code></p>`;
+        console.error(`%c[FAILURE] ${sourceText} (${optionId}) - URL: ${feedUrl}`, 'color: #ff0000; font-weight: bold;', error);
     }
 }
 
@@ -2406,56 +2404,40 @@ function extractOptionNumberId(fullOptionId) {
 // 6. Global Dropdown Manual Loader
 window.manualLoad = async function() {
     const selectElement = document.getElementById('Choice');
-    const container = document.getElementById('rss-feed-container');
-    const loadingDiv = document.getElementById('rss-feed-message');
     if (!selectElement || !selectElement.value) return;
 
     const newOverrideToken = 'manual-override-' + Date.now();
     window.currentQueueInstance = newOverrideToken;
     window.isBatchRunning = false;
 
-    await new Promise(res => setTimeout(res, 50));
-
-    if (container) container.innerHTML = '';
-    if (loadingDiv) {
-        loadingDiv.textContent = 'Loading selected single feed...';
-        loadingDiv.style.display = 'block';
-    }
+    console.log(`%c[MANUAL LOAD] Triggered for option: ${selectElement.value}`, 'color: #00ffff; font-weight: bold;');
 
     const selectedOpt = selectElement.options[selectElement.selectedIndex];
-    const singleBlock = document.createElement('div');
-    if (container) container.appendChild(singleBlock);
-
-    await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, singleBlock, true, selectedOpt.id);
-    if (loadingDiv) loadingDiv.style.display = 'none';
+    await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, null, true, selectedOpt.id);
 };
 
 // 7. Sequential Auto-Loader with 10-Feed User Intervention Firebreaks
 async function autoLoadAllFeeds() {
-    console.log("Initializing batch processing loop...");
     if (window.isBatchRunning) {
         console.warn("Batch execution flag is locked. Standing down.");
         return;
     }
 
     const selectElement = document.getElementById('Choice');
-    const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
     
     if (!selectElement) { console.error("Required DOM element '#Choice' was missing at execution."); return; }
-    if (!container) { console.error("Required DOM target container '#rss-feed-container' was missing."); return; }
-    if (!loadingDiv) { console.error("Status feedback messaging wrapper '#rss-feed-message' was missing."); return; }
 
     window.isBatchRunning = true;
     
     const oldButton = document.getElementById('load-next-batch-btn');
     if (oldButton) oldButton.remove();
 
-    loadingDiv.style.display = 'block';
+    if (loadingDiv) {
+        loadingDiv.style.display = 'block';
+    }
 
     const staticFeedQueue = [];
-    
-    // FIX: Scan from index 0 directly to catch all items if placeholder text was removed
     for (let i = 0; i < selectElement.options.length; i++) {
         const opt = selectElement.options[i];
         if (opt.value && opt.value.trim() !== "") {
@@ -2464,45 +2446,43 @@ async function autoLoadAllFeeds() {
     }
 
     const totalFeeds = staticFeedQueue.length;
-    console.log(`Found a total of ${totalFeeds} feeds inside the dropdown stack layout.`);
-
     const startIndex = window.currentBatchIndex;
     const endIndex = Math.min(startIndex + BATCH_SIZE, totalFeeds);
 
+    console.log(`%c[BATCH RUN] Processing range ${startIndex + 1} to ${endIndex} of ${totalFeeds}`, 'color: #ffff00; font-weight: bold;');
+
     if (startIndex >= totalFeeds || totalFeeds === 0) {
-        loadingDiv.textContent = 'All available feeds processed! ✓';
+        if (loadingDiv) loadingDiv.textContent = 'All available feeds processed! ✓';
         window.isBatchRunning = false;
         window.currentBatchIndex = 0; 
-        console.log("Queue queue limits matched or empty. Pipeline completed.");
         return;
     }
 
     for (let i = startIndex; i < endIndex; i++) {
         const currentFeed = staticFeedQueue[i];
-        console.log(`Starting sequential item index ${i + 1} of ${totalFeeds}: ${currentFeed.text}`);
-        loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
+        if (loadingDiv) loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
 
-        const feedBlockNode = document.createElement('div');
-        container.appendChild(feedBlockNode);
-
+        console.log(`%c[FETCHING] Index ${i + 1}/${totalFeeds}: ${currentFeed.text}`, 'color: #e67e22;');
         try {
-            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, feedBlockNode, false, currentFeed.id);
+            // targetWrapperBlock parameter is passed as null since we aren't appending to the DOM
+            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, null, false, currentFeed.id);
         } catch (err) {
-            console.error(`Error loading ${currentFeed.text}:`, err);
+            console.error(`Error processing index ${i + 1}:`, err);
         }
 
-        await new Promise(res => setTimeout(res, 1000));
+        await new Promise(res => setTimeout(res, 500));
     }
 
     window.currentBatchIndex = endIndex;
     window.isBatchRunning = false;
 
     if (window.currentBatchIndex < totalFeeds) {
-        loadingDiv.textContent = `Paused at ${window.currentBatchIndex}/${totalFeeds} feeds. Click below to proceed.`;
-        createNewBatchButton(container);
+        if (loadingDiv) loadingDiv.textContent = `Paused at ${window.currentBatchIndex}/${totalFeeds} feeds. Check developer console.`;
+        // We still create the button on screen so you can trigger the next batch of 10 logs
+        const container = document.getElementById('rss-feed-container');
+        if (container) createNewBatchButton(container);
     } else {
-        loadingDiv.textContent = 'All feeds processed! ✓';
-        setTimeout(() => { loadingDiv.style.display = 'none'; }, 3000);
+        if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
         window.currentBatchIndex = 0; 
     }
 }
@@ -2510,7 +2490,7 @@ async function autoLoadAllFeeds() {
 function createNewBatchButton(targetContainer) {
     const btn = document.createElement('button');
     btn.id = 'load-next-batch-btn';
-    btn.textContent = 'Load Next 10 Feeds ↓';
+    btn.textContent = 'Log Next 10 Feeds to Console ↓';
     
     btn.style.cssText = `
         display: block;
@@ -2523,7 +2503,6 @@ function createNewBatchButton(targetContainer) {
         border: none;
         border-radius: 4px;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     `;
 
     btn.onclick = function() {
@@ -2533,15 +2512,13 @@ function createNewBatchButton(targetContainer) {
     targetContainer.appendChild(btn);
 }
 
-// 8. Launcher Pipeline Entry point with DOM State Guard
+// 8. Launcher Pipeline Entry point
 async function autoLoad() {
-    console.log("Checking environment parameters...");
     if (window.autoLoadInitialized) return;
     window.autoLoadInitialized = true;
 
     const selectElement = document.getElementById('Choice');
     if (!selectElement) {
-        console.warn("Dropdown not located. Retrying initializations on structural rendering frame cycle...");
         window.autoLoadInitialized = false;
         return;
     }
@@ -2559,16 +2536,10 @@ async function autoLoad() {
         }
         
         if (optionElement) {
-            console.log(`Executing deliberate anchor target route match for hash element ID: ${selectedHashId}`);
             window.currentQueueInstance = 'hash-load-active';
             selectElement.value = optionElement.value;
-            const container = document.getElementById('rss-feed-container');
-            const hashBlockNode = document.createElement('div');
-            if (container) {
-                container.innerHTML = '';
-                container.appendChild(hashBlockNode);
-            }
-            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, hashBlockNode, true, optionElement.id);
+            console.log(`%c[HASH DETECTED] Loading target: ${optionElement.textContent}`, 'color: #00ffff; font-weight: bold;');
+            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, null, true, optionElement.id);
             return;
         }
     }
@@ -2576,7 +2547,6 @@ async function autoLoad() {
     await autoLoadAllFeeds();
 }
 
-// Safe execution listener attachment ensures execution ONLY when elements exist
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoLoad);
 } else {
