@@ -2548,52 +2548,7 @@ function createNewBatchButton(targetContainer) {
 // 8. Launcher Pipeline Entry point
 async function autoLoad() {
     if (window.autoLoadInitialized) return;
-    window.autoLoadInitialized = true;<script>
-    }, 2000);
-}
-// 8. Launcher Pipeline Entry point
-async function autoLoad() {
-    if (window.autoLoadInitialized) return;
     window.autoLoadInitialized = true;
-
-    const selectElement = document.getElementById('Choice');
-    if (!selectElement) {
-        window.autoLoadInitialized = false;
-        return;
-    }
-
-    const wlh = window.location.href;
-    if (wlh.includes("#")) {
-        const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
-        let optionElement = null;
-
-        for (let i = 1; i < selectElement.options.length; i++) {
-            if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
-                optionElement = selectElement.options[i];
-                break;
-            }
-        }
-        
-        if (optionElement) {
-            window.currentQueueInstance = 'hash-load-active';
-            selectElement.value = optionElement.value;
-            const container = document.getElementById('rss-feed-container');
-            const hashBlockNode = document.createElement('div');
-            if (container) {
-                container.innerHTML = '';
-                container.appendChild(hashBlockNode);
-            }
-            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, hashBlockNode, true, optionElement.id);
-            return;
-        }
-    }
-    
-    await autoLoadAllFeeds();
-}
-
-autoLoad();
-</script>
-
 
     const selectElement = document.getElementById('Choice');
     if (!selectElement) {
