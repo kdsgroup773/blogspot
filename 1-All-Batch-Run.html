@@ -2296,6 +2296,8 @@ const proxyList = [
 window.isBatchRunning = false;
 window.currentQueueInstance = '';
 window.autoLoadInitialized = false;
+window.currentBatchIndex = 0;
+const BATCH_SIZE = 10;
 
 // 3. Upgraded fetchWithRetry Function (Fixes CORS/403 Retry Traps)
 async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
@@ -2333,7 +2335,6 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
             // Double check it's not a generic fetch layout crash caused by a CORS block
             if (error.message === 'Failed to fetch') {
                 // If 'Failed to fetch' fires instantly, it's usually a CORS rejection. 
-                // We test it down below by letting it drop cleanly to fallback loops.
                 throw new Error('ABORT_PROXY_NET_FAILED');
             }
             await new Promise(res => setTimeout(res, delay));
@@ -2377,7 +2378,6 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
         } catch (error) {
             console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) rejected request: ${error.message}. Moving to next proxy...`);
             lastError = error;
-            // The loop advances seamlessly without executing inner function retries
         }
     }
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
@@ -2390,7 +2390,9 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSi
         const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
         let sectionHtml = `<h3>${sourceText}</h3><ul style="list-style: none; padding: 0;">`;
             
-        items.forEach(item => {
+        // Strict for loop replacement ensures synchronous order execution
+        for (let k = 0; k < items.length; k++) {
+            const item = items[k];
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
             let linkUrl = item.querySelector('link')?.getAttribute('href') || item.querySelector('link')?.textContent || '#';
@@ -2401,7 +2403,7 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSi
             let date = pubDateStr ? new Date(pubDateStr) : null;
             const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
             sectionHtml += `<li>${displayDate} <strong>${sourceText}</strong>: <a href="${linkUrl}" target="_blank" style="text-decoration: none; color: #0066cc;">${title} - ${optionId}</a></li>`;
-        });
+        }
 
         sectionHtml += '</ul>';
         if (targetWrapperBlock) targetWrapperBlock.innerHTML = sectionHtml;
@@ -2446,32 +2448,26 @@ window.manualLoad = async function() {
     if (loadingDiv) loadingDiv.style.display = 'none';
 };
 
-// 7. Sequential Auto-Loader
+// 7. Sequential Auto-Loader with 10-Feed User Intervention Firebreaks
 async function autoLoadAllFeeds() {
-    // 1. Hard block if a batch is already running to prevent proxy hammering
-    if (window.isBatchRunning) {
-        console.warn('Blocked duplicate autoLoad instance.');
-        return;
-    }
+    if (window.isBatchRunning) return;
 
     const selectElement = document.getElementById('Choice');
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
     if (!selectElement || !container || !loadingDiv) return;
 
-    // 2. Set the locks immediately
     window.isBatchRunning = true;
-    const currentToken = Date.now().toString() + Math.random().toString();
-    window.currentQueueInstance = currentToken;
+    
+    // Drop old batch button cleanly before appending new entries
+    const oldButton = document.getElementById('load-next-batch-btn');
+    if (oldButton) oldButton.remove();
 
-    loadingDiv.textContent = 'Preparing to load feeds sequentially...';
     loadingDiv.style.display = 'block';
-    container.innerHTML = '';
 
-    // 3. Gather your actual feeds
     const staticFeedQueue = [];
-    // Start at i = 1 if your first option is a text label like "-- Select Feed --"
-    // Start at i = 0 if your very first option is a valid feed (like UN News)
+    // Starts at i=1 assuming your first option index 0 is a label marker.
+    // Switch to i=0 if your very first option row is a real feed.
     for (let i = 1; i < selectElement.options.length; i++) {
         const opt = selectElement.options[i];
         if (opt.value) {
@@ -2480,48 +2476,124 @@ async function autoLoadAllFeeds() {
     }
 
     const totalFeeds = staticFeedQueue.length;
+    const startIndex = window.currentBatchIndex;
+    const endIndex = Math.min(startIndex + BATCH_SIZE, totalFeeds);
 
-    // 4. Process the items sequentially using a clean for...of loop
-    let counter = 0;
-    for (const currentFeed of staticFeedQueue) {
-        // Stop instantly if a new instance overrode this instance
-        if (window.currentQueueInstance !== currentToken) {
-            return;
-        }
+    if (startIndex >= totalFeeds) {
+        loadingDiv.textContent = 'All available feeds processed! ✓';
+        window.isBatchRunning = false;
+        window.currentBatchIndex = 0; 
+        return;
+    }
 
-        counter++;
-        loadingDiv.textContent = `Loading (${counter}/${totalFeeds}): ${currentFeed.text}...`;
+    // Step through exactly up to 10 entries sequentially
+    for (let i = startIndex; i < endIndex; i++) {
+        const currentFeed = staticFeedQueue[i];
+        loadingDiv.textContent = `Loading (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
 
         const feedBlockNode = document.createElement('div');
         container.appendChild(feedBlockNode);
 
         try {
-            // Await the fetch and rendering completely
             await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, feedBlockNode, false, currentFeed.id);
         } catch (err) {
-            console.error(`Failed to handle feed: ${currentFeed.text}`, err);
+            console.error(`Error loading ${currentFeed.text}:`, err);
         }
 
-        // 5. Safe spacing throttle delay (Increased to 2.5 seconds)
-        // This is crucial to prevent hitting proxy rate limits or getting 429 errors
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        // 1-second delay between items in a batch to keep requests clean
+        await new Promise(res => setTimeout(res, 1000));
     }
-    
-    if (window.currentQueueInstance !== currentToken) return;
 
-    loadingDiv.textContent = 'All feeds processed! ✓';
-    window.isBatchRunning = false; // Release lock only when entirely finished
+    window.currentBatchIndex = endIndex;
+    window.isBatchRunning = false;
+
+    // Present user control interface if more elements remain in the select stack
+    if (window.currentBatchIndex < totalFeeds) {
+        loadingDiv.textContent = `Paused at ${window.currentBatchIndex}/${totalFeeds} feeds. Click below to proceed.`;
+        createNewBatchButton(container);
+    } else {
+        loadingDiv.textContent = 'All feeds processed! ✓';
+        setTimeout(() => { loadingDiv.style.display = 'none'; }, 3000);
+        window.currentBatchIndex = 0; 
+    }
+}
+
+// Helper to render the styled button link at the base of the node tree
+function createNewBatchButton(targetContainer) {
+    const btn = document.createElement('button');
+    btn.id = 'load-next-batch-btn';
+    btn.textContent = 'Load Next 10 Feeds ↓';
     
-    setTimeout(() => { 
-        if (window.currentQueueInstance === currentToken) {
-            loadingDiv.style.display = 'none'; 
-        }
+    btn.style.cssText = `
+        display: block;
+        margin: 25px auto;
+        padding: 12px 28px;
+        font-size: 15px;
+        font-weight: bold;
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    `;
+
+    btn.onclick = function() {
+        autoLoadAllFeeds();
+    };
+
+    targetContainer.appendChild(btn);
+}
+
+// 8. Launcher Pipeline Entry point
+async function autoLoad() {
+    if (window.autoLoadInitialized) return;
+    window.autoLoadInitialized = true;<script>
     }, 2000);
 }
 // 8. Launcher Pipeline Entry point
 async function autoLoad() {
     if (window.autoLoadInitialized) return;
     window.autoLoadInitialized = true;
+
+    const selectElement = document.getElementById('Choice');
+    if (!selectElement) {
+        window.autoLoadInitialized = false;
+        return;
+    }
+
+    const wlh = window.location.href;
+    if (wlh.includes("#")) {
+        const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
+        let optionElement = null;
+
+        for (let i = 1; i < selectElement.options.length; i++) {
+            if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
+                optionElement = selectElement.options[i];
+                break;
+            }
+        }
+        
+        if (optionElement) {
+            window.currentQueueInstance = 'hash-load-active';
+            selectElement.value = optionElement.value;
+            const container = document.getElementById('rss-feed-container');
+            const hashBlockNode = document.createElement('div');
+            if (container) {
+                container.innerHTML = '';
+                container.appendChild(hashBlockNode);
+            }
+            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, hashBlockNode, true, optionElement.id);
+            return;
+        }
+    }
+    
+    await autoLoadAllFeeds();
+}
+
+autoLoad();
+</script>
+
 
     const selectElement = document.getElementById('Choice');
     if (!selectElement) {
