@@ -2298,7 +2298,7 @@ window.currentQueueInstance = '';
 window.autoLoadInitialized = false;
 
 // 3. Upgraded fetchWithRetry Function
-async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
+async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
     try {
         const response = await fetch(url, options);
         if (response.status === 429 || response.status === 403) {
