@@ -2479,7 +2479,7 @@ async function loadAllFeedsContinuous() {
         }
 
         if (i < totalFeeds - 1) {
-            await new Promise(res => setTimeout(res, 2500));
+            await new Promise(res => setTimeout(res, 50));
         }
     }
 
