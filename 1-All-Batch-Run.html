@@ -2377,7 +2377,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, op
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
         
-        // Clean target page address base + dynamic anchor id extraction
         const basePageUrl = window.location.origin + window.location.pathname;
         const targetCleanId = extractOptionNumberId(optionId);
         const formattedBlogUrl = `${basePageUrl}#${targetCleanId}`;
@@ -2387,7 +2386,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, op
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
 
-            // Strip linebreaks, double-whitespaces, and formatting artifacts inside the title string
             title = title.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
 
             if (title.includes(":")) {
@@ -2397,11 +2395,9 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, op
             let date = pubDateStr ? new Date(pubDateStr) : null;
             const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
             
-            // Outputs exactly matching: Date SourceText: Title - BlogURL#ID
             console.log(`${displayDate} ${sourceText}: ${title} - ${formattedBlogUrl}`);
         }
     } catch (error) {
-        // Keeps track of network errors in line with the uniform plain text layout
         console.log(`${new Date().toLocaleDateString()} [ERROR] ${sourceText} (${optionId}) failed to load: ${error.message}`);
     }
 }
@@ -2421,7 +2417,7 @@ window.manualLoad = async function() {
     await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, true, selectedOpt.id);
 };
 
-// 7. Continuous, Non-Stop Pipeline
+// 7. Continuous, Non-Stop Pipeline with Batch Throttling
 async function loadAllFeedsContinuous() {
     if (window.isProcessingAll) {
         return;
@@ -2447,19 +2443,38 @@ async function loadAllFeedsContinuous() {
     }
 
     const totalFeeds = feedQueue.length;
+    let processedCounter = 0;
 
     for (let i = 0; i < totalFeeds; i++) {
         const currentFeed = feedQueue[i];
-        if (loadingDiv) loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
+        
+        // Dynamic status readout on the screen
+        if (loadingDiv) {
+            loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
+        }
         
         try {
             await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, false, currentFeed.id);
         } catch (err) {
-            // Managed within fetchAndDisplayFeed catch block
+            // Error logged inside fetchAndDisplayFeed directly
         }
 
-        // 500ms safety gap to keep workers functional
-        await new Promise(res => setTimeout(res, 500));
+        processedCounter++;
+
+        // Batch Catch-Up Logic: Every 20 items, trigger a 10-second cooling delay
+        if (processedCounter % 20 === 0 && i < totalFeeds - 1) {
+            const coolingMs = 10000; // 10 seconds (adjust here if proxies need more time)
+            console.log(`%c[BATCH COOL DOWN] Processed ${processedCounter} feeds. Pausing for ${coolingMs / 1000} seconds to clear rate limits...`, "color: #e67e22; font-weight: bold;");
+            
+            if (loadingDiv) {
+                loadingDiv.textContent = `Pausing 10s at batch border (${i + 1}/${totalFeeds}) to avoid rate limits...`;
+            }
+            
+            await new Promise(res => setTimeout(res, coolingMs));
+        } else {
+            // Standard 500ms safety gap between normal individual loop streams
+            await new Promise(res => setTimeout(res, 500));
+        }
     }
 
     window.isProcessingAll = false;
@@ -2500,7 +2515,6 @@ async function autoLoad() {
     await loadAllFeedsContinuous();
 }
 
-// Safe execution listener attachment ensures execution ONLY when elements exist
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoLoad);
 } else {
