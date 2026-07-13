@@ -2293,11 +2293,9 @@ const proxyList = [
 ];
 
 // 2. Global Control Handles
-window.isBatchRunning = false;
+window.isProcessingAll = false;
 window.currentQueueInstance = '';
 window.autoLoadInitialized = false;
-window.currentBatchIndex = 0;
-const BATCH_SIZE = 10;
 
 // 3. Upgraded fetchWithRetry Function
 async function fetchWithRetry(url, options = {}, retries = 1, delay = 2000) {
@@ -2365,8 +2363,8 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
 }
 
-// 5. fetchAndDisplayFeed Core Layout Generator (REDIRECTED TO CONSOLE)
-async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSingleFeed = false, optionId = '') {
+// 5. fetchAndDisplayFeed Core Layout Generator (DIRECTED TO CONSOLE)
+async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, optionId = '') {
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
@@ -2407,18 +2405,18 @@ window.manualLoad = async function() {
 
     const newOverrideToken = 'manual-override-' + Date.now();
     window.currentQueueInstance = newOverrideToken;
-    window.isBatchRunning = false;
+    window.isProcessingAll = false;
 
     console.log(`%c[MANUAL LOAD] Triggered for option: ${selectElement.value}`, 'color: #00ffff; font-weight: bold;');
 
     const selectedOpt = selectElement.options[selectElement.selectedIndex];
-    await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, null, true, selectedOpt.id);
+    await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, true, selectedOpt.id);
 };
 
-// 7. Sequential Auto-Loader with 10-Feed User Intervention Firebreaks
-async function autoLoadAllFeeds() {
-    if (window.isBatchRunning) {
-        console.warn("Batch execution flag is locked. Standing down.");
+// 7. Non-Stop, Continuous Processing Pipeline
+async function loadAllFeedsContinuous() {
+    if (window.isProcessingAll) {
+        console.warn("Continuous crawl process already active. Standing down.");
         return;
     }
 
@@ -2426,104 +2424,44 @@ async function autoLoadAllFeeds() {
     const loadingDiv = document.getElementById('rss-feed-message');
     
     if (!selectElement) { 
-        console.error("%c[CRITICAL] Element '#Choice' missing. Cannot read dropdown.", 'color: #ff0000; font-weight: bold;'); 
+        console.error("%c[CRITICAL] Element '#Choice' missing. Cannot read dropdown links.", 'color: #ff0000; font-weight: bold;'); 
         return; 
     }
 
-    window.isBatchRunning = true;
-    
-    const oldButton = document.getElementById('load-next-batch-btn');
-    if (oldButton) {
-        console.log("Removing old batch button from screen.");
-        oldButton.remove();
-    }
-
+    window.isProcessingAll = true;
     if (loadingDiv) loadingDiv.style.display = 'block';
 
-    const staticFeedQueue = [];
+    // Build complete feed queue from dropdown indices
+    const feedQueue = [];
     for (let i = 0; i < selectElement.options.length; i++) {
         const opt = selectElement.options[i];
         if (opt.value && opt.value.trim() !== "") {
-            staticFeedQueue.push({ value: opt.value, text: opt.textContent, id: opt.id });
+            feedQueue.push({ value: opt.value, text: opt.textContent, id: opt.id });
         }
     }
 
-    const totalFeeds = staticFeedQueue.length;
-    const startIndex = window.currentBatchIndex;
-    const endIndex = Math.min(startIndex + BATCH_SIZE, totalFeeds);
+    const totalFeeds = feedQueue.length;
+    console.log(`%c[STARTING FULL CRAWL] Beginning non-stop processing for ${totalFeeds} feeds.`, 'color: #ffff00; font-weight: bold; background: #222; padding: 4px;');
 
-    console.log(`%c[BATCH START] Loop range: ${startIndex + 1} to ${endIndex} (Total feeds available: ${totalFeeds})`, 'color: #ffff00; font-weight: bold; background: #222;');
+    for (let i = 0; i < totalFeeds; i++) {
+        const currentFeed = feedQueue[i];
+        if (loadingDiv) loadingDiv.textContent = `Processing continuous list (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
 
-    if (startIndex >= totalFeeds || totalFeeds === 0) {
-        console.log("%c[QUEUE DONE] No more feeds left to process.", 'color: #00ff00; font-weight: bold;');
-        if (loadingDiv) loadingDiv.textContent = 'All available feeds processed! ✓';
-        window.isBatchRunning = false;
-        window.currentBatchIndex = 0; 
-        return;
-    }
-
-    for (let i = startIndex; i < endIndex; i++) {
-        const currentFeed = staticFeedQueue[i];
-        if (loadingDiv) loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
-
-        console.log(`%c[FETCHING ${i + 1}/${totalFeeds}] target: ${currentFeed.text}`, 'color: #e67e22;');
+        console.log(`%c[FEED ${i + 1}/${totalFeeds}] target: ${currentFeed.text}`, 'color: #e67e22;');
+        
         try {
-            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, null, false, currentFeed.id);
+            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, false, currentFeed.id);
         } catch (err) {
-            console.error(`Error processing index ${i + 1}:`, err);
+            console.error(`Error handling list item ${i + 1}:`, err);
         }
 
+        // Keep a 500ms breathing gap between tasks to stay within API thresholds
         await new Promise(res => setTimeout(res, 500));
     }
 
-    window.currentBatchIndex = endIndex;
-    window.isBatchRunning = false;
-
-    console.log(`%c[BATCH COMPLETE] Pointer updated to: ${window.currentBatchIndex} / ${totalFeeds}`, 'color: #ffff00;');
-
-    if (window.currentBatchIndex < totalFeeds) {
-        if (loadingDiv) loadingDiv.textContent = `Paused at ${window.currentBatchIndex}/${totalFeeds} feeds. Check developer console.`;
-        
-        console.log("%c[ATTEMPTING BUTTON CREATION] Appending continuation button...", 'color: #00ffff;');
-        
-        let container = document.getElementById('rss-feed-container');
-        if (!container) {
-            console.warn("%c[DOM WARNING] '#rss-feed-container' was not found. Appending button directly to document body instead.", 'color: #ffaa00;');
-            container = document.body;
-        }
-        
-        createNewBatchButton(container);
-    } else {
-        console.log("%c[ALL BATCHES COMPLETE] Reached the exact end of the dropdown array list.", 'color: #00ff00; font-weight: bold;');
-        if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
-        window.currentBatchIndex = 0; 
-    }
-}
-
-function createNewBatchButton(targetContainer) {
-    const btn = document.createElement('button');
-    btn.id = 'load-next-batch-btn';
-    btn.textContent = 'Log Next 10 Feeds to Console ↓';
-    
-    btn.style.cssText = `
-        display: block;
-        margin: 25px auto;
-        padding: 12px 28px;
-        font-size: 15px;
-        font-weight: bold;
-        background-color: #0066cc;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    `;
-
-    btn.onclick = function() {
-        autoLoadAllFeeds();
-    };
-
-    targetContainer.appendChild(btn);
+    window.isProcessingAll = false;
+    console.log("%c[CRAWL COMPLETE] Reached the end of the entire dropdown collection successfully. All feeds dumped to console.", "color: #00ff00; font-weight: bold; background: #111; padding: 5px;");
+    if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
 }
 
 // 8. Launcher Pipeline Entry point with DOM State Guard
@@ -2552,13 +2490,14 @@ async function autoLoad() {
         if (optionElement) {
             window.currentQueueInstance = 'hash-load-active';
             selectElement.value = optionElement.value;
-            console.log(`%c[HASH DETECTED] Loading target: ${optionElement.textContent}`, 'color: #00ffff; font-weight: bold;');
-            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, null, true, optionElement.id);
+            console.log(`%c[HASH DETECTED] Loading single target: ${optionElement.textContent}`, 'color: #00ffff; font-weight: bold;');
+            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, true, optionElement.id);
             return;
         }
     }
     
-    await autoLoadAllFeeds();
+    // Default path if no hash anchor is present
+    await loadAllFeedsContinuous();
 }
 
 // Safe execution listener attachment ensures execution ONLY when elements exist
