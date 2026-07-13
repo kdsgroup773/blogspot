@@ -2385,7 +2385,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, targetWrapperBlock, isSi
             let date = pubDateStr ? new Date(pubDateStr) : null;
             const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
             
-            // Log each individual item entry details to the console
             console.log(`   ↳ ${displayDate} | ${title} -> ${linkUrl}`);
         }
     } catch (error) {
@@ -2426,16 +2425,20 @@ async function autoLoadAllFeeds() {
     const selectElement = document.getElementById('Choice');
     const loadingDiv = document.getElementById('rss-feed-message');
     
-    if (!selectElement) { console.error("Required DOM element '#Choice' was missing at execution."); return; }
+    if (!selectElement) { 
+        console.error("%c[CRITICAL] Element '#Choice' missing. Cannot read dropdown.", 'color: #ff0000; font-weight: bold;'); 
+        return; 
+    }
 
     window.isBatchRunning = true;
     
     const oldButton = document.getElementById('load-next-batch-btn');
-    if (oldButton) oldButton.remove();
-
-    if (loadingDiv) {
-        loadingDiv.style.display = 'block';
+    if (oldButton) {
+        console.log("Removing old batch button from screen.");
+        oldButton.remove();
     }
+
+    if (loadingDiv) loadingDiv.style.display = 'block';
 
     const staticFeedQueue = [];
     for (let i = 0; i < selectElement.options.length; i++) {
@@ -2449,9 +2452,10 @@ async function autoLoadAllFeeds() {
     const startIndex = window.currentBatchIndex;
     const endIndex = Math.min(startIndex + BATCH_SIZE, totalFeeds);
 
-    console.log(`%c[BATCH RUN] Processing range ${startIndex + 1} to ${endIndex} of ${totalFeeds}`, 'color: #ffff00; font-weight: bold;');
+    console.log(`%c[BATCH START] Loop range: ${startIndex + 1} to ${endIndex} (Total feeds available: ${totalFeeds})`, 'color: #ffff00; font-weight: bold; background: #222;');
 
     if (startIndex >= totalFeeds || totalFeeds === 0) {
+        console.log("%c[QUEUE DONE] No more feeds left to process.", 'color: #00ff00; font-weight: bold;');
         if (loadingDiv) loadingDiv.textContent = 'All available feeds processed! ✓';
         window.isBatchRunning = false;
         window.currentBatchIndex = 0; 
@@ -2462,9 +2466,8 @@ async function autoLoadAllFeeds() {
         const currentFeed = staticFeedQueue[i];
         if (loadingDiv) loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
 
-        console.log(`%c[FETCHING] Index ${i + 1}/${totalFeeds}: ${currentFeed.text}`, 'color: #e67e22;');
+        console.log(`%c[FETCHING ${i + 1}/${totalFeeds}] target: ${currentFeed.text}`, 'color: #e67e22;');
         try {
-            // targetWrapperBlock parameter is passed as null since we aren't appending to the DOM
             await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, null, false, currentFeed.id);
         } catch (err) {
             console.error(`Error processing index ${i + 1}:`, err);
@@ -2476,12 +2479,22 @@ async function autoLoadAllFeeds() {
     window.currentBatchIndex = endIndex;
     window.isBatchRunning = false;
 
+    console.log(`%c[BATCH COMPLETE] Pointer updated to: ${window.currentBatchIndex} / ${totalFeeds}`, 'color: #ffff00;');
+
     if (window.currentBatchIndex < totalFeeds) {
         if (loadingDiv) loadingDiv.textContent = `Paused at ${window.currentBatchIndex}/${totalFeeds} feeds. Check developer console.`;
-        // We still create the button on screen so you can trigger the next batch of 10 logs
-        const container = document.getElementById('rss-feed-container');
-        if (container) createNewBatchButton(container);
+        
+        console.log("%c[ATTEMPTING BUTTON CREATION] Appending continuation button...", 'color: #00ffff;');
+        
+        let container = document.getElementById('rss-feed-container');
+        if (!container) {
+            console.warn("%c[DOM WARNING] '#rss-feed-container' was not found. Appending button directly to document body instead.", 'color: #ffaa00;');
+            container = document.body;
+        }
+        
+        createNewBatchButton(container);
     } else {
+        console.log("%c[ALL BATCHES COMPLETE] Reached the exact end of the dropdown array list.", 'color: #00ff00; font-weight: bold;');
         if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
         window.currentBatchIndex = 0; 
     }
@@ -2503,6 +2516,7 @@ function createNewBatchButton(targetContainer) {
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     `;
 
     btn.onclick = function() {
@@ -2512,7 +2526,7 @@ function createNewBatchButton(targetContainer) {
     targetContainer.appendChild(btn);
 }
 
-// 8. Launcher Pipeline Entry point
+// 8. Launcher Pipeline Entry point with DOM State Guard
 async function autoLoad() {
     if (window.autoLoadInitialized) return;
     window.autoLoadInitialized = true;
@@ -2547,6 +2561,7 @@ async function autoLoad() {
     await autoLoadAllFeeds();
 }
 
+// Safe execution listener attachment ensures execution ONLY when elements exist
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoLoad);
 } else {
