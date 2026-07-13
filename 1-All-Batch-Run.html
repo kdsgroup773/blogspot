@@ -2363,12 +2363,13 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
 }
 
-// 5. fetchAndDisplayFeed Core Layout Generator (DIRECTED TO CONSOLE)
+// 5. Core Logger - Replicates the exact on-screen layout data to the console
 async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, optionId = '') {
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
         
+        // Match the header block style
         console.log(`%c[SUCCESS] ${sourceText} (${optionId}) - Found ${items.length} items`, 'color: #00ff00; font-weight: bold;');
             
         for (let k = 0; k < items.length; k++) {
@@ -2377,12 +2378,13 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, op
             const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
             let linkUrl = item.querySelector('link')?.getAttribute('href') || item.querySelector('link')?.textContent || '#';
 
+            // Clean title formatting matching your layout display rules
             if (title.includes(":")) title = title.substring(title.indexOf(":") + 1).trim();
-            if (title.length > 50) title = title.substring(0, 50) + "...";
 
             let date = pubDateStr ? new Date(pubDateStr) : null;
             const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
             
+            // Replicates the display content layout exactly into the console stream
             console.log(`   ↳ ${displayDate} | ${title} -> ${linkUrl}`);
         }
     } catch (error) {
@@ -2413,10 +2415,10 @@ window.manualLoad = async function() {
     await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, true, selectedOpt.id);
 };
 
-// 7. Non-Stop, Continuous Processing Pipeline
+// 7. Continuous, Non-Stop Pipeline
 async function loadAllFeedsContinuous() {
     if (window.isProcessingAll) {
-        console.warn("Continuous crawl process already active. Standing down.");
+        console.warn("Continuous process already running.");
         return;
     }
 
@@ -2431,7 +2433,6 @@ async function loadAllFeedsContinuous() {
     window.isProcessingAll = true;
     if (loadingDiv) loadingDiv.style.display = 'block';
 
-    // Build complete feed queue from dropdown indices
     const feedQueue = [];
     for (let i = 0; i < selectElement.options.length; i++) {
         const opt = selectElement.options[i];
@@ -2441,11 +2442,11 @@ async function loadAllFeedsContinuous() {
     }
 
     const totalFeeds = feedQueue.length;
-    console.log(`%c[STARTING FULL CRAWL] Beginning non-stop processing for ${totalFeeds} feeds.`, 'color: #ffff00; font-weight: bold; background: #222; padding: 4px;');
+    console.log(`%c[STARTING FULL CRAWL] Processing ${totalFeeds} feeds continuously.`, 'color: #ffff00; font-weight: bold; background: #222; padding: 4px;');
 
     for (let i = 0; i < totalFeeds; i++) {
         const currentFeed = feedQueue[i];
-        if (loadingDiv) loadingDiv.textContent = `Processing continuous list (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
+        if (loadingDiv) loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
 
         console.log(`%c[FEED ${i + 1}/${totalFeeds}] target: ${currentFeed.text}`, 'color: #e67e22;');
         
@@ -2455,12 +2456,12 @@ async function loadAllFeedsContinuous() {
             console.error(`Error handling list item ${i + 1}:`, err);
         }
 
-        // Keep a 500ms breathing gap between tasks to stay within API thresholds
+        // 500ms safety gap between stream operations
         await new Promise(res => setTimeout(res, 500));
     }
 
     window.isProcessingAll = false;
-    console.log("%c[CRAWL COMPLETE] Reached the end of the entire dropdown collection successfully. All feeds dumped to console.", "color: #00ff00; font-weight: bold; background: #111; padding: 5px;");
+    console.log("%c[CRAWL COMPLETE] All dropdown feeds parsed and replicated successfully to the console.", "color: #00ff00; font-weight: bold; background: #111; padding: 5px;");
     if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
 }
 
@@ -2496,7 +2497,6 @@ async function autoLoad() {
         }
     }
     
-    // Default path if no hash anchor is present
     await loadAllFeedsContinuous();
 }
 
