@@ -2341,7 +2341,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
     
     // Set how long to wait (in milliseconds) for the Cloudflare 429 rate limit to cool down
-    const coolDownWaitTime = 5000; // 3 seconds (adjust if needed)
+    const coolDownWaitTime = 10000; // 3 seconds (adjust if needed)
 
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
