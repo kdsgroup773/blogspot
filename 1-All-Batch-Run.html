@@ -2293,18 +2293,22 @@ const proxyList = [
 //    'https://api.codetabs.com/v1/proxy?quest=',
 //    'https://cors.lol/?url=',
 ];
+
 // 2. Global Control Handles
 window.isProcessingAll = false;
 window.currentQueueInstance = '';
 window.autoLoadInitialized = false;
+
 // 3. Upgraded fetchWithRetry Function (Handles 429 delays)
 async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
     try {
         const response = await fetch(url, options);
+        
         // Let fetchWithProxyFallback handle 429/403 recovery cycles
         if (response.status === 429 || response.status === 403) {
             throw new Error(`ABORT_PROXY_${response.status}`);
         }
+        
         if (!response.ok) {
             if ((response.status === 408 || response.status === 504) && retries > 0) {
                 await new Promise(res => setTimeout(res, delay));
@@ -2332,14 +2336,16 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
         }
     }
 }
+
 // 4. Loop Processing Function with 429 Timing Loop
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
-    // Set how long to wait (in milliseconds) for the Cloudflare 429 rate limit to cool down
-    const coolDownWaitTime = 10000; // 3 seconds (adjust if needed)
+    const coolDownWaitTime = 10000; // 10 second safety recovery block
+
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
         const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
+        
         try {
             const response = await fetchWithRetry(proxiedUrl);
             const xmlString = await response.text();
@@ -2350,6 +2356,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 lastError = new Error(`XML Parsing Error via proxy ${i + 1}`);
                 continue;
             }
+            
             const items = xmlDoc.querySelectorAll('entry').length > 0 
                 ? xmlDoc.querySelectorAll('entry') 
                 : xmlDoc.querySelectorAll('item');
@@ -2358,10 +2365,11 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 lastError = new Error(`No RSS items found via proxy ${i + 1}`);
                 continue;
             }
+            
             return xmlDoc; 
         } catch (error) {
             lastError = error;
-            // If we hit a 429 rate limit, initiate the timing loop before falling back
+
             if (error.message === 'ABORT_PROXY_429') {
                 console.warn(`[RATE LIMIT] Proxy ${i + 1} returned 429 for: ${targetFeedUrl}.`);
                 
@@ -2373,11 +2381,13 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 }
                 continue;
             }
+
             console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) rejected request: ${error.message}. Moving to next proxy...`);
         }
     }
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
 }
+
 function extractOptionNumberId(fullOptionId) {
     if (fullOptionId && fullOptionId.includes('#')) {
         const parts = fullOptionId.split('#');
@@ -2385,16 +2395,17 @@ function extractOptionNumberId(fullOptionId) {
     }
     return fullOptionId || '';
 }
+
 // 5. Core Logger - Maps local hosting environment directly into kensbookinfo.blogspot.com structure
 async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, optionId = '') {
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
         const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
-        // Base structure setup for your core production hub
+        
         const productionBase = "https://kensbookinfo.blogspot.com";
         let targetCleanId = optionId || '';
-        let pagePath = "/p/etc-continents.html"; // Safe static structural fallback
-        // Extracts page details if the structural value is bound to the element id string
+        let pagePath = "/p/etc-continents.html";
+
         if (optionId && optionId.includes('.html')) {
             const cleanArray = optionId.split('#');
             if (cleanArray[0].startsWith('/') || cleanArray[0].startsWith('http')) {
@@ -2411,47 +2422,63 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, op
         } else {
             targetCleanId = extractOptionNumberId(optionId);
         }
+
         const formattedBlogUrl = `${productionBase}${pagePath}#${targetCleanId}`;
+
         for (let k = 0; k < items.length; k++) {
             const item = items[k];
             let title = item.querySelector('title')?.textContent || 'No Title';
             const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
+
             title = title.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
+
             if (title.includes(":")) {
                 title = title.substring(title.indexOf(":") + 1).trim();
             }
+
             let date = pubDateStr ? new Date(pubDateStr) : null;
             const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
+            
             console.log(`${displayDate} ${sourceText}: ${title} - ${formattedBlogUrl}`);
         }
     } catch (error) {
         console.log(`${new Date().toLocaleDateString()} [ERROR] ${sourceText} (${optionId}) failed to load: ${error.message}`);
     }
 }
+
 // 6. Global Dropdown Manual Loader
 window.manualLoad = async function() {
     const selectElement = document.getElementById('Choice');
     if (!selectElement || !selectElement.value) return;
+
     const newOverrideToken = 'manual-override-' + Date.now();
     window.currentQueueInstance = newOverrideToken;
     window.isProcessingAll = false;
+
     console.log(`[MANUAL LOAD] Triggered for option: ${selectElement.value}`);
+
     const selectedOpt = selectElement.options[selectElement.selectedIndex];
     await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, true, selectedOpt.id);
 };
-// 7. Continuous Pipeline with Steady Per-Option Throttling
+
+// 7. Continuous Pipeline with Randomized Option Shuffling (Prevents Domain Rate-Limits)
 async function loadAllFeedsContinuous() {
     if (window.isProcessingAll) {
         return;
     }
+
     const selectElement = document.getElementById('Choice');
     const loadingDiv = document.getElementById('rss-feed-message');
+    
     if (!selectElement) { 
         console.error("[CRITICAL] Element '#Choice' missing."); 
         return; 
     }
+
     window.isProcessingAll = true;
     if (loadingDiv) loadingDiv.style.display = 'block';
+
+    // Extract options into a local array processing queue
     const feedQueue = [];
     for (let i = 0; i < selectElement.options.length; i++) {
         const opt = selectElement.options[i];
@@ -2459,7 +2486,15 @@ async function loadAllFeedsContinuous() {
             feedQueue.push({ value: opt.value, text: opt.textContent, id: opt.id });
         }
     }
+
+    // Apply Fisher-Yates Shuffle to break up consecutive Big News Network hits
+    for (let i = feedQueue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [feedQueue[i], feedQueue[j]] = [feedQueue[j], feedQueue[i]];
+    }
+
     const totalFeeds = feedQueue.length;
+    console.log(`[QUEUE] Shuffled ${totalFeeds} feeds to protect firewall limits. Executing processing queue...`);
 
     for (let i = 0; i < totalFeeds; i++) {
         const currentFeed = feedQueue[i];
@@ -2467,37 +2502,47 @@ async function loadAllFeedsContinuous() {
         if (loadingDiv) {
             loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
         }
+        
         try {
             await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, false, currentFeed.id);
         } catch (err) {
-            // Managed inside logger catch block
+            // Logged gracefully inside fetchAndDisplayFeed
         }
+
+        // A steady 250ms delay combined with shuffled domain spacing 
+        // stops consecutive server spikes cleanly.
         if (i < totalFeeds - 1) {
-            await new Promise(res => setTimeout(res, 50));
+            await new Promise(res => setTimeout(res, 250));
         }
     }
+
     window.isProcessingAll = false;
     if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
 }
+
 // 8. Launcher Pipeline Entry point with DOM State Guard
 async function autoLoad() {
     if (window.autoLoadInitialized) return;
     window.autoLoadInitialized = true;
+
     const selectElement = document.getElementById('Choice');
     if (!selectElement) {
         window.autoLoadInitialized = false;
         return;
     }
+
     const wlh = window.location.href;
     if (wlh.includes("#")) {
         const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
         let optionElement = null;
+
         for (let i = 0; i < selectElement.options.length; i++) {
             if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
                 optionElement = selectElement.options[i];
                 break;
             }
         }
+        
         if (optionElement) {
             window.currentQueueInstance = 'hash-load-active';
             selectElement.value = optionElement.value;
@@ -2505,14 +2550,17 @@ async function autoLoad() {
             return;
         }
     }
+    
     await loadAllFeedsContinuous();
 }
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', autoLoad);
 } else {
     autoLoad();
 }
-</script></body>
+</script>
+</body>
 </html>
 
 
