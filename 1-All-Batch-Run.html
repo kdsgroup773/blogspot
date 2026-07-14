@@ -1,6 +1,6 @@
 <html>
   <head>
-    <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png">
+    <link id="favicon" rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL84297RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png">
     <img alt="" border="0"  height="160" width="160" data-original-height="800" data-original-width="800" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgU6vREG6FEFnZSl-t_pqYdO9t7pLYn1zHjBDkpVygJ9udAoDL87RDAxhKhyphenhyphenEwjPkPuNrjjNUAavs_F7X0vg94mB1QIhJifqo_2vM6ipelQTvFO8XsxeszrjbF4Ql4s9GSZ6xVZReW90upWhkFOPg8NjAe_zojPuH7ZQoYBPLUlCJDYyEv0Xf7jwb3xfIo/s320/rss.png"/>
     </head>
 <body>
@@ -2284,8 +2284,8 @@
 <script>
 // 1. Core Config & Proxy Options
 const proxyList = [
-    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
-  'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
+    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=', // Primary Proxy
+    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=', // Fallback / Recovery Proxy
 //    'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
 //    'https://corsproxy.io/?url=',
 //    'https://api.allorigins.win/raw?url=',
@@ -2298,13 +2298,16 @@ window.isProcessingAll = false;
 window.currentQueueInstance = '';
 window.autoLoadInitialized = false;
 
-// 3. Upgraded fetchWithRetry Function
+// 3. Upgraded fetchWithRetry Function (Handles 429 delays)
 async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
     try {
         const response = await fetch(url, options);
+        
+        // Let fetchWithProxyFallback handle 429/403 recovery cycles
         if (response.status === 429 || response.status === 403) {
             throw new Error(`ABORT_PROXY_${response.status}`);
         }
+        
         if (!response.ok) {
             if ((response.status === 408 || response.status === 504) && retries > 0) {
                 await new Promise(res => setTimeout(res, delay));
@@ -2333,32 +2336,55 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
     }
 }
 
-// 4. Loop Processing Function
+// 4. Loop Processing Function with 429 Timing Loop
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
+    
+    // Set how long to wait (in milliseconds) for the Cloudflare 429 rate limit to cool down
+    const coolDownWaitTime = 5000; // 3 seconds (adjust if needed)
+
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
         const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
+        
         try {
             const response = await fetchWithRetry(proxiedUrl);
             const xmlString = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+            
             if (xmlDoc.querySelector("parsererror")) {
                 lastError = new Error(`XML Parsing Error via proxy ${i + 1}`);
                 continue;
             }
+            
             const items = xmlDoc.querySelectorAll('entry').length > 0 
                 ? xmlDoc.querySelectorAll('entry') 
                 : xmlDoc.querySelectorAll('item');
+                
             if (items.length === 0) {
                 lastError = new Error(`No RSS items found via proxy ${i + 1}`);
                 continue;
             }
+            
             return xmlDoc; 
         } catch (error) {
-            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) rejected request: ${error.message}. Moving to next proxy...`);
             lastError = error;
+
+            // If we hit a 429 rate limit, initiate the timing loop before falling back
+            if (error.message === 'ABORT_PROXY_429') {
+                console.warn(`[RATE LIMIT] Proxy ${i + 1} returned 429 for: ${targetFeedUrl}.`);
+                
+                if (i < proxies.length - 1) {
+                    console.warn(`Pausing execution for ${coolDownWaitTime / 1000}s to clear worker pool before trying Proxy ${i + 2}...`);
+                    await new Promise(res => setTimeout(res, coolDownWaitTime));
+                } else {
+                    console.warn(`Proxy limit hit on final proxy layer. No remaining proxy paths.`);
+                }
+                continue;
+            }
+
+            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) rejected request: ${error.message}. Moving to next proxy...`);
         }
     }
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
@@ -2527,6 +2553,5 @@ if (document.readyState === 'loading') {
 } else {
     autoLoad();
 }
-</script>
-</body>
+</script></body>
 </html>
