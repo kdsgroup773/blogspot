@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSS Proxy 429 Filter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        textarea {
+            height: 300px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 13px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            display: block;
+            width: 200px;
+            padding: 12px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #004085;
+        }
+        .output-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .stats {
+            margin-bottom: 8px;
+            font-style: italic;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>RSS Proxy 429 Error Filter</h2>
+    <p>Paste your option elements into List 1, and your console/log dump into List 2.</p>
+
+    <div class="container">
+        <div class="input-group">
+            <label for="list1">List 1: Master Option Elements</label>
+            <textarea id="list1" placeholder="Paste all <option> lines here..."></textarea>
+        </div>
+        
+        <div class="input-group">
+            <label for="list2">List 2: Console Log Dump</label>
+            <textarea id="list2" placeholder="Paste console error logs here..."></textarea>
+        </div>
+    </div>
+
+    <button onclick="filterFailedLines()">Isolate 429 Failures</button>
+
+    <div class="output-group">
+        <label for="output">Resulting Lines from List 1:</label>
+        <div id="matchStats" class="stats"></div>
+        <textarea id="output" placeholder="Matched lines will appear here..." readonly></textarea>
+    </div>
+
+    <script>
+        function cleanUrl(url) {
+            if (!url) return '';
+            // Strip off common trailing wrapper symbols like ), ], >, or commas/periods
+            return url.replace(/[)\]>.,\s]+$/, '').toLowerCase().trim();
+        }
+
+        function filterFailedLines() {
+            const list1Text = document.getElementById('list1').value;
+            const list2Text = document.getElementById('list2').value;
+            
+            // 1. Break List 1 into individual clean lines
+            const list1Lines = list1Text.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            // 2. Process List 2 lines, looking specifically for ABORT_PROXY_429
+            const failedUrls = new Set();
+            const list2Lines = list2Text.split('\n');
+            
+            const urlRegex = /https?:\/\/[^\s"'>]+/g;
+
+            list2Lines.forEach(line => {
+                // Only process this error line if it contains the 429 error tag
+                if (line.includes('ABORT_PROXY_429')) {
+                    const matches = line.match(urlRegex);
+                    if (matches) {
+                        matches.forEach(url => {
+                            failedUrls.add(cleanUrl(url));
+                        });
+                    }
+                }
+            });
+            
+            // 3. Match against List 1 lines by parsing out URLs inside them
+            const matchedLines = list1Lines.filter(line => {
+                const urlsInLine = line.match(urlRegex);
+                if (!urlsInLine) return false;
+                
+                // Keep the line if any cleaned URL inside it matches our 429 registry
+                return urlsInLine.some(url => failedUrls.has(cleanUrl(url)));
+            });
+            
+            // 4. Output results to the UI
+            document.getElementById('output').value = matchedLines.join('\n');
+            
+            const stats = document.getElementById('matchStats');
+            if (matchedLines.length === 0) {
+                stats.style.color = '#dc3545';
+                stats.textContent = `Found 0 matches. Ensure List 2 has lines containing 'ABORT_PROXY_429'.`;
+            } else {
+                stats.style.color = '#28a745';
+                stats.textContent = `Success! Isolated ${matchedLines.length} lines that returned a 429 error.`;
+            }
+        }
+    </script>
+
+</body>
+</html>
