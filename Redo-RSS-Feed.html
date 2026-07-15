@@ -87,5 +87,283 @@
       </div>
 <div id="rss-feed-message">
       </div>
+<script>
+// 1. Core Config & Proxy Options
+const proxyList = [
+    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=', // Primary Proxy
+    'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=', // Fallback / Recovery Proxy
+    'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://api.codetabs.com/v1/proxy?quest=',
+    'https://cors.lol/?url=',
+];
+
+// 2. Global Control Handles
+window.isProcessingAll = false;
+window.currentQueueInstance = '';
+window.autoLoadInitialized = false;
+
+// 3. Upgraded fetchWithRetry Function (Handles 429 delays)
+async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
+    try {
+        const response = await fetch(url, options);
+        
+        // Let fetchWithProxyFallback handle 429/403 recovery cycles
+        if (response.status === 429 || response.status === 403) {
+            throw new Error(`ABORT_PROXY_${response.status}`);
+        }
+        
+        if (!response.ok) {
+            if ((response.status === 408 || response.status === 504) && retries > 0) {
+                await new Promise(res => setTimeout(res, delay));
+                return fetchWithRetry(url, options, retries - 1, delay * 2);
+            }
+            throw new Error(`HTTP_${response.status}`);
+        }
+        return response;
+    } catch (error) {
+        if (error.message && error.message.includes('ABORT_PROXY')) {
+            throw error;
+        }
+        const errorStr = error.toString().toLowerCase();
+        if (errorStr.includes('cors') || errorStr.includes('origin') || errorStr.includes('allow-control')) {
+            throw new Error('ABORT_PROXY_CORS');
+        }
+        if (retries > 0 && (error instanceof TypeError || error.message.includes('timeout'))) {
+            if (error.message === 'Failed to fetch') {
+                throw new Error('ABORT_PROXY_NET_FAILED');
+            }
+            await new Promise(res => setTimeout(res, delay));
+            return fetchWithRetry(url, options, retries - 1, delay);
+        } else {
+            throw error;
+        }
+    }
+}
+
+// 4. Loop Processing Function with 429 Timing Loop
+async function fetchWithProxyFallback(targetFeedUrl, proxies) {
+    let lastError = null;
+    const coolDownWaitTime = 10000; // 10 second safety recovery block
+
+    for (let i = 0; i < proxies.length; i++) {
+        const proxyBaseUrl = proxies[i];
+        const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
+        
+        try {
+            const response = await fetchWithRetry(proxiedUrl);
+            const xmlString = await response.text();
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+            
+            if (xmlDoc.querySelector("parsererror")) {
+                lastError = new Error(`XML Parsing Error via proxy ${i + 1}`);
+                continue;
+            }
+            
+            const items = xmlDoc.querySelectorAll('entry').length > 0 
+                ? xmlDoc.querySelectorAll('entry') 
+                : xmlDoc.querySelectorAll('item');
+                
+            if (items.length === 0) {
+                lastError = new Error(`No RSS items found via proxy ${i + 1}`);
+                continue;
+            }
+            
+            return xmlDoc; 
+        } catch (error) {
+            lastError = error;
+
+            if (error.message === 'ABORT_PROXY_429') {
+                console.warn(`[RATE LIMIT] Proxy ${i + 1} returned 429 for: ${targetFeedUrl}.`);
+                
+                if (i < proxies.length - 1) {
+                    console.warn(`Pausing execution for ${coolDownWaitTime / 1000}s to clear worker pool before trying Proxy ${i + 2}...`);
+                    await new Promise(res => setTimeout(res, coolDownWaitTime));
+                } else {
+                    console.warn(`Proxy limit hit on final proxy layer. No remaining proxy paths.`);
+                }
+                continue;
+            }
+
+            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) rejected request: ${error.message}. Moving to next proxy...`);
+        }
+    }
+    throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
+}
+
+function extractOptionNumberId(fullOptionId) {
+    if (fullOptionId && fullOptionId.includes('#')) {
+        const parts = fullOptionId.split('#');
+        return parts[parts.length - 1];
+    }
+    return fullOptionId || '';
+}
+
+// 5. Core Logger - Maps local hosting environment directly into kensbookinfo.blogspot.com structure
+async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, optionId = '') {
+    try {
+        const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
+        const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
+        
+        const productionBase = "https://kensbookinfo.blogspot.com";
+        let targetCleanId = optionId || '';
+        let pagePath = "/p/etc-continents.html";
+
+        if (optionId && optionId.includes('.html')) {
+            const cleanArray = optionId.split('#');
+            if (cleanArray[0].startsWith('/') || cleanArray[0].startsWith('http')) {
+                try {
+                    const urlObj = new URL(cleanArray[0].startsWith('http') ? cleanArray[0] : productionBase + cleanArray[0]);
+                    pagePath = urlObj.pathname;
+                } catch(e) {
+                    pagePath = cleanArray[0];
+                }
+            } else {
+                pagePath = "/p/" + cleanArray[0];
+            }
+            targetCleanId = cleanArray[1] || '';
+        } else {
+            targetCleanId = extractOptionNumberId(optionId);
+        }
+
+        const formattedBlogUrl = `${productionBase}${pagePath}#${targetCleanId}`;
+
+        for (let k = 0; k < items.length; k++) {
+            const item = items[k];
+            let title = item.querySelector('title')?.textContent || 'No Title';
+            const pubDateStr = item.querySelector('pubDate')?.textContent || item.querySelector('published')?.textContent;
+
+            title = title.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
+
+            if (title.includes(":")) {
+                title = title.substring(title.indexOf(":") + 1).trim();
+            }
+
+            let date = pubDateStr ? new Date(pubDateStr) : null;
+            const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
+            
+            console.log(`${displayDate} ${sourceText}: ${title} - ${formattedBlogUrl}`);
+        }
+    } catch (error) {
+        console.log(`${new Date().toLocaleDateString()} [ERROR] ${sourceText} (${optionId}) failed to load: ${error.message}`);
+    }
+}
+
+// 6. Global Dropdown Manual Loader
+window.manualLoad = async function() {
+    const selectElement = document.getElementById('Choice');
+    if (!selectElement || !selectElement.value) return;
+
+    const newOverrideToken = 'manual-override-' + Date.now();
+    window.currentQueueInstance = newOverrideToken;
+    window.isProcessingAll = false;
+
+    console.log(`[MANUAL LOAD] Triggered for option: ${selectElement.value}`);
+
+    const selectedOpt = selectElement.options[selectElement.selectedIndex];
+    await fetchAndDisplayFeed(selectedOpt.value, selectedOpt.textContent, true, selectedOpt.id);
+};
+
+// 7. Continuous Pipeline with Randomized Option Shuffling (Prevents Domain Rate-Limits)
+async function loadAllFeedsContinuous() {
+    if (window.isProcessingAll) {
+        return;
+    }
+
+    const selectElement = document.getElementById('Choice');
+    const loadingDiv = document.getElementById('rss-feed-message');
+    
+    if (!selectElement) { 
+        console.error("[CRITICAL] Element '#Choice' missing."); 
+        return; 
+    }
+
+    window.isProcessingAll = true;
+    if (loadingDiv) loadingDiv.style.display = 'block';
+
+    // Extract options into a local array processing queue
+    const feedQueue = [];
+    for (let i = 0; i < selectElement.options.length; i++) {
+        const opt = selectElement.options[i];
+        if (opt.value && opt.value.trim() !== "") {
+            feedQueue.push({ value: opt.value, text: opt.textContent, id: opt.id });
+        }
+    }
+
+    // Apply Fisher-Yates Shuffle to break up consecutive Big News Network hits
+    for (let i = feedQueue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [feedQueue[i], feedQueue[j]] = [feedQueue[j], feedQueue[i]];
+    }
+
+    const totalFeeds = feedQueue.length;
+    console.log(`[QUEUE] Shuffled ${totalFeeds} feeds to protect firewall limits. Executing processing queue...`);
+
+    for (let i = 0; i < totalFeeds; i++) {
+        const currentFeed = feedQueue[i];
+        
+        if (loadingDiv) {
+            loadingDiv.textContent = `Processing (${i + 1}/${totalFeeds}): ${currentFeed.text}...`;
+        }
+        
+        try {
+            await fetchAndDisplayFeed(currentFeed.value, currentFeed.text, false, currentFeed.id);
+        } catch (err) {
+            // Logged gracefully inside fetchAndDisplayFeed
+        }
+
+        // A steady 250ms delay combined with shuffled domain spacing 
+        // stops consecutive server spikes cleanly.
+        if (i < totalFeeds - 1) {
+            await new Promise(res => setTimeout(res, 250));
+        }
+    }
+
+    window.isProcessingAll = false;
+    if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
+}
+
+// 8. Launcher Pipeline Entry point with DOM State Guard
+async function autoLoad() {
+    if (window.autoLoadInitialized) return;
+    window.autoLoadInitialized = true;
+
+    const selectElement = document.getElementById('Choice');
+    if (!selectElement) {
+        window.autoLoadInitialized = false;
+        return;
+    }
+
+    const wlh = window.location.href;
+    if (wlh.includes("#")) {
+        const selectedHashId = wlh.substring(wlh.indexOf("#") + 1);
+        let optionElement = null;
+
+        for (let i = 0; i < selectElement.options.length; i++) {
+            if (extractOptionNumberId(selectElement.options[i].id) === selectedHashId) {
+                optionElement = selectElement.options[i];
+                break;
+            }
+        }
+        
+        if (optionElement) {
+            window.currentQueueInstance = 'hash-load-active';
+            selectElement.value = optionElement.value;
+            await fetchAndDisplayFeed(optionElement.value, optionElement.textContent, true, optionElement.id);
+            return;
+        }
+    }
+    
+    await loadAllFeedsContinuous();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoLoad);
+} else {
+    autoLoad();
+}
+</script>
 </body>
 </html>
