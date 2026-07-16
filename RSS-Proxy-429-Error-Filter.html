@@ -134,13 +134,13 @@
             document.getElementById('output').value = matchedLines.join('\n');
             
             const stats = document.getElementById('matchStats');
-            if (matchedLines.length === 0) {
-                stats.style.color = '#dc3545';
-                stats.textContent = `Found 0 matches. Ensure List 2 has lines containing 'ABORT_PROXY_429'.`;
-            } else {
+            //if (matchedLines.length === 0) {
+            //    stats.style.color = '#dc3545';
+            //    stats.textContent = `Found 0 matches. Ensure List 2 has lines containing 'ABORT_PROXY_429'.`;
+            //} else {
                 stats.style.color = '#28a745';
                 stats.textContent = `Success! Isolated ${matchedLines.length} lines that returned a 429 error.`;
-            }
+            //}
         }
     </script>
 
