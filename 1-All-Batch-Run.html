@@ -2522,6 +2522,10 @@ async function loadAllFeedsContinuous() {
         }
     }
 
+     // --- ADDED COMPLETION LOG ---
+    console.log(`[COMPLETE] All ${totalFeeds} feed options have finished processing. The job is complete!`);
+    // -----------------------------
+      
     window.isProcessingAll = false;
     if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
 }
