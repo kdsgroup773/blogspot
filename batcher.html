@@ -247,7 +247,7 @@ function generateAll() {
                 textEntry = `[${title}](${url})\n\n`;
             } else if (p.label === 'Snort' || p.label === 'Yakkihonne') {
                 textEntry = `${title}<br>${url}<br><br>`;
-            } else {
+            } else {globalUrlIndex = Math.floor(Math.random() * 32) + 1;
                 textEntry = `${title}\n${url}\n\n`;
             }
 
@@ -262,11 +262,11 @@ function generateAll() {
             if ((currentBatchText + textEntry + footerText).length > p.limit) {
                 batchCounter++;
                 addCard(container, currentBatchText + footerText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? footerHtml : ""), p.format, p.key);
-                globalUrlIndex++;
+                globalUrlIndex = Math.floor(Math.random() * 32) + 1;;
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
-                currentBatchText += textEntry;
+                currentBatchText += textEntry;globalUrlIndex = Math.floor(Math.random() * 32) + 1;/
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
@@ -278,7 +278,7 @@ function generateAll() {
                     : `\n${finalUrl}`;
                 
                 addCard(container, currentBatchText + finalFooterText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br><a href="${finalUrl}">${finalUrl}</a>` : ""), p.format, p.key);
-                globalUrlIndex++;
+                globalUrlIndex = Math.floor(Math.random() * 32) + 1;;
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
