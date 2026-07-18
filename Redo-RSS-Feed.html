@@ -253,10 +253,13 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, op
                 title = title.substring(title.indexOf(":") + 1).trim();
             }
 
+          // --- ADD THIS LINE TO FIX THE WRAPPING ---
+            const cleanSourceText = sourceText.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
+          
             let date = pubDateStr ? new Date(pubDateStr) : null;
             const displayDate = (date && !isNaN(date.getTime())) ? date.toLocaleDateString() : new Date().toLocaleDateString();
             
-            console.log(`${displayDate} ${sourceText}: ${title} - ${formattedBlogUrl}`);
+            console.log(`${displayDate} ${cleanSourceText}: ${title} - ${formattedBlogUrl}`);
         }
     } catch (error) {
         console.log(`${new Date().toLocaleDateString()} [ERROR] ${sourceText} (${optionId}) failed to load: ${error.message}`);
