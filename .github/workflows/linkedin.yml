@@ -1,0 +1,55 @@
+name: LinkedIn Manual Post
+
+on:
+  workflow_dispatch:
+    inputs:
+      post_text:
+        description: 'Text to post on LinkedIn'
+        required: true
+        default: 'Hello LinkedIn! Sent from GitHub Actions.'
+
+jobs:
+  post-to-linkedin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Send API Request to LinkedIn
+        env:
+          LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          AUTHOR_URN: ${{ secrets.LINKEDIN_AUTHOR_URN }}
+          POST_TEXT: ${{ github.event.inputs.post_text }}
+        run: |
+          # 1. Clean multi-line token string
+          TOKEN=$(echo "$LINKEDIN_TOKEN" | tr -d '\r\n ')
+
+          # 2. Execute POST to LinkedIn REST API
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.linkedin.com/rest/posts" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "LinkedIn-Version: 202603" \
+            -H "X-Restli-Protocol-Version: 2.0.0" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"author\": \"$AUTHOR_URN\",
+              \"commentary\": \"$POST_TEXT\",
+              \"visibility\": \"PUBLIC\",
+              \"distribution\": {
+                \"feedDistribution\": \"MAIN_FEED\",
+                \"targetEntities\": [],
+                \"thirdPartyDistributionChannels\": []
+              },
+              \"lifecycleState\": \"PUBLISHED\"
+            }")
+
+          # 3. Parse HTTP response code
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n1)
+          RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+          echo "HTTP Status Code: $HTTP_STATUS"
+          echo "Response Body: $RESPONSE_BODY"
+
+          if [ "$HTTP_STATUS" -ne 201 ]; then
+            echo "Posting failed!"
+            exit 1
+          fi
