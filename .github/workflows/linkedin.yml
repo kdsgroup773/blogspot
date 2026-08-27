@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Chunk File and Post to LinkedIn
         env:
@@ -28,42 +28,27 @@ jobs:
 
           TOKEN=$(echo "$LINKEDIN_TOKEN" | tr -d '\r\n ')
 
-          # 1. Group post.txt into blocks of X lines separated by double newlines
-          awk -v n="$LINES_PER_POST" '
-            BEGIN { block="" }
-            NF {
-              if (block != "") { block = block "\n\n" $0 }
-              else { block = $0 }
-              count++
-            }
-            count == n {
-              print block
-              print "---BLOCK_END---"
-              block=""
-              count=0
-            }
-            END {
-              if (block != "") {
-                print block
-                print "---BLOCK_END---"
-              }
-            }
-          ' post.txt > chunked_posts.txt
+          # Ensure AUTHOR_URN includes the full urn:li:person: prefix
+          if [[ "$AUTHOR_URN" != urn:* ]]; then
+            AUTHOR_URN="urn:li:person:$AUTHOR_URN"
+          fi
 
-          # 2. Iterate through each chunked block
-          RS="---BLOCK_END---"
-          
-          awk -v RS="---BLOCK_END---\n?" 'NR>0 {print $0}' chunked_posts.txt | while read -r -d '' block || [ -n "$block" ]; do
-            # Trim whitespace
-            POST_CONTENT=$(echo "$block" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-            
-            [ -z "$POST_CONTENT" ] && continue
+          # 1. Split post.txt into chunk files (chunk_aa, chunk_ab, etc.)
+          split -l "$LINES_PER_POST" post.txt chunk_
 
-            echo "=== Submitting Chunk to LinkedIn ==="
+          # 2. Process each chunk file sequentially
+          for file in chunk_*; do
+            [ -e "$file" ] || continue
+
+            # Combine lines with double newlines between entries
+            POST_CONTENT=$(awk 'NR>1{print ""}1' "$file")
+
+            echo "====================================="
+            echo "Submitting Chunk to LinkedIn:"
             echo "$POST_CONTENT"
             echo "====================================="
 
-            # Build safe JSON payload
+            # Build safe JSON payload using jq
             PAYLOAD=$(jq -n \
               --arg author "$AUTHOR_URN" \
               --arg commentary "$POST_CONTENT" \
@@ -91,13 +76,14 @@ jobs:
             RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
 
             echo "HTTP Status Code: $HTTP_STATUS"
-            
+
             if [ "$HTTP_STATUS" -ne 201 ]; then
               echo "Failed response: $RESPONSE_BODY"
             else
               echo "Post successfully published."
             fi
 
-            # Pause 5 seconds between chunked posts to keep rate limits safe
+            # Clean up temporary chunk file and pause between requests
+            rm "$file"
             sleep 5
           done
