@@ -1,12 +1,12 @@
-name: LinkedIn Manual Post
+name: LinkedIn Manual Chunked Post
 
 on:
   workflow_dispatch:
     inputs:
-      post_text:
-        description: 'Text to post on LinkedIn'
+      lines_per_post:
+        description: 'Number of lines per post (Default: 6)'
         required: true
-        default: 'Hello LinkedIn! Sent from GitHub Actions.'
+        default: '6'
 
 jobs:
   post-to-linkedin:
@@ -15,41 +15,89 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Send API Request to LinkedIn
+      - name: Chunk File and Post to LinkedIn
         env:
           LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           AUTHOR_URN: ${{ secrets.LINKEDIN_AUTHOR_URN }}
-          POST_TEXT: ${{ github.event.inputs.post_text }}
+          LINES_PER_POST: ${{ github.event.inputs.lines_per_post }}
         run: |
-          # 1. Clean multi-line token string
-          TOKEN=$(echo "$LINKEDIN_TOKEN" | tr -d '\r\n ')
-
-          # 2. Execute POST to LinkedIn REST API
-          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.linkedin.com/rest/posts" \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "LinkedIn-Version: 202603" \
-            -H "X-Restli-Protocol-Version: 2.0.0" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"author\": \"$AUTHOR_URN\",
-              \"commentary\": \"$POST_TEXT\",
-              \"visibility\": \"PUBLIC\",
-              \"distribution\": {
-                \"feedDistribution\": \"MAIN_FEED\",
-                \"targetEntities\": [],
-                \"thirdPartyDistributionChannels\": []
-              },
-              \"lifecycleState\": \"PUBLISHED\"
-            }")
-
-          # 3. Parse HTTP response code
-          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n1)
-          RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
-
-          echo "HTTP Status Code: $HTTP_STATUS"
-          echo "Response Body: $RESPONSE_BODY"
-
-          if [ "$HTTP_STATUS" -ne 201 ]; then
-            echo "Posting failed!"
+          if [ ! -f "post.txt" ]; then
+            echo "Error: post.txt does not exist!"
             exit 1
           fi
+
+          TOKEN=$(echo "$LINKEDIN_TOKEN" | tr -d '\r\n ')
+
+          # 1. Group post.txt into blocks of X lines separated by double newlines
+          awk -v n="$LINES_PER_POST" '
+            BEGIN { block="" }
+            NF {
+              if (block != "") { block = block "\n\n" $0 }
+              else { block = $0 }
+              count++
+            }
+            count == n {
+              print block
+              print "---BLOCK_END---"
+              block=""
+              count=0
+            }
+            END {
+              if (block != "") {
+                print block
+                print "---BLOCK_END---"
+              }
+            }
+          ' post.txt > chunked_posts.txt
+
+          # 2. Iterate through each chunked block
+          RS="---BLOCK_END---"
+          
+          awk -v RS="---BLOCK_END---\n?" 'NR>0 {print $0}' chunked_posts.txt | while read -r -d '' block || [ -n "$block" ]; do
+            # Trim whitespace
+            POST_CONTENT=$(echo "$block" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            
+            [ -z "$POST_CONTENT" ] && continue
+
+            echo "=== Submitting Chunk to LinkedIn ==="
+            echo "$POST_CONTENT"
+            echo "====================================="
+
+            # Build safe JSON payload
+            PAYLOAD=$(jq -n \
+              --arg author "$AUTHOR_URN" \
+              --arg commentary "$POST_CONTENT" \
+              '{
+                author: $author,
+                commentary: $commentary,
+                visibility: "PUBLIC",
+                distribution: {
+                  feedDistribution: "MAIN_FEED",
+                  targetEntities: [],
+                  thirdPartyDistributionChannels: []
+                },
+                lifecycleState: "PUBLISHED"
+              }')
+
+            # Execute API Request
+            HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.linkedin.com/rest/posts" \
+              -H "Authorization: Bearer $TOKEN" \
+              -H "LinkedIn-Version: 202603" \
+              -H "X-Restli-Protocol-Version: 2.0.0" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD")
+
+            HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n1)
+            RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+            echo "HTTP Status Code: $HTTP_STATUS"
+            
+            if [ "$HTTP_STATUS" -ne 201 ]; then
+              echo "Failed response: $RESPONSE_BODY"
+            else
+              echo "Post successfully published."
+            fi
+
+            # Pause 5 seconds between chunked posts to keep rate limits safe
+            sleep 5
+          done
