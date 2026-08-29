@@ -105,7 +105,7 @@
 
         .batch-card.copied { border: 2px solid var(--success) !important; background: #f0fff4 !important; }
         
-        .batch-text { font-size: 11px; white-space: pre-wrap; color: #333; line-height: 1.5; pointer-events: none; }
+        .batch-text { font-size: 11px; word-break: break-all; color: #333; line-height: 1.5; pointer-events: none; }
         .hidden-html { display: none; }
         .btn-copy { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
@@ -136,15 +136,15 @@
 <div class="dashboard-wrapper">
     <div class="dashboard" id="dashboard">
         <div class="column"><div class="column-header" style="color:var(--m-purple)"><span>Mastodon</span><span id="m-count" class="batch-count-pill">0</span></div><div class="column-content" id="m-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--bs-blue)"><span>BlueSky</span><span id="bs-count" class="batch-count-pill">0</span></div><div class="column-content" id="bs-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pri-blue)"><span>Nostter</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pri-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="p-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--sub-orange)"><span>Jumble</span><span id="jumble-count" class="batch-count-pill">0</span></div><div class="column-content" id="jumble-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pri-green)"><span>Spectr</span><span id="spectr-count" class="batch-count-pill">0</span></div><div class="column-content" id="spectr-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--li-blue)"><span>Linkedin</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="p-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Fevela</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pris-aqua)"><span>Linkedin</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div>
-        <div class="column"><div class="column-header" style="color:var(--pri-brown)"><span>Tumblr</span><span id="snort-client-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-client-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--bs-blue)"><span>BlueSky</span><span id="bs-count" class="batch-count-pill">0</span></div><div class="column-content" id="bs-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Nostter</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--long-dark)"><span>Tumblr</span><span id="snort-client-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-client-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nosotros NO</span><span id="nosotros-count" class="batch-count-pill">0</span></div><div class="column-content" id="nosotros-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--sub-orange)"><span>Jumble</span><span id="jumble-count" class="batch-count-pill">0</span></div><div class="column-content" id="jumble-area"></div></div>
+        <div class="column"><div class="column-header" style="color:var(--success)"><span>Spectr</span><span id="spectr-count" class="batch-count-pill">0</span></div><div class="column-content" id="spectr-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Coracle NO</span><span id="coracle-count" class="batch-count-pill">0</span></div><div class="column-content" id="coracle-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Nostria NO</span><span id="nostria-count" class="batch-count-pill">0</span></div><div class="column-content" id="nostria-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Spacer</span><span id="spacer-count" class="batch-count-pill">0</span></div><div class="column-content" id="spacer-area"></div></div>
@@ -192,7 +192,7 @@ const ROTATING_URLS = [
 
 const config = [
     { id: 'm-area', countId: 'm-count', limit: 700, label: 'Mastodon', format: 'plain', key: 'mastodon' },
-    { id: 'snort-area', countId: 'snort-count', limit: 3000, label: 'Linkedin', format: 'plain', key: 'yakkihonne' },
+    { id: 'snort-area', countId: 'snort-count', limit: 3000, label: 'Linkedin', format: 'linkedin', key: 'linkedin' },
     { id: 'p-area', countId: 'p-count', limit: 61000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
     { id: 'pri-area', countId: 'pri-count', limit: 61000, label: 'Fevela', format: 'plain', key: 'primal' },
     { id: 'bs-area', countId: 'bs-count', limit: 384, label: 'BlueSky', format: 'plain', key: 'bluesky' },
@@ -215,6 +215,31 @@ function cleanLine(line) {
     return { title, url };
 }
 
+function generateLinkedInBatches(lines, container) {
+    const BASE_URL = "https://www.linkedin.com/feed/?shareActive=true&text=";
+    const itemsPerBatch = 17;
+    let batchCounter = 0;
+
+    for (let i = 0; i < lines.length; i += itemsPerBatch) {
+        const chunk = lines.slice(i, i + itemsPerBatch);
+        if (chunk.length === 0) continue;
+
+        batchCounter++;
+        const encodedLines = chunk.map(line => {
+            const { title, url } = cleanLine(line);
+            if (!url) return encodeURIComponent(line);
+            return encodeURIComponent(`${title} - ${url}`);
+        });
+
+        // Combine encoded headline strings using %0A%0A line spacing
+        const encodedText = encodedLines.join('%0A%0A');
+        const fullLink = `${BASE_URL}${encodedText}`;
+
+        addCard(container, fullLink, `Linkedin #${batchCounter}`, "", 'plain', 'linkedin');
+    }
+    return batchCounter;
+}
+
 function generateAll() {
     const input = document.getElementById('rawInput').value;
     const lines = input.split('\n').filter(l => l.trim().length > 5);
@@ -224,6 +249,14 @@ function generateAll() {
         const container = document.getElementById(p.id);
         if (!container) return;
         container.innerHTML = "";
+
+        // Custom processing specifically for LinkedIn 17-item batching
+        if (p.format === 'linkedin') {
+            const count = generateLinkedInBatches(lines, container);
+            document.getElementById(p.countId).innerText = count;
+            return;
+        }
+
         let currentBatchText = "";
         let currentBatchHtml = "";
         let batchCounter = 0;
@@ -243,17 +276,14 @@ function generateAll() {
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
             } else if (p.format === 'markdown') {
-                // Tumblr Link Formatting Rules
                 textEntry = `[${title}](${url})\n\n`;
-            } else if (p.label === 'Snort' || p.label === 'Yakkihonne') {
-                textEntry = `${title}<br>${url}<br><br>`;
-            } else {globalUrlIndex = Math.floor(Math.random() * 32) + 1;
+            } else {
+                globalUrlIndex = Math.floor(Math.random() * 32) + 1;
                 textEntry = `${title}\n${url}\n\n`;
             }
 
             const rotatingUrl = ROTATING_URLS[globalUrlIndex % ROTATING_URLS.length];
             
-            // Clean extraction of string text vs raw URL for markdown footprints
             const footerText = p.format === 'markdown' 
                 ? `\n[${rotatingUrl.substring(0, rotatingUrl.indexOf(' http'))}](${rotatingUrl.match(/https?:\/\/\S+$/)[0]})` 
                 : `\n${rotatingUrl}`;
@@ -262,11 +292,12 @@ function generateAll() {
             if ((currentBatchText + textEntry + footerText).length > p.limit) {
                 batchCounter++;
                 addCard(container, currentBatchText + footerText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? footerHtml : ""), p.format, p.key);
-                globalUrlIndex = Math.floor(Math.random() * 32) + 1;;
+                globalUrlIndex = Math.floor(Math.random() * 32) + 1;
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
-                currentBatchText += textEntry;globalUrlIndex = Math.floor(Math.random() * 32) + 1;
+                currentBatchText += textEntry;
+                globalUrlIndex = Math.floor(Math.random() * 32) + 1;
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
@@ -278,7 +309,7 @@ function generateAll() {
                     : `\n${finalUrl}`;
                 
                 addCard(container, currentBatchText + finalFooterText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br><a href="${finalUrl}">${finalUrl}</a>` : ""), p.format, p.key);
-                globalUrlIndex = Math.floor(Math.random() * 32) + 1;;
+                globalUrlIndex = Math.floor(Math.random() * 32) + 1;
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
