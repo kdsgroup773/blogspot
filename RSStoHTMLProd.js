@@ -1,4 +1,3 @@
-<script>
 // 1. Core Config & Proxy Options
 const proxyList = [
     'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy
@@ -276,4 +275,3 @@ if (document.readyState === 'loading') {
 } else {
     autoLoad();
 }
-</script>
