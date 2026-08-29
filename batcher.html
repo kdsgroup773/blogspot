@@ -235,7 +235,7 @@ function generateLinkedInBatches(lines, container) {
         const encodedText = encodedLines.join('%0A%0A');
         const fullLink = `${BASE_URL}${encodedText}`;
 
-        addCard(container, fullLink, `Linkedin #${batchCounter}`, "", 'plain', 'linkedin');
+        addCard(container, fullLink, `Linkedin #${batchCounter}`, "", 'linkedin', 'linkedin');
     }
     return batchCounter;
 }
@@ -321,18 +321,24 @@ function addCard(container, content, title, htmlContent, format, key) {
     card.className = 'batch-card';
     card.setAttribute('data-platform', key);
     card.setAttribute('data-format', format);
+
+    const buttonLabel = (format === 'linkedin') ? 'Open Tab' : 'Copy';
     
     card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <small><b>${title}</b></small>
-            <button class="btn-copy">Copy</button>
+            <button class="btn-copy">${buttonLabel}</button>
         </div>
         <div class="batch-text">${content}</div>
         <div class="hidden-html">${htmlContent}</div>
     `;
 
     card.addEventListener('click', function(e) {
-        copyDynamic(this.querySelector('.btn-copy'), format);
+        if (format === 'linkedin') {
+            window.open(content, '_blank');
+        } else {
+            copyDynamic(this.querySelector('.btn-copy'), format);
+        }
     });
 
     card.addEventListener('mouseenter', () => currentlyHoveredCard = card);
@@ -344,9 +350,14 @@ function addCard(container, content, title, htmlContent, format, key) {
 window.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && currentlyHoveredCard) {
         e.preventDefault(); 
-        const btn = currentlyHoveredCard.querySelector('.btn-copy');
         const format = currentlyHoveredCard.getAttribute('data-format');
-        copyDynamic(btn, format);
+        if (format === 'linkedin') {
+            const url = currentlyHoveredCard.querySelector('.batch-text').innerText;
+            window.open(url, '_blank');
+        } else {
+            const btn = currentlyHoveredCard.querySelector('.btn-copy');
+            copyDynamic(btn, format);
+        }
     }
 });
 
