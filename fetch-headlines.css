@@ -1,0 +1,116 @@
+    .sticky-header-bar {
+      background: #2c3e50;
+      color: #fff;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: sans-serif;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    .sticky-header-bar a {
+      color: #ecf0f1;
+      text-decoration: none;
+      font-weight: bold;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    .sticky-header-bar a:hover {
+      text-decoration: underline;
+    }
+
+    /* TOP STORIES DYNAMIC SECTION STYLING */
+    .top-stories-box {
+      max-width: 700px;
+      margin: 15px auto 25px auto;
+      background: #fdfefe;
+      border: 1px solid #dcdde1;
+      border-left: 4px solid #e74c3c;
+      border-radius: 6px;
+      padding: 15px 20px;
+      font-family: sans-serif;
+      text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    }
+    .top-stories-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .top-stories-title {
+      margin: 0;
+      font-size: 1rem;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: #2980b9;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      text-decoration: underline;
+      padding: 0;
+    }
+    .refresh-btn:hover {
+      color: #c0392b;
+    }
+    .top-stories-list {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .top-stories-list li {
+      margin-bottom: 4px;
+    }
+    .top-stories-list li a {
+      color: #2980b9;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .top-stories-list li a:hover {
+      text-decoration: underline;
+      color: #c0392b;
+    }
+    .source-tag {
+      font-size: 11px;
+      color: #7f8c8d;
+      margin-left: 5px;
+    }
+
+    .sticky-footer-cta {
+      background: #fdfefe;
+      border: 2px solid #3498db;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 25px 0;
+      text-align: center;
+      font-family: sans-serif;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: #3498db;
+      color: #ffffff !important;
+      padding: 8px 16px;
+      margin: 4px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .cta-btn-secondary {
+      display: inline-block;
+      background: #e74c3c;
+      color: #ffffff !important;
+      padding: 8px 16px;
+      margin: 4px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 13px;
+    }
