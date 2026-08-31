@@ -18,7 +18,7 @@
       const shuffled = options.sort(() => 0.5 - Math.random());
       const selectedFeeds = shuffled.slice(0, top);
 
-      const corsProxy = 'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=';
+      const corsProxy = 'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=';
       
       const fetchPromises = selectedFeeds.map(async (opt) => {
         try {
