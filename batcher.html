@@ -105,7 +105,7 @@
 
         .batch-card.copied { border: 2px solid var(--success) !important; background: #f0fff4 !important; }
         
-        .batch-text { font-size: 11px; white-space: pre-wrap; color: #333; line-height: 1.5; pointer-events: none; }
+        .batch-text { font-size: 11px; white-space: pre-wrap; word-break: break-all; color: #333; line-height: 1.5; pointer-events: none; }
         .hidden-html { display: none; }
         .btn-copy { background: #eee; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-copy.active-copy { background-color: var(--success); color: #fff; }
@@ -135,21 +135,18 @@
 
 <div class="dashboard-wrapper">
     <div class="dashboard" id="dashboard">
-        <!-- div class="column"><div class="column-header" style="color:var(--m-purple)"><span>Mastodon</span><span id="m-count" class="batch-count-pill">0</span></div><div class="column-content" id="m-area"></div></div -->
-        <!-- div class="column"><div class="column-header" style="color:var(--bs-blue)"><span>BlueSky</span><span id="bs-count" class="batch-count-pill">0</span></div><div class="column-content" id="bs-area"></div></div -->
+        <div class="column"><div class="column-header" style="color:var(--li-blue)"><span>LinkedIn</span><span id="linkedin-count" class="batch-count-pill">0</span></div><div class="column-content" id="linkedin-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-blue)"><span>Nostter</span><span id="tum-count" class="batch-count-pill">0</span></div><div class="column-content" id="tum-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-orange)"><span>Nostrudel</span><span id="p-count" class="batch-count-pill">0</span></div><div class="column-content" id="p-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--sub-orange)"><span>Jumble</span><span id="jumble-count" class="batch-count-pill">0</span></div><div class="column-content" id="jumble-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-green)"><span>Spectr</span><span id="spectr-count" class="batch-count-pill">0</span></div><div class="column-content" id="spectr-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Fevela</span><span id="pri-count" class="batch-count-pill">0</span></div><div class="column-content" id="pri-area"></div></div>
-        <!-- div class="column"><div class="column-header" style="color:var(--pris-aqua)"><span>Linkedin</span><span id="snort-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-area"></div></div -->
-        <!-- <div class="column"><div class="column-header" style="color:var(--pri-brown)"><span>Tumblr</span><span id="snort-client-count" class="batch-count-pill">0</span></div><div class="column-content" id="snort-client-area"></div></div -->
         <div class="column"><div class="column-header" style="color:var(--p-orange)"><span>Nosotros NO</span><span id="nosotros-count" class="batch-count-pill">0</span></div><div class="column-content" id="nosotros-area"></div></div>
-        <!-- div class="column"><div class="column-header" style="color:var(--tum-blue)"><span>Coracle NO</span><span id="coracle-count" class="batch-count-pill">0</span></div><div class="column-content" id="coracle-area"></div></div -->
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Nostria NO</span><span id="nostria-count" class="batch-count-pill">0</span></div><div class="column-content" id="nostria-area"></div></div>
         <div class="column"><div class="column-header" style="color:var(--pri-teal)"><span>Spacer</span><span id="spacer-count" class="batch-count-pill">0</span></div><div class="column-content" id="spacer-area"></div></div>
     </div>
 </div>
+
 <script>
 const bridge = new BroadcastChannel('social_post_bridge');
 let currentlyHoveredCard = null;
@@ -187,21 +184,17 @@ const ROTATING_URLS = [
     "View all editorial opinions https://kensbookinfo.blogspot.com/2026/03/latest-editorial-and-opinion.html",
     "View all media news https://kensbookinfo.blogspot.com/2026/03/latest-media-news.html",
     "View all general interest news https://kensbookinfo.blogspot.com/2026/03/latest-general-interest-news.html",
-    "View all food news https://kensbookinfo.blogspot.com/2026/03/latest-food-news.html",    
+    "View all food news https://kensbookinfo.blogspot.com/2026/03/latest-food-news.html" 
 ];
 
 const config = [
-    // { id: 'm-area', countId: 'm-count', limit: 700, label: 'Mastodon', format: 'plain', key: 'mastodon' },
-    // { id: 'snort-area', countId: 'snort-count', limit: 3000, label: 'Linkedin', format: 'plain', key: 'yakkihonne' },
+    { id: 'linkedin-area', countId: 'linkedin-count', itemsPerBatch: 17, label: 'LinkedIn', format: 'linkedin', key: 'linkedin' },
     { id: 'p-area', countId: 'p-count', limit: 61000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
     { id: 'pri-area', countId: 'pri-count', limit: 61000, label: 'Fevela', format: 'plain', key: 'primal' },
-    // { id: 'bs-area', countId: 'bs-count', limit: 384, label: 'BlueSky', format: 'plain', key: 'bluesky' },
     { id: 'tum-area', countId: 'tum-count', limit: 61000, label: 'Nostter', format: 'plain', key: 'nostter' },
-    // { id: 'snort-client-area', countId: 'snort-client-count', limit: 15000, label: 'Tumblr', format: 'markdown', key: 'snort' },
     { id: 'nosotros-area', countId: 'nosotros-count', limit: 61000, label: 'Nosotros', format: 'plain', key: 'nosotros' },
     { id: 'jumble-area', countId: 'jumble-count', limit: 61000, label: 'Jumble', format: 'plain', key: 'jumble' },
     { id: 'spectr-area', countId: 'spectr-count', limit: 61000, label: 'Spectr', format: 'plain', key: 'spectr' },
-    // { id: 'coracle-area', countId: 'coracle-count', limit: 61000, label: 'Coracle', format: 'plain', key: 'coracle' },
     { id: 'nostria-area', countId: 'nostria-count', limit: 61000, label: 'Nostria', format: 'plain', key: 'nostria' },
     { id: 'spacer-area', countId: 'spacer-count', limit: 4725, label: 'Spacer', format: 'plain', key: 'spacer' }
 ];
@@ -215,15 +208,55 @@ function cleanLine(line) {
     return { title, url };
 }
 
+function generateLinkedInBatches(lines, p) {
+    const BASE_URL = "https://www.linkedin.com/feed/?shareActive=true&text=";
+    const container = document.getElementById(p.id);
+    if (!container) return 0;
+
+    let batchCounter = 0;
+    let globalUrlIndex = 0;
+
+    for (let i = 0; i < lines.length; i += p.itemsPerBatch) {
+        const chunk = lines.slice(i, i + p.itemsPerBatch);
+        if (chunk.length === 0) continue;
+
+        batchCounter++;
+        globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
+        const rotatingUrl = ROTATING_URLS[globalUrlIndex];
+
+        const encodedLines = chunk.map(line => {
+            const { title, url } = cleanLine(line);
+            if (!url) return encodeURIComponent(line);
+            return encodeURIComponent(`${title} - ${url}`);
+        });
+
+        encodedLines.push(encodeURIComponent(rotatingUrl));
+
+        const encodedText = encodedLines.join('%0A%0A');
+        const fullLink = `${BASE_URL}${encodedText}`;
+
+        addCard(container, fullLink, `LinkedIn #${batchCounter}`, fullLink, 'linkedin', 'linkedin');
+    }
+
+    return batchCounter;
+}
+
 function generateAll() {
     const input = document.getElementById('rawInput').value;
     const lines = input.split('\n').filter(l => l.trim().length > 5);
-    let globalUrlIndex = 0;
 
     config.forEach(p => {
         const container = document.getElementById(p.id);
         if (!container) return;
         container.innerHTML = "";
+
+        if (p.format === 'linkedin') {
+            const count = generateLinkedInBatches(lines, p);
+            document.getElementById(p.countId).innerText = count;
+            return;
+        }
+
+        let globalUrlIndex = 0;
         let currentBatchText = "";
         let currentBatchHtml = "";
         let batchCounter = 0;
@@ -243,17 +276,13 @@ function generateAll() {
                 htmlEntry = `<a href="${url}${separator}${tag}" target="_blank" style="text-decoration: none; color: #0066cc;">${title}</a><br><br>`;
                 textEntry = `${title} - ${url}${separator}${tag}\n\n`;
             } else if (p.format === 'markdown') {
-                // Tumblr Link Formatting Rules
                 textEntry = `[${title}](${url})\n\n`;
-            } else if (p.label === 'Snort' || p.label === 'Yakkihonne') {
-                textEntry = `${title}<br>${url}<br><br>`;
-            } else {globalUrlIndex = Math.floor(Math.random() * 32) + 1;
+            } else {
+                globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
                 textEntry = `${title}\n${url}\n\n`;
             }
 
             const rotatingUrl = ROTATING_URLS[globalUrlIndex % ROTATING_URLS.length];
-            
-            // Clean extraction of string text vs raw URL for markdown footprints
             const footerText = p.format === 'markdown' 
                 ? `\n[${rotatingUrl.substring(0, rotatingUrl.indexOf(' http'))}](${rotatingUrl.match(/https?:\/\/\S+$/)[0]})` 
                 : `\n${rotatingUrl}`;
@@ -262,11 +291,12 @@ function generateAll() {
             if ((currentBatchText + textEntry + footerText).length > p.limit) {
                 batchCounter++;
                 addCard(container, currentBatchText + footerText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? footerHtml : ""), p.format, p.key);
-                globalUrlIndex = Math.floor(Math.random() * 32) + 1;;
+                globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
                 currentBatchText = textEntry;
                 currentBatchHtml = htmlEntry;
             } else {
-                currentBatchText += textEntry;globalUrlIndex = Math.floor(Math.random() * 32) + 1;
+                currentBatchText += textEntry;
+                globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
                 if (p.format === 'rich') currentBatchHtml += htmlEntry;
             }
 
@@ -278,7 +308,7 @@ function generateAll() {
                     : `\n${finalUrl}`;
                 
                 addCard(container, currentBatchText + finalFooterText, `${p.label} #${batchCounter}`, currentBatchHtml + (p.format === 'rich' ? `<br><a href="${finalUrl}">${finalUrl}</a>` : ""), p.format, p.key);
-                globalUrlIndex = Math.floor(Math.random() * 32) + 1;;
+                globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
             }
         });
         document.getElementById(p.countId).innerText = batchCounter;
@@ -291,17 +321,23 @@ function addCard(container, content, title, htmlContent, format, key) {
     card.setAttribute('data-platform', key);
     card.setAttribute('data-format', format);
     
+    const btnLabel = (format === 'linkedin') ? 'Open Tab' : 'Copy';
+
     card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <small><b>${title}</b></small>
-            <button class="btn-copy">Copy</button>
+            <button class="btn-copy">${btnLabel}</button>
         </div>
         <div class="batch-text">${content}</div>
         <div class="hidden-html">${htmlContent}</div>
     `;
 
     card.addEventListener('click', function(e) {
-        copyDynamic(this.querySelector('.btn-copy'), format);
+        if (format === 'linkedin') {
+            window.open(content, '_blank');
+        } else {
+            copyDynamic(this.querySelector('.btn-copy'), format);
+        }
     });
 
     card.addEventListener('mouseenter', () => currentlyHoveredCard = card);
@@ -313,9 +349,15 @@ function addCard(container, content, title, htmlContent, format, key) {
 window.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && currentlyHoveredCard) {
         e.preventDefault(); 
-        const btn = currentlyHoveredCard.querySelector('.btn-copy');
         const format = currentlyHoveredCard.getAttribute('data-format');
-        copyDynamic(btn, format);
+        const urlOrText = currentlyHoveredCard.querySelector('.batch-text').innerText;
+        
+        if (format === 'linkedin') {
+            window.open(urlOrText, '_blank');
+        } else {
+            const btn = currentlyHoveredCard.querySelector('.btn-copy');
+            copyDynamic(btn, format);
+        }
     }
 });
 
