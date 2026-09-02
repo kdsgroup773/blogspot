@@ -188,7 +188,7 @@ const ROTATING_URLS = [
 ];
 
 const config = [
-    { id: 'linkedin-area', countId: 'linkedin-count', itemsPerBatch: 17, label: 'LinkedIn', format: 'plain', key: 'linkedin' },
+    { id: 'linkedin-area', countId: 'linkedin-count', itemsPerBatch: 17, label: 'LinkedIn', format: 'linkedin', key: 'linkedin' },
     { id: 'p-area', countId: 'p-count', limit: 61000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
     { id: 'pri-area', countId: 'pri-count', limit: 61000, label: 'Fevela', format: 'plain', key: 'primal' },
     { id: 'tum-area', countId: 'tum-count', limit: 61000, label: 'Nostter', format: 'plain', key: 'nostter' },
@@ -333,7 +333,11 @@ function addCard(container, content, title, htmlContent, format, key) {
     `;
 
     card.addEventListener('click', function(e) {
-        copyDynamic(this.querySelector('.btn-copy'), format);
+        if (format === 'linkedin') {
+            window.open(content, '_blank');
+        } else {
+            copyDynamic(this.querySelector('.btn-copy'), format);
+        }
     });
 
     card.addEventListener('mouseenter', () => currentlyHoveredCard = card);
@@ -346,10 +350,17 @@ window.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && currentlyHoveredCard) {
         e.preventDefault(); 
         const format = currentlyHoveredCard.getAttribute('data-format');
-        const btn = currentlyHoveredCard.querySelector('.btn-copy');
-        copyDynamic(btn, format);
+        const urlOrText = currentlyHoveredCard.querySelector('.batch-text').innerText;
+        
+        if (format === 'linkedin') {
+            window.open(urlOrText, '_blank');
+        } else {
+            const btn = currentlyHoveredCard.querySelector('.btn-copy');
+            copyDynamic(btn, format);
+        }
     }
 });
+
 async function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
     const platform = card.getAttribute('data-platform');
