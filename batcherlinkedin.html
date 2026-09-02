@@ -188,7 +188,7 @@ const ROTATING_URLS = [
 ];
 
 const config = [
-    { id: 'linkedin-area', countId: 'linkedin-count', itemsPerBatch: 17, label: 'Linkedin', format: 'linkedin', key: 'linkedin' },
+    { id: 'linkedin-area', countId: 'linkedin-count', itemsPerBatch: 17, label: 'LinkedIn', format: 'linkedin', key: 'linkedin' },
     { id: 'p-area', countId: 'p-count', limit: 61000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
     { id: 'pri-area', countId: 'pri-count', limit: 61000, label: 'Fevela', format: 'plain', key: 'primal' },
     { id: 'tum-area', countId: 'tum-count', limit: 61000, label: 'Nostter', format: 'plain', key: 'nostter' },
@@ -208,43 +208,34 @@ function cleanLine(line) {
     return { title, url };
 }
 
-function encodeLinkedInText(str) {
-    return encodeURIComponent(str)
-        .replace(/!/g, '%21')
-        .replace(/'/g, '%27')
-        .replace(/\(/g, '%28')
-        .replace(/\)/g, '%29')
-        .replace(/\*/g, '%2A');
-}
-
 function generateLinkedInBatches(lines, p) {
     const BASE_URL = "https://www.linkedin.com/feed/?shareActive=true&text=";
     const container = document.getElementById(p.id);
     if (!container) return 0;
 
     let batchCounter = 0;
+    let globalUrlIndex = 0;
 
     for (let i = 0; i < lines.length; i += p.itemsPerBatch) {
         const chunk = lines.slice(i, i + p.itemsPerBatch);
         if (chunk.length === 0) continue;
 
         batchCounter++;
-        const globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
+        globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
         const rotatingUrl = ROTATING_URLS[globalUrlIndex];
 
-        const formattedEntries = chunk.map(line => {
+        const encodedLines = chunk.map(line => {
             const { title, url } = cleanLine(line);
-            if (!url) return encodeLinkedInText(line);
-            return encodeLinkedInText(`${title} - - ${url}`);
+            if (!url) return encodeURIComponent(line);
+            return encodeURIComponent(`${title} - ${url}`);
         });
 
-        const formattedFooter = encodeLinkedInText(rotatingUrl);
-        formattedEntries.push(formattedFooter);
+        encodedLines.push(encodeURIComponent(rotatingUrl));
 
-        const encodedQuery = formattedEntries.join('%0A%0A');
-        const fullLink = `${BASE_URL}${encodedQuery}`;
+        const encodedText = encodedLines.join('%0A%0A');
+        const fullLink = `${BASE_URL}${encodedText}`;
 
-        addCard(container, fullLink, `${p.label} #${batchCounter}`, fullLink, 'linkedin', 'linkedin');
+        addCard(container, fullLink, `LinkedIn #${batchCounter}`, fullLink, 'linkedin', 'linkedin');
     }
 
     return batchCounter;
