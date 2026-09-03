@@ -353,6 +353,7 @@ window.addEventListener('keydown', function(e) {
         const urlOrText = currentlyHoveredCard.querySelector('.batch-text').innerText;
         
         if (format === 'linkedin') {
+            markAsDone();
             window.open(urlOrText, '_blank');
         } else {
             const btn = currentlyHoveredCard.querySelector('.btn-copy');
