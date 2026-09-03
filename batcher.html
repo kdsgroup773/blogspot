@@ -334,6 +334,7 @@ function addCard(container, content, title, htmlContent, format, key) {
 
     card.addEventListener('click', function(e) {
         if (format === 'linkedin') {
+            this.classList.add('copied'); // OPTION 2: Turn card green on click
             window.open(content, '_blank');
         } else {
             copyDynamic(this.querySelector('.btn-copy'), format);
@@ -346,14 +347,14 @@ function addCard(container, content, title, htmlContent, format, key) {
     container.appendChild(card);
 }
 
-window.addEventListener('keydown', function(e) {
+    window.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && currentlyHoveredCard) {
         e.preventDefault(); 
         const format = currentlyHoveredCard.getAttribute('data-format');
         const urlOrText = currentlyHoveredCard.querySelector('.batch-text').innerText;
         
         if (format === 'linkedin') {
-            markAsDone();
+            currentlyHoveredCard.classList.add('copied'); // <-- ADD THIS LINE
             window.open(urlOrText, '_blank');
         } else {
             const btn = currentlyHoveredCard.querySelector('.btn-copy');
@@ -361,7 +362,6 @@ window.addEventListener('keydown', function(e) {
         }
     }
 });
-
 async function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
     const platform = card.getAttribute('data-platform');
