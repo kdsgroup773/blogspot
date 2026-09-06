@@ -1213,5 +1213,35 @@
   <div id="rss-feed-message">
       </div>
   <br />
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      const selectElement = document.getElementById("Choice");
+      const options = selectElement.querySelectorAll("option");
+
+      for (const option of options) {
+        const targetUrl = option.value;
+        const optionMarkup = option.outerHTML;
+
+        if (!targetUrl) {
+          console.warn(`${optionMarkup} FAIL [NO_URL]`);
+          continue;
+        }
+
+        try {
+          // Send a fetch HEAD/GET request to evaluate URL accessibility
+          const response = await fetch(targetUrl, { method: "GET", mode: "cors" });
+
+          if (response.ok) {
+            console.log(`${optionMarkup} SUCCESS`);
+          } else {
+            console.error(`${optionMarkup} FAIL [HTTP ${response.status}]`);
+          }
+        } catch (error) {
+          // Catches network errors, invalid URLs (e.g., typos like aiptcom/ics.com), or CORS blocking
+          console.error(`${optionMarkup} FAIL [NETWORK_ERROR / CORS]`);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
