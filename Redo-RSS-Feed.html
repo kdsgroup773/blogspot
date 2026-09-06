@@ -1209,11 +1209,7 @@
 <option id="https://kensbookinfo.blogspot.com/p/end-of-line.html#windows-noob.com"	value="https://www.windows-noob.com/forumsdiscoverall.xml">windows-noob.com</option>
 </select>
   <div id="rss-feed-container">
-  </div>
-  <div id="rss-feed-message">
-      </div>
-  <br />
-  <script>
+  </div><script>
     document.addEventListener("DOMContentLoaded", async function () {
       const selectElement = document.getElementById("Choice");
       const options = selectElement.querySelectorAll("option");
@@ -1243,5 +1239,38 @@
       }
     });
   </script>
+
+  <div id="rss-feed-message">
+      </div>
+  <br />
+  <script>
+  document.addEventListener("DOMContentLoaded", async function () {
+    const selectElement = document.getElementById("Choice");
+    const options = selectElement.querySelectorAll("option");
+
+    for (const option of options) {
+      const targetUrl = option.value;
+      const optionMarkup = option.outerHTML;
+
+      if (!targetUrl) {
+        console.warn(`${optionMarkup} FAIL 000`);
+        continue;
+      }
+
+      try {
+        const response = await fetch(targetUrl, { method: "GET", mode: "cors" });
+
+        if (response.ok) {
+          console.log(`${optionMarkup} SUCCESS`);
+        } else {
+          console.error(`${optionMarkup} FAIL ${response.status}`);
+        }
+      } catch (error) {
+        // Network failures, invalid domain strings, or CORS blocks return status 0
+        console.error(`${optionMarkup} FAIL 0`);
+      }
+    }
+  });
+</script>
 </body>
 </html>
