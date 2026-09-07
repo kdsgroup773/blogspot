@@ -53,7 +53,9 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
 
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
-        const proxiedUrl = proxyBaseUrl + encodeURIComponent(targetFeedUrl);
+        // Ensure feed URL is clean of spaces or newlines before encoding
+        const cleanTargetUrl = targetFeedUrl.trim().replace(/[\r\n]+/g, '');
+        const proxiedUrl = proxyBaseUrl + encodeURIComponent(cleanTargetUrl);
         
         try {
             const response = await fetchWithRetry(proxiedUrl);
