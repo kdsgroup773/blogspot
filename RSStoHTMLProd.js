@@ -1,6 +1,7 @@
 // 1. Core Config & Proxy Options
 const proxyList = [
     'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy
+    'https://corsproxy.io/?'
 ];
 
 // 2. Global Control Handles
@@ -49,51 +50,46 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
 // 4. Loop Processing Function with 429 Timing Loop
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
-    const coolDownWaitTime = 10000; // 10 second safety recovery block
+    const coolDownWaitTime = 10000;
 
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
-        // Ensure feed URL is clean of spaces or newlines before encoding
         const cleanTargetUrl = targetFeedUrl.trim().replace(/[\r\n]+/g, '');
-        const proxiedUrl = proxyBaseUrl + encodeURIComponent(cleanTargetUrl);
         
+        // Properly encode based on proxy endpoint structure
+        const proxiedUrl = proxyBaseUrl.includes('corsproxy.io') 
+            ? proxyBaseUrl + encodeURIComponent(cleanTargetUrl)
+            : proxyBaseUrl + encodeURIComponent(cleanTargetUrl);
+
         try {
             const response = await fetchWithRetry(proxiedUrl);
             const xmlString = await response.text();
+
+            // FIX: Detect if upstream returned an HTML Challenge page instead of XML
+            const cleanText = xmlString.trim().toLowerCase();
+            if (cleanText.startsWith("<!doctype html") || cleanText.startsWith("<html")) {
+                throw new Error(`Proxy ${i + 1} returned HTML challenge page instead of XML`);
+            }
+
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-            
+
             if (xmlDoc.querySelector("parsererror")) {
-                lastError = new Error(`XML Parsing Error via proxy ${i + 1}`);
-                continue;
+                throw new Error(`XML Parsing Error via proxy ${i + 1}`);
             }
-            
+
             const items = xmlDoc.querySelectorAll('entry').length > 0 
                 ? xmlDoc.querySelectorAll('entry') 
                 : xmlDoc.querySelectorAll('item');
-                
+
             if (items.length === 0) {
-                lastError = new Error(`No RSS items found via proxy ${i + 1}`);
-                continue;
+                throw new Error(`No RSS items found via proxy ${i + 1}`);
             }
-            
+
             return xmlDoc; 
         } catch (error) {
             lastError = error;
-
-            if (error.message === 'ABORT_PROXY_429') {
-                console.warn(`[RATE LIMIT] Proxy ${i + 1} returned 429 for: ${targetFeedUrl}.`);
-                
-                if (i < proxies.length - 1) {
-                    console.warn(`Pausing execution for ${coolDownWaitTime / 1000}s to clear worker pool before trying Proxy ${i + 2}...`);
-                    await new Promise(res => setTimeout(res, coolDownWaitTime));
-                } else {
-                    console.warn(`Proxy limit hit on final proxy layer. No remaining proxy paths.`);
-                }
-                continue;
-            }
-
-            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) rejected request: ${error.message}. Moving to next proxy...`);
+            console.warn(`Proxy ${i + 1} (${proxyBaseUrl}) failed for ${cleanTargetUrl}: ${error.message}.`);
         }
     }
     throw new Error(lastError ? lastError.message : 'All available proxies exhausted.');
