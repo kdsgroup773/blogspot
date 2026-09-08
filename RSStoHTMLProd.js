@@ -1,7 +1,6 @@
 // 1. Core Config & Proxy Options
 const proxyList = [
     'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy
-    'https://corsproxy.io/?'
 ];
 
 // 2. Global Control Handles
