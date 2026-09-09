@@ -554,7 +554,7 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
                 throw new Error(`XML Parsing Error via proxy ${i + 1}`);
             }
 
-            const items = xmlDoc.querySelectorAll('entry').length"> 0 
+            const items = xmlDoc.querySelectorAll('entry').length > 0 
                 ? xmlDoc.querySelectorAll('entry') 
                 : xmlDoc.querySelectorAll('item');
 
@@ -583,7 +583,7 @@ function extractOptionNumberId(fullOptionId) {
 async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, optionId = '') {
     try {
         const xmlDoc = await fetchWithProxyFallback(feedUrl, proxyList);
-        const items = xmlDoc.querySelectorAll('entry').length"> 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
+        const items = xmlDoc.querySelectorAll('entry').length > 0 ? xmlDoc.querySelectorAll('entry') : xmlDoc.querySelectorAll('item');
         
         const productionBase = "https://kensbookinfo.blogspot.com";
         let targetCleanId = optionId || '';
@@ -674,7 +674,7 @@ async function loadAllFeedsContinuous() {
     }
 
     // Apply Fisher-Yates Shuffle to break up consecutive Big News Network hits
-    for (let i = feedQueue.length - 1; i"> 0; i--) {
+    for (let i = feedQueue.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [feedQueue[i], feedQueue[j]] = [feedQueue[j], feedQueue[i]];
     }
