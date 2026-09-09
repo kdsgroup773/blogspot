@@ -511,7 +511,7 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
         if (errorStr.includes('cors') || errorStr.includes('origin') || errorStr.includes('allow-control')) {
             throw new Error('ABORT_PROXY_CORS');
         }
-        if (retries"> 0 && (error instanceof TypeError || error.message.includes('timeout'))) {
+        if (retries > 0 && (error instanceof TypeError || error.message.includes('timeout'))) {
             if (error.message === 'Failed to fetch') {
                 throw new Error('ABORT_PROXY_NET_FAILED');
             }
