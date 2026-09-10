@@ -1209,68 +1209,6 @@
 <option id="https://kensbookinfo.blogspot.com/p/end-of-line.html#windows-noob.com" value="https://www.windows-noob.com/forumsdiscoverall.xml">windows-noob.com</option>
 </select>
   <div id="rss-feed-container">
-  </div><script>
-    document.addEventListener("DOMContentLoaded", async function () {
-      const selectElement = document.getElementById("Choice");
-      const options = selectElement.querySelectorAll("option");
-
-      for (const option of options) {
-        const targetUrl = option.value;
-        const optionMarkup = option.outerHTML;
-
-        if (!targetUrl) {
-          console.warn(`${optionMarkup} FAIL [NO_URL]`);
-          continue;
-        }
-
-        try {
-          // Send a fetch HEAD/GET request to evaluate URL accessibility
-          const response = await fetch(targetUrl, { method: "GET", mode: "cors" });
-
-          if (response.ok) {
-            console.log(`${optionMarkup} SUCCESS`);
-          } else {
-            console.error(`${optionMarkup} FAIL [HTTP ${response.status}]`);
-          }
-        } catch (error) {
-          // Catches network errors, invalid URLs (e.g., typos like aiptcom/ics.com), or CORS blocking
-          console.error(`${optionMarkup} FAIL [NETWORK_ERROR / CORS]`);
-        }
-      }
-    });
-  </script>
-
-  <div id="rss-feed-message">
-      </div>
-  <br />
-  <script>
-  document.addEventListener("DOMContentLoaded", async function () {
-    const selectElement = document.getElementById("Choice");
-    const options = selectElement.querySelectorAll("option");
-
-    for (const option of options) {
-      const targetUrl = option.value;
-      const optionMarkup = option.outerHTML;
-
-      if (!targetUrl) {
-        console.warn(`${optionMarkup} FAIL 000`);
-        continue;
-      }
-
-      try {
-        const response = await fetch(targetUrl, { method: "GET", mode: "cors" });
-
-        if (response.ok) {
-          console.log(`${optionMarkup} SUCCESS`);
-        } else {
-          console.error(`${optionMarkup} FAIL ${response.status}`);
-        }
-      } catch (error) {
-        // Network failures, invalid domain strings, or CORS blocks return status 0
-        console.error(`${optionMarkup} FAIL 0`);
-      }
-    }
-  });
-</script>
+  </div>
 </body>
 </html>
