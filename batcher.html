@@ -188,7 +188,7 @@ const ROTATING_URLS = [
 ];
 
 const config = [
-    { id: 'linkedin-area', countId: 'linkedin-count', itemsPerBatch: 17, label: 'LinkedIn', format: 'linkedin', key: 'linkedin' },
+    { id: 'linkedin-area', countId: 'linkedin-count', limit: 2800, label: 'LinkedIn', format: 'linkedin', key: 'linkedin' },
     { id: 'p-area', countId: 'p-count', limit: 57000, label: 'Nostrudel', format: 'plain', key: 'nostrudel' },
     { id: 'pri-area', countId: 'pri-count', limit: 57000, label: 'Fevela', format: 'plain', key: 'primal' },
     { id: 'tum-area', countId: 'tum-count', limit: 57000, label: 'Nostter', format: 'plain', key: 'nostter' },
@@ -214,29 +214,50 @@ function generateLinkedInBatches(lines, p) {
     if (!container) return 0;
 
     let batchCounter = 0;
-    let globalUrlIndex = 0;
+    let currentChunk = [];
+    let currentGlobalIndex = Math.floor(Math.random() * ROTATING_URLS.length);
 
-    for (let i = 0; i < lines.length; i += p.itemsPerBatch) {
-        const chunk = lines.slice(i, i + p.itemsPerBatch);
-        if (chunk.length === 0) continue;
+    const flushBatch = () => {
+        if (currentChunk.length === 0) return;
 
         batchCounter++;
-        globalUrlIndex = Math.floor(Math.random() * ROTATING_URLS.length);
-        const rotatingUrl = ROTATING_URLS[globalUrlIndex];
+        const rotatingUrl = ROTATING_URLS[currentGlobalIndex % ROTATING_URLS.length];
 
-        const encodedLines = chunk.map(line => {
-            const { title, url } = cleanLine(line);
-            if (!url) return encodeURIComponent(line);
-            return encodeURIComponent(`${title} - ${url}`);
-        });
-
+        const encodedLines = currentChunk.map(item => encodeURIComponent(item));
         encodedLines.push(encodeURIComponent(rotatingUrl));
 
         const encodedText = encodedLines.join('%0A%0A');
         const fullLink = `${BASE_URL}${encodedText}`;
 
         addCard(container, fullLink, `LinkedIn #${batchCounter}`, fullLink, 'linkedin', 'linkedin');
-    }
+        
+        currentChunk = [];
+        currentGlobalIndex = Math.floor(Math.random() * ROTATING_URLS.length);
+    };
+
+    lines.forEach((line) => {
+        const { title, url } = cleanLine(line);
+        const formattedLine = url ? `${title} - ${url}` : line;
+
+        // Pick a footer URL to calculate test size
+        const testFooter = ROTATING_URLS[currentGlobalIndex % ROTATING_URLS.length];
+        
+        // Build hypothetical full string to test URL character length
+        const testChunk = [...currentChunk, formattedLine];
+        const testEncodedLines = testChunk.map(item => encodeURIComponent(item));
+        testEncodedLines.push(encodeURIComponent(testFooter));
+        const testFullLink = `${BASE_URL}${testEncodedLines.join('%0A%0A')}`;
+
+        // If adding this complete line exceeds the limit, flush current batch first
+        if (testFullLink.length > p.limit && currentChunk.length > 0) {
+            flushBatch();
+        }
+
+        currentChunk.push(formattedLine);
+    });
+
+    // Flush remaining lines
+    flushBatch();
 
     return batchCounter;
 }
@@ -334,7 +355,7 @@ function addCard(container, content, title, htmlContent, format, key) {
 
     card.addEventListener('click', function(e) {
         if (format === 'linkedin') {
-            this.classList.add('copied'); // OPTION 2: Turn card green on click
+            this.classList.add('copied');
             window.open(content, '_blank');
         } else {
             copyDynamic(this.querySelector('.btn-copy'), format);
@@ -347,14 +368,14 @@ function addCard(container, content, title, htmlContent, format, key) {
     container.appendChild(card);
 }
 
-    window.addEventListener('keydown', function(e) {
+window.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && currentlyHoveredCard) {
         e.preventDefault(); 
         const format = currentlyHoveredCard.getAttribute('data-format');
         const urlOrText = currentlyHoveredCard.querySelector('.batch-text').innerText;
         
         if (format === 'linkedin') {
-            currentlyHoveredCard.classList.add('copied'); // <-- ADD THIS LINE
+            currentlyHoveredCard.classList.add('copied');
             window.open(urlOrText, '_blank');
         } else {
             const btn = currentlyHoveredCard.querySelector('.btn-copy');
@@ -362,6 +383,7 @@ function addCard(container, content, title, htmlContent, format, key) {
         }
     }
 });
+
 async function copyDynamic(btn, format) {
     const card = btn.closest('.batch-card');
     const platform = card.getAttribute('data-platform');
