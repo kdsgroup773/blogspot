@@ -223,11 +223,11 @@ function generateLinkedInBatches(lines, p) {
         batchCounter++;
         const rotatingUrl = ROTATING_URLS[currentGlobalIndex % ROTATING_URLS.length];
 
-        const encodedLines = currentChunk.map(item => encodeURIComponent(item));
-        encodedLines.push(encodeURIComponent(rotatingUrl));
-
-        const encodedText = encodedLines.join('%0A%0A');
-        const fullLink = `${BASE_URL}${encodedText}`;
+        // Combine lines with double newlines
+        const plainTextBody = currentChunk.join('\n\n') + '\n\n' + rotatingUrl;
+        
+        // URL-encode the complete plain text block for the web link
+        const fullLink = `${BASE_URL}${encodeURIComponent(plainTextBody)}`;
 
         addCard(container, fullLink, `LinkedIn #${batchCounter}`, fullLink, 'linkedin', 'linkedin');
         
@@ -239,29 +239,25 @@ function generateLinkedInBatches(lines, p) {
         const { title, url } = cleanLine(line);
         const formattedLine = url ? `${title} - ${url}` : line;
 
-        // Pick a footer URL to calculate test size
         const testFooter = ROTATING_URLS[currentGlobalIndex % ROTATING_URLS.length];
         
-        // Build hypothetical full string to test URL character length
+        // Test raw plain-text length instead of URL-encoded length
         const testChunk = [...currentChunk, formattedLine];
-        const testEncodedLines = testChunk.map(item => encodeURIComponent(item));
-        testEncodedLines.push(encodeURIComponent(testFooter));
-        const testFullLink = `${BASE_URL}${testEncodedLines.join('%0A%0A')}`;
+        const testPlainText = testChunk.join('\n\n') + '\n\n' + testFooter;
 
-        // If adding this complete line exceeds the limit, flush current batch first
-        if (testFullLink.length > p.limit && currentChunk.length > 0) {
+        // Compare against raw character limit
+        if (testPlainText.length > p.limit && currentChunk.length > 0) {
             flushBatch();
         }
 
         currentChunk.push(formattedLine);
     });
 
-    // Flush remaining lines
     flushBatch();
 
     return batchCounter;
 }
-
+    
 function generateAll() {
     const input = document.getElementById('rawInput').value;
     const lines = input.split('\n').filter(l => l.trim().length > 5);
