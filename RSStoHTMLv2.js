@@ -21,11 +21,7 @@ function getRssFeed() {
     console.log("Attempting to get RSS feed from:", rssFeedUrl);
     const proxyList = [
         'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
-        'https://script.google.com/macros/s/AKfycbwkJ1pJt2PNPGKVMO5s-IllRnhIg0bejIXbkXah3vuJnTJBaUFDb1Jb6CaXFhk_elGtCg/exec?url=',
-        'https://corsproxy.io/?url=',
-        'https://api.allorigins.win/raw?url=',
-        'https://api.codetabs.com/v1/proxy?quest=',
-        'https://cors.lol/?url=',
+        'https://www.rssdog.com/index.php?url=',
         ];
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
