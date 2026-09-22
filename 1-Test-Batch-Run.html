@@ -473,11 +473,10 @@
   <div id="rss-feed-container">
   </div>
 <script>
-// 1. Core Config & Proxy Options
+// 1. Core Config & Proxy Options (Wispy Thunder first, RSS Dog second)
 const proxyList = [
-  'https://www.rssdog.com/index.php?url=',
-    'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy
-    'https://api.rss2json.com/v1/api.json?rss_url=',
+  'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy
+  'https://www.rssdog.com/index.php?url='                       // Fallback Proxy
 ];
 
 // 2. Global Control Handles
@@ -523,32 +522,57 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
     }
 }
 
-// 4. Loop Processing Function with 429 Timing Loop
+// 4. Loop Processing Function with Wispy Thunder -> RSS Dog Fallback
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
-    const coolDownWaitTime = 10000;
 
     for (let i = 0; i < proxies.length; i++) {
         const proxyBaseUrl = proxies[i];
         const cleanTargetUrl = targetFeedUrl.trim().replace(/[\r\n]+/g, '');
-        
-        // Properly encode based on proxy endpoint structure
-        const proxiedUrl = proxyBaseUrl.includes('corsproxy.io') 
-            ? proxyBaseUrl + encodeURIComponent(cleanTargetUrl)
-            : proxyBaseUrl + encodeURIComponent(cleanTargetUrl);
+        const proxiedUrl = proxyBaseUrl + encodeURIComponent(cleanTargetUrl);
 
         try {
             const response = await fetchWithRetry(proxiedUrl);
-            const xmlString = await response.text();
+            const responseText = await response.text();
+            const cleanText = responseText.trim().toLowerCase();
 
-            // FIX: Detect if upstream returned an HTML Challenge page instead of XML
-            const cleanText = xmlString.trim().toLowerCase();
-            if (cleanText.startsWith("<!doctype html") || cleanText.startsWith("<html")) {
+            // Detect HTML challenge or RSS Dog HTML output
+            const isHtml = cleanText.startsWith("<!doctype html") || cleanText.startsWith("<html");
+
+            if (isHtml) {
+                // If RSS Dog returned HTML, convert text content to a synthetic XML doc
+                if (proxyBaseUrl.includes("rssdog.com")) {
+                    console.warn(`[FALLBACK] Wispy Thunder failed. Using RSS Dog fallback text output for ${cleanTargetUrl}`);
+                    
+                    const htmlParser = new DOMParser();
+                    const htmlDoc = htmlParser.parseFromString(responseText, 'text/html');
+                    const textLines = (htmlDoc.body.textContent || htmlDoc.body.innerText || '')
+                        .split('\n')
+                        .map(line => line.trim())
+                        .filter(line => line.length > 0);
+
+                    // Build a dummy XML structure so downstream processing operates cleanly
+                    const xmlDoc = document.implementation.createDocument(null, 'rss');
+                    const channel = xmlDoc.createElement('channel');
+                    xmlDoc.documentElement.appendChild(channel);
+
+                    textLines.forEach(line => {
+                        const item = xmlDoc.createElement('item');
+                        const title = xmlDoc.createElement('title');
+                        title.textContent = line;
+                        item.appendChild(title);
+                        channel.appendChild(item);
+                    });
+
+                    return xmlDoc;
+                }
+
                 throw new Error(`Proxy ${i + 1} returned HTML challenge page instead of XML`);
             }
 
+            // Normal XML processing path (Wispy Thunder output)
             const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+            const xmlDoc = parser.parseFromString(responseText, 'text/xml');
 
             if (xmlDoc.querySelector("parsererror")) {
                 throw new Error(`XML Parsing Error via proxy ${i + 1}`);
@@ -619,7 +643,6 @@ async function fetchAndDisplayFeed(feedUrl, sourceText, isSingleFeed = false, op
                 title = title.substring(title.indexOf(":") + 1).trim();
             }
 
-          // --- ADD THIS LINE TO FIX THE WRAPPING ---
             const cleanSourceText = sourceText.replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
           
             let date = pubDateStr ? new Date(pubDateStr) : null;
@@ -695,16 +718,12 @@ async function loadAllFeedsContinuous() {
             // Logged gracefully inside fetchAndDisplayFeed
         }
 
-        // A steady 250ms delay combined with shuffled domain spacing 
-        // stops consecutive server spikes cleanly.
         if (i < totalFeeds - 1) {
             await new Promise(res => setTimeout(res, 250));
         }
     }
 
-    // --- ADDED COMPLETION LOG ---
     console.log(`[COMPLETE] All ${totalFeeds} feed options have finished processing. The job is complete!`);
-    // -----------------------------
 
     window.isProcessingAll = false;
     if (loadingDiv) loadingDiv.textContent = 'All feeds processed in console! ✓';
