@@ -1,6 +1,7 @@
 // 1. Core Config & Proxy Options
 const proxyList = [
     'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy
+    'https://www.rssdog.com/index.php?url=',
 ];
 
 // 2. Global Control Handles
