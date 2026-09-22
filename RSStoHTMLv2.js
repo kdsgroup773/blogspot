@@ -21,7 +21,6 @@ function getRssFeed() {
     console.log("Attempting to get RSS feed from:", rssFeedUrl);
     const proxyList = [
         'https://wispy-thunder-5150.the-kds-group.workers.dev/?url=',
-        'https://www.rssdog.com/index.php?url=',
         ];
     const container = document.getElementById('rss-feed-container');
     const loadingDiv = document.getElementById('rss-feed-message');
