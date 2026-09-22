@@ -471,12 +471,11 @@
 <option id="https://kensbookinfo.blogspot.com/p/end-of-line.html#JKNewsline" value="https://www.ppchero.com/feed">JK Newsline</option> </option>
 <option id="https://kensbookinfo.blogspot.com/p/end-of-line.html#Jamesian58" value="https://www.sluggerotoole.com/feed/">Jamesian58</option> </option></select>
   <div id="rss-feed-container">
-  </div>
-<script>
-// 1. Core Config & Proxy Options (Wispy Thunder first, RSS Dog second)
+  </div><script>
+// 1. Core Config & Proxy Options
 const proxyList = [
-  'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy
-  'https://www.rssdog.com/index.php?url='                       // Fallback Proxy
+  'https://wispy-thunder-prod.the-kds-group.workers.dev/?url=', // Primary Proxy (Wispy Thunder)
+  'https://api.rss2json.com/v1/api.json?rss_url='                // Fallback Proxy (CORS-Friendly JSON)
 ];
 
 // 2. Global Control Handles
@@ -522,7 +521,7 @@ async function fetchWithRetry(url, options = {}, retries = 1, delay = 50) {
     }
 }
 
-// 4. Loop Processing Function with Wispy Thunder -> RSS Dog Fallback
+// 4. Loop Processing Function with Wispy Thunder -> rss2json Fallback
 async function fetchWithProxyFallback(targetFeedUrl, proxies) {
     let lastError = null;
 
@@ -533,44 +532,47 @@ async function fetchWithProxyFallback(targetFeedUrl, proxies) {
 
         try {
             const response = await fetchWithRetry(proxiedUrl);
+
+            // Path A: rss2json JSON Fallback Handler
+            if (proxyBaseUrl.includes("rss2json.com")) {
+                const data = await response.json();
+                if (data.status !== 'ok') {
+                    throw new Error(`rss2json failed: ${data.message || 'Unknown error'}`);
+                }
+
+                // Construct a synthetic XML document matching your logger's expectation
+                const xmlDoc = document.implementation.createDocument(null, 'rss');
+                const channel = xmlDoc.createElement('channel');
+                xmlDoc.documentElement.appendChild(channel);
+
+                if (data.items && Array.isArray(data.items)) {
+                    data.items.forEach(item => {
+                        const xmlItem = xmlDoc.createElement('item');
+                        
+                        const title = xmlDoc.createElement('title');
+                        title.textContent = item.title || 'No Title';
+                        xmlItem.appendChild(title);
+
+                        const pubDate = xmlDoc.createElement('pubDate');
+                        pubDate.textContent = item.pubDate || '';
+                        xmlItem.appendChild(pubDate);
+
+                        channel.appendChild(xmlItem);
+                    });
+                }
+
+                console.warn(`[FALLBACK] Wispy Thunder failed for ${cleanTargetUrl}. Loaded via rss2json fallback.`);
+                return xmlDoc;
+            }
+
+            // Path B: Normal XML Processing (Wispy Thunder)
             const responseText = await response.text();
             const cleanText = responseText.trim().toLowerCase();
 
-            // Detect HTML challenge or RSS Dog HTML output
-            const isHtml = cleanText.startsWith("<!doctype html") || cleanText.startsWith("<html");
-
-            if (isHtml) {
-                // If RSS Dog returned HTML, convert text content to a synthetic XML doc
-                if (proxyBaseUrl.includes("rssdog.com")) {
-                    console.warn(`[FALLBACK] Wispy Thunder failed. Using RSS Dog fallback text output for ${cleanTargetUrl}`);
-                    
-                    const htmlParser = new DOMParser();
-                    const htmlDoc = htmlParser.parseFromString(responseText, 'text/html');
-                    const textLines = (htmlDoc.body.textContent || htmlDoc.body.innerText || '')
-                        .split('\n')
-                        .map(line => line.trim())
-                        .filter(line => line.length > 0);
-
-                    // Build a dummy XML structure so downstream processing operates cleanly
-                    const xmlDoc = document.implementation.createDocument(null, 'rss');
-                    const channel = xmlDoc.createElement('channel');
-                    xmlDoc.documentElement.appendChild(channel);
-
-                    textLines.forEach(line => {
-                        const item = xmlDoc.createElement('item');
-                        const title = xmlDoc.createElement('title');
-                        title.textContent = line;
-                        item.appendChild(title);
-                        channel.appendChild(item);
-                    });
-
-                    return xmlDoc;
-                }
-
+            if (cleanText.startsWith("<!doctype html") || cleanText.startsWith("<html")) {
                 throw new Error(`Proxy ${i + 1} returned HTML challenge page instead of XML`);
             }
 
-            // Normal XML processing path (Wispy Thunder output)
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(responseText, 'text/xml');
 
