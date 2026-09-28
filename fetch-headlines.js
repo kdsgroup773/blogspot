@@ -52,16 +52,14 @@
       }
 
       container.innerHTML = '';
-      results.forEach(item => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <a href="javascript:void(0)" onclick="loadFeedFromHeadline('${item.feedUrl}')">
-            ${item.storyTitle}
-          </a>
-          <span class="source-tag">(${item.feedTitle})</span>
-        `;
-        container.appendChild(li);
-      });
+
+      results.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="javascript:void(0)" onclick="loadFeedFromHeadline('${item.feedUrl}')">${item.storyTitle}</a> <span class="source-tag">(${item.feedTitle})</span>`;
+       container.appendChild(li);
+      });
+      
+      
     }
 
     function loadFeedFromHeadline(url) {
