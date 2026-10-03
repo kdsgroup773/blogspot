@@ -410,7 +410,7 @@
           <option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#Minsk" value="https://flipboard.com/topic/Minsk.rss">Belarus</option>
           <option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#Mogadishu" value="https://flipboard.com/topic/Mogadishu.rss">Somalia</option>
           <option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#Monaco" value="https://www.monacolife.net/feed/">Monaco</option>
-          <!-- option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#Monrovia" value="https://frontpageafricaonline.com/feed/">Liberia</option -->
+          <option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#Monrovia" value="https://frontpageafricaonline.com/feed/">Liberia</option>
           <option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#Montevideo" value="https://en.mercopress.com/rss/">South Atlantic (Mercopress)</option>
           <option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#Moroni" value="https://flipboard.com/topic/Moroni.rss">Comoros</option>
           <!-- option id="https://kensbookinfo.blogspot.com/p/world-capitals.html#NDjamena" value="https://www.chadnews.net/rss/983f982110255535">Chad</option -->
@@ -599,14 +599,14 @@
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#AnPhoblacht" value="https://www.anphoblacht.com/feed">An Phoblacht</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#DonegalDaily" value="https://www.donegaldaily.com/feed/">Donegal Daily</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#EngineersIreland" value="https://www.engineersireland.ie/Engineers-Journal/rss/10357">Engineers Ireland</option>
-          <!-- option id="https://kensbookinfo.blogspot.com/p/ireland.html#HGVIreland" value="https://www.hgvireland.com/feed/">HGV Ireland</option -->
+          <option id="https://kensbookinfo.blogspot.com/p/ireland.html#HGVIreland" value="https://www.hgvireland.com/feed/">HGV Ireland</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#IMT" value="https://www.imt.ie/feed/">IMT</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#IrishBoxing" value="https://www.irish-boxing.com/feed/">Irish Boxing</option>
-          <!-- option id="https://kensbookinfo.blogspot.com/p/ireland.html#IrishCentral" value="https://www.irishcentral.com/feeds/section-articles.atom">IrishCentral</option -->
-          <!-- option id="https://kensbookinfo.blogspot.com/p/ireland.html#IrishExaminer" value="https://www.irishexaminer.com/feed/35-top_news.xml">Irish Examiner</option -->
+          <option id="https://kensbookinfo.blogspot.com/p/ireland.html#IrishCentral" value="https://www.irishcentral.com/feeds/section-articles.atom">IrishCentral</option>
+          <option id="https://kensbookinfo.blogspot.com/p/ireland.html#IrishExaminer" value="https://www.irishexaminer.com/feed/35-top_news.xml">Irish Examiner</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#IrishMirror" value="https://www.irishmirror.ie/?service=rss">Irish Mirror</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#LimerickLeader" value="https://www.limerickpost.ie/feed/">Limerick Post</option>
-          <!-- option id="https://kensbookinfo.blogspot.com/p/ireland.html#ManufacturingSupplyChain" value="https://www.manufacturing-supply-chain.com/feed/">Manufacturing & Supply Chain</option -->
+          <option id="https://kensbookinfo.blogspot.com/p/ireland.html#ManufacturingSupplyChain" value="https://www.manufacturing-supply-chain.com/feed/">Manufacturing & Supply Chain</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#RSVP Live" value="https://www.rsvplive.ie/?service=rss">RSVP Live</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#RTÉ" value="https://www.rte.ie/feeds/rss/?index=/news/">RTÉ</option>
           <option id="https://kensbookinfo.blogspot.com/p/ireland.html#The42" value="https://www.the42.ie/feed/">The42</option>
@@ -823,7 +823,7 @@
             <option id="https://kensbookinfo.blogspot.com/p/business.html#43" value="https://flipboard.com/topic/biotech.rss">Biotechnology</option>
             <option id="https://kensbookinfo.blogspot.com/p/business.html#44" value="https://www.cnbc.com/id/10001147/device/rss/rss.html">Cannabis Business</option>
             <option id="https://kensbookinfo.blogspot.com/p/business.html#45" value="https://flipboard.com/topic/commodities.rss">Commodities</option>
-            <!--option id="https://kensbookinfo.blogspot.com/p/business.html#46" value="https://www.computerworld.com/index.rss">Computers & IT</option -->
+            <option id="https://kensbookinfo.blogspot.com/p/business.html#46" value="https://www.computerworld.com/index.rss">Computers & IT</option>
             <option id="https://kensbookinfo.blogspot.com/p/business.html#47" value="https://flipboard.com/topic/Construction.rss">Construction</option>
             <option id="https://kensbookinfo.blogspot.com/p/business.html#48" value="https://www.cnbc.com/id/20910258/device/rss/rss.html">Economy</option>
             <option id="https://kensbookinfo.blogspot.com/p/business.html#49" value="https://www.cnbc.com/id/19832390/device/rss/rss.html">Energy</option>
@@ -887,7 +887,7 @@
             <option id="https://kensbookinfo.blogspot.com/p/news.html#18" value="https://www.alive.com/feed/">Health</option>
             <option id="https://kensbookinfo.blogspot.com/p/news.html#19" value="https://feeds.npr.org/1013/rss.xml">Education</option>
             <option id="https://kensbookinfo.blogspot.com/p/news.html#20" value="https://www.refinery29.com/rss.xml">Lifestyle</option>
-            <!-- Duplicate <option id="https://kensbookinfo.blogspot.com/p/news.html#21" value="https://rss.nytimes.com/services/xml/rss/nyt/SundayBookReview.xml">Books</option> -->
+            <option id="https://kensbookinfo.blogspot.com/p/news.html#21" value="https://rss.nytimes.com/services/xml/rss/nyt/SundayBookReview.xml">Books</option>
             <option id="https://kensbookinfo.blogspot.com/p/news.html#22" value="https://www.bonappetit.com/feed/rss">Food</option>
             <option id="https://kensbookinfo.blogspot.com/p/news.html#23" value="https://www.grunge.com/feed/">Oddities</option>
             <option id="https://kensbookinfo.blogspot.com/p/news.html#24" value="https://feeds.npr.org/1132/rss.xml">Animal Lovers</option>
@@ -929,7 +929,7 @@
             <option id="https://kensbookinfo.blogspot.com/p/us-government.html#8" value="https://www.wired.com/feed/category/science/latest/rss">Science</option>
             <option id="https://kensbookinfo.blogspot.com/p/us-government.html#9" value="https://www.wired.com/feed/category/security/latest/rss">Security</option>
             <option id="https://kensbookinfo.blogspot.com/p/us-government.html#10" value="https://www.wired.com/feed/category/backchannel/latest/rss">Back Chennel</option>
-            <!-- Duplicate <option id="https://kensbookinfo.blogspot.com/p/us-government.html#11" value="https://mashable.com/feeds/rss/social-good">Social Good</option> -->
+            <option id="https://kensbookinfo.blogspot.com/p/us-government.html#11" value="https://mashable.com/feeds/rss/social-good">Social Good</option>
             <option id="https://kensbookinfo.blogspot.com/p/us-government.html#12" value="https://feeds.npr.org/510312/podcast.xml">Code Switch</option>
             <option id="https://kensbookinfo.blogspot.com/p/us-government.html#13" value="https://feeds.npr.org/1032/rss.xml">Books</option>
             <option id="https://kensbookinfo.blogspot.com/p/us-government.html#14" value="https://feeds.npr.org/1006/rss.xml">Business</option>
@@ -1063,8 +1063,8 @@
             <!-- option id="https://kensbookinfo.blogspot.com/p/ai.html#31" value="https://www.lorienpratt.com/category/artificial-intelligence/feed/">Lorien Pratt | Artificial Intelligence</option -->
             <!-- option id="https://kensbookinfo.blogspot.com/p/ai.html#32" value="https://intelligence.org/blog/feed/">Machine Intelligence Research Institute Blog</option -->
             <option id="https://kensbookinfo.blogspot.com/p/ai.html#33" value="https://www.marketingaiinstitute.com/blog/rss.xml">Marketing Artificial Intelligence Institute</option>
-            <!-- option id="https://kensbookinfo.blogspot.com/p/ai.html#34" value="https://www.marktechpost.com/feed/">MarkTechPost</option>
-            <option id="https://kensbookinfo.blogspot.com/p/ai.html#35" value="https://www.marktechpost.com/category/technology/artificial-intelligence/feed">MarkTechPost | Artificial Intelligence</option -->
+            <option id="https://kensbookinfo.blogspot.com/p/ai.html#34" value="https://www.marktechpost.com/feed/">MarkTechPost</option>
+            <!-- option id="https://kensbookinfo.blogspot.com/p/ai.html#35" value="https://www.marktechpost.com/category/technology/artificial-intelligence/feed">MarkTechPost | Artificial Intelligence</option -->
             <option id="https://kensbookinfo.blogspot.com/p/ai.html#36" value="https://medium.com/feed/archieai">Medium - Archie.AI</option>
             <option id="https://kensbookinfo.blogspot.com/p/ai.html#37" value="https://metadevo.com/feed/">MetaDevo AI Blog</option>
             <option id="https://kensbookinfo.blogspot.com/p/ai.html#38" value="https://news.mit.edu/rss/topic/artificial-intelligence2">MIT News - Artificial intelligence</option>
@@ -1273,7 +1273,7 @@
             <option selected disabled>Choose an Interest</option>
             <option id="https://kensbookinfo.blogspot.com/p/etc-varied.html#1" value="https://www.theonion.com/rss">The Onion</option>
             <option id="https://kensbookinfo.blogspot.com/p/etc-varied.html#2" value="http://feeds.mashable.com/mashable">Mashable</option>
-            <!-- option id="https://kensbookinfo.blogspot.com/p/etc-varied.html#3" value="https://lifehacker.com/rss">Lifehacker</option -->
+            <option id="https://kensbookinfo.blogspot.com/p/etc-varied.html#3" value="https://lifehacker.com/rss">Lifehacker</option>
             <option id="https://kensbookinfo.blogspot.com/p/etc-varied.html#4" value="https://www.wired.com/feed">Wired</option>
             <option id="https://kensbookinfo.blogspot.com/p/etc-varied.html#5" value="https://www.themarginalian.org/feed/">The Marginalian</option>
             <option id="https://kensbookinfo.blogspot.com/p/etc-varied.html#7" value="https://feeds.simplecast.com/qm_9xx0g">Crime Junkie</option>
@@ -1620,7 +1620,7 @@
             <option id="https://kensbookinfo.blogspot.com/p/24-7-pr.html#318" value="https://rss.24-7pressrelease.com/rss/lifestyle_travel.xml">Lifestyle Travel</option>
             <option id="https://kensbookinfo.blogspot.com/p/24-7-pr.html#319" value="https://rss.24-7pressrelease.com/rss/sports_weight_lifting.xml">Sports Weight Lifting</option>
 <!-- Youtube -->
-            <!-- option id="https://kensbookinfo.blogspot.com/p/youtube.html#53" value="https://www.youtube.com/feeds/videos.xml?channel_id=UCBi2mrWuNuyYy4gbM6fU18Q" target="_blank">ABC</option -->
+            <option id="https://kensbookinfo.blogspot.com/p/youtube.html#53" value="https://www.youtube.com/feeds/videos.xml?channel_id=UCBi2mrWuNuyYy4gbM6fU18Q" target="_blank">ABC</option>
             <option id="https://kensbookinfo.blogspot.com/p/youtube.html#46" value="https://www.youtube.com/feeds/videos.xml?channel_id=UCBi2mrWuNuyYy4gbM6fU18Q" target="_blank">ABC News</option>
             <option id="https://kensbookinfo.blogspot.com/p/youtube.html#55" value="https://www.youtube.com/feeds/videos.xml?channel_id=UCE2606prvXQc_noEqKxVJXA" target="_blank">ABS-CBN</option>
             <option id="https://kensbookinfo.blogspot.com/p/youtube.html#73" value="https://www.youtube.com/feeds/videos.xml?channel_id=UCNye-wNBqNL5ZzHSJj3l8Bg" target="_blank">Al Jazeera English</option>
