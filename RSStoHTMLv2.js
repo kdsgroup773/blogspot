@@ -94,7 +94,8 @@ function getRssFeed() {
         .then(xmlDoc => {
             loadingDiv.textContent = '';
             const items = xmlDoc.querySelectorAll('item');
-            let htmlContent = '<h2>Latest News</h2><ul style="list-style: none; padding: 0;">';
+            let htmlContent = '<h2>Latest News - </h2><p>Because these feeds update at a rapid pace, direct source links may rotate out of the active stream shortly after publication.</p><p>Incoming headlines stream continuously. If a specific story is no longer visible on the live feed, it has been replaced by the latest breaking updates.</p>
+                <ul style="list-style: none; padding: 0;">';
             items.forEach(item => {
                 const title = item.querySelector('title')?.textContent || 'No Title';
                 const link = item.querySelector('link')?.textContent || '#';
