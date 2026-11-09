@@ -90,11 +90,18 @@ function getRssFeed() {
         }
         throw lastError;
     }
-    fetchWithProxyFallback(rssFeedUrl, proxyList)
-        .then(xmlDoc => {
+    .then(xmlDoc => {
             loadingDiv.textContent = '';
             const items = xmlDoc.querySelectorAll('item');
-            let htmlContent = '<h2>Latest News</h2><ul style="list-style: none; padding: 0;">';
+            
+            let htmlContent = `
+                <h2>Latest News</h2>
+                <div style="background: #f9f9f9; border-left: 3px solid #0056b3; padding: 10px 14px; margin-bottom: 20px; font-size: 0.9em; color: #444; line-height: 1.4;">
+                    <p style="margin: 0 0 8px 0;">Because these feeds update at a rapid pace, direct source links may rotate out of the active stream shortly after publication.</p>
+                    <p style="margin: 0;">Incoming headlines stream continuously. If a specific story is no longer visible on the live feed, it has been replaced by the latest breaking updates.</p>
+                </div>
+                <ul style="list-style: none; padding: 0;">`;
+            
             items.forEach(item => {
                 const title = item.querySelector('title')?.textContent || 'No Title';
                 const link = item.querySelector('link')?.textContent || '#';
@@ -114,7 +121,7 @@ function getRssFeed() {
             });
             htmlContent += '</ul>';
             container.innerHTML = htmlContent;
-        })
+        })        
         .catch(error => {
             loadingDiv.textContent = '';
             container.innerHTML = `<p style="color: red; padding: 20px; border: 1px solid red;"><b>Error:</b> ${error.message}. Please try selecting a different source.</p>`;
