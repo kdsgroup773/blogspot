@@ -8,7 +8,6 @@ function autoLoad() {
     var wlh = window.location.href;
     if (wlh.indexOf("#") > 0) {
         var ixo = wlh.indexOf("#");
-        // Use slice to get everything after the # accurately
         var anchorId = wlh.slice(ixo + 1); 
         var element = document.getElementById(anchorId);
         if (element) {
@@ -58,18 +57,15 @@ function getRssFeed() {
             console.log(`Trying Proxy ${i + 1}/${proxies.length}`);
             loadingDiv.textContent = `Trying source ${i + 1}/${proxies.length}...`;
             try {
-                // Fetch with shorter timeout per proxy to keep UX fast
                 const response = await fetchWithRetry(proxiedUrl, {}, 1, 1000);
 
                 let xmlString;
-                // Check if we need to extract from JSON (AllOrigins)
                 if (proxyBaseUrl.includes('allorigins')) {
                     const json = await response.json();
                     xmlString = json.contents;
                 } else {
                     xmlString = await response.text();
                 }
-                // Parse XML
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
                 
@@ -84,7 +80,6 @@ function getRssFeed() {
             } catch (error) {
                 lastError = error;
                 console.warn(`Proxy ${i + 1} failed: ${error.message}`);
-                // Immediate skip to next proxy
                 continue; 
             }
         }
@@ -94,8 +89,13 @@ function getRssFeed() {
         .then(xmlDoc => {
             loadingDiv.textContent = '';
             const items = xmlDoc.querySelectorAll('item');
-            let htmlContent = '<h2>Latest News - </h2><p>Because these feeds update at a rapid pace, direct source links may rotate out of the active stream shortly after publication.</p><p>Incoming headlines stream continuously. If a specific story is no longer visible on the live feed, it has been replaced by the latest breaking updates.</p>'
-                <ul style="list-style: none; padding: 0;">';
+            
+            // Fixed string block with proper concatenation
+            let htmlContent = '<h2>Latest News - </h2>' +
+                '<p>Because these feeds update at a rapid pace, direct source links may rotate out of the active stream shortly after publication.</p>' +
+                '<p>Incoming headlines stream continuously. If a specific story is no longer visible on the live feed, it has been replaced by the latest breaking updates.</p>' +
+                '<ul style="list-style: none; padding: 0;">';
+
             items.forEach(item => {
                 const title = item.querySelector('title')?.textContent || 'No Title';
                 const link = item.querySelector('link')?.textContent || '#';
@@ -121,4 +121,3 @@ function getRssFeed() {
             container.innerHTML = `<p style="color: red; padding: 20px; border: 1px solid red;"><b>Error:</b> ${error.message}. Please try selecting a different source.</p>`;
         });
 }
-
