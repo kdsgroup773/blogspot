@@ -2683,23 +2683,34 @@ s,(^| )İzmir,\1#İzmir,g
 s,(^| )##,#,g
 `;
 
-    // Converts sed 's,pattern,replacement,g' lines into JavaScript RegExp objects
+  // Converts sed commands into executable JS regex rules
     function compileSedRules(rawRules) {
         return rawRules
             .split(/\r?\n/)
             .map(line => line.trim())
-            .filter(line => line.startsWith('s') && line.length > 3)
+            .filter(line => line.length > 0)
             .map(line => {
-                const delim = line[1]; // automatically detects ',' or '|' or '/'
+                // Handle deletion commands like /^porn/Id or / porn/Id
+                if (line.startsWith('/')) {
+                    const match = line.match(/^\/(.+)\/([a-zA-Z]*)$/);
+                    if (!match) return null;
+                    return {
+                        type: 'delete',
+                        regex: new RegExp(match[1], match[2])
+                    };
+                }
+
+                // Handle substitution commands like s,pattern,replacement,g
+                const delim = line[1];
                 const parts = line.split(delim);
                 if (parts.length < 4) return null;
 
                 const pattern = parts[1];
-                // Convert sed backreferences (\1, \2) to JS backreferences ($1, $2)
                 const replacement = parts[2].replace(/\\(\d+)/g, '$$$1');
                 const flags = parts[3] || '';
 
                 return {
+                    type: 'substitute',
                     regex: new RegExp(pattern, flags),
                     replacement: replacement
                 };
@@ -2712,7 +2723,11 @@ s,(^| )##,#,g
     function applySedToText(text) {
         let result = text;
         for (const rule of compiledRules) {
-            result = result.replace(rule.regex, rule.replacement);
+            if (rule.type === 'delete') {
+                if (rule.regex.test(result)) return null; // Flag line for deletion
+            } else if (rule.type === 'substitute') {
+                result = result.replace(rule.regex, rule.replacement);
+            }
         }
         return result;
     }
@@ -2727,7 +2742,6 @@ s,(^| )##,#,g
         lines.forEach(line => {
             if (line.trim() === "") return;
 
-            // Split headline text from trailing URL so sed never alters the URL
             let textPart = line.trim();
             let urlPart = "";
             const urlMatch = textPart.match(/(\s+https?:\/\/\S+)$/i);
@@ -2736,10 +2750,11 @@ s,(^| )##,#,g
                 textPart = textPart.slice(0, -urlPart.length);
             }
 
-            // 1. Apply your sed replacement rules to the headline text
+            // 1. Run through sed rules (returns null if matched by a deletion filter)
             let taggedText = applySedToText(textPart);
+            if (taggedText === null) return; 
 
-            // 2. Run compromise NLP to extract people names
+            // 2. Run NLP for person names
             let doc = nlp(textPart);
             let people = doc.people().out('array');
 
@@ -2748,7 +2763,6 @@ s,(^| )##,#,g
                 return cleanName ? `<span class="hashtag">#${cleanName}</span>` : '';
             }).filter(Boolean).join(' ');
 
-            // Display if either a sed rule matched OR a person was found
             if (taggedText !== textPart || personHashtags.length > 0) {
                 const div = document.createElement('div');
                 div.className = 'result-item';
@@ -2763,6 +2777,5 @@ s,(^| )##,#,g
         document.getElementById('lineList').innerHTML = '';
     }
 </script>
-
 </body>
 </html>
