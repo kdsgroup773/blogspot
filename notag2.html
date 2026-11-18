@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="https://kdsgroup773.github.io/blogspot/rss.png">
+    <title>News Feed Hashtag Generator</title>
+    <script src="https://unpkg.com/compromise"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1000px; margin: 30px auto; padding: 0 20px; background-color: #f0f2f5; }
+        .container { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 250px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace; font-size: 14px; box-sizing: border-box; }
+        .controls { margin: 15px 0; display: flex; gap: 10px; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        #results { margin-top: 20px; border-top: 2px solid #eee; }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+        }
+        .hashtag { color: #007bff; font-weight: bold; margin-right: 10px; }
+        .modified-line { color: #111; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>News Archive: Hashtag Extractor</h2>
+    <p>Applies your <code>sed</code> replacement rules to headlines and extracts <code>#OneWord</code> name hashtags.</p>
+
+    <textarea id="newsInput" placeholder="Paste news headlines here..."></textarea>
+
+    <div class="controls">
+        <button class="btn-primary" onclick="processText()">Generate Hashtags</button>
+        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div id="results">
+        <div id="lineList"></div>
+    </div>
+</div>
+
+<script>
+    // PASTE YOUR EXACT SED RULES HERE (between the backticks)
+    const sedRules = `
+/^porn/Id
+/ porn/Id
+/\(^\| \)\(pornhub\|xvideos\|xnxx\|xhamster\|redtube\|youporn\|spankbang\|rule34\|brazzers\|chaturbate\|bongacams\|livejasmin\)/Id
+s, : ,: ,g
+s/\.//g
+s,(^| )21 Savage,\1#21Savage,g
+s,(^| )3M,\1#3M,g
+s,(^| )49ers,\1#49ers,g
+s,(^| )A-Mark Precious Metals,\1#AMarkPreciousMetals,g
+s,(^| )ABC,\1#ABC,g
+s,(^| )ABM Industries,\1#ABMIndustries,g
+s,(^| )ACLU,\1#ACLU,g
+s,(^| )ADA,\1#ADA,g
+s,(^| )ADHD,\1#ADHD,g
+s,(^| )AECOM,\1#AECOM,g
+s,(^| )AES,\1#AES,g
+s,(^| )AGCO,\1#AGCO,g
+s,(^| )AGI,\1#AGI,g
+s,(^| )AI,\1#AI,g
+s,(^| )AIG,\1#AIG,g
+s,(^| )APA,\1#APA,g
+s,(^| )API,\1#API,g
+s,(^| )APR,\1#APR,g
+s,(^| )APY,\1#APY,g
+s,(^| )AR,\1#AR,g
+s,(^| )ARKO,\1#ARKO,g
+s,(^| )ASEAN,\1#ASEAN,g
+s,(^| )AT&T,\1#ATT,g
+s,(^| )ATT,\1#ATT,g
+s,(^| )Aaron Judge,\1#AaronJudge,g
+s,(^| )AaronRodgers,\1#AaronRodgers,g
+s,(^| )AbbVie,\1#AbbVie,g
+s,(^| )Abbott,\1#Abbott,g
+s,(^| )Abidjan,\1#Abidjan,g
+s,(^| )Above the law,\1#AboveTheLaw,g
+s,(^| )Abu Dhabi,\1#AbuDhabi,g
+s,(^| )AbuDhabi,\1#AbuDhabi,g
+s,(^| )Abuja,\1#Abuja,g
+s,(^| )Accounting,\1#Accounting,g
+s,(^| )Accra,\1#Accra,g
+s,(^| )Ace Hardware,\1#AceHardware,g
+s,(^| )Adan Banuelos,\1#AdanBanuelos,g
+s,(^| )Adana,\1#Adana,g
+s,(^| )Addis Ababa,\1#AddisAbaba,g
+s,(^| )Adelaide,\1#Adelaide,g
+s,(^| )Adobe,\1#Adobe,g
+s,(^| )Advance Auto Parts,\1#AdvanceAutoParts,g
+s,(^| )Advanced Micro Devices,\1#AdvancedMicroDevices,g
+s,(^| )Advertising,\1#Advertising,g
+s,(^| )Advice,\1#Advice,g
+s,(^| )Aerospace,\1#Aerospace,g
+s,(^| )Afghanistan,\1#Afghanistan,g
+s,(^| )Aflac,\1#Aflac,g
+s,(^| )Africa,\1#Africa,g
+s,(^| )AgathaChristie,\1#AgathaChristie,g
+s,(^| )Aging,\1#Aging,g
+s,(^| )Agra,\1#Agra,g
+s,(^| )Agriculture,\1#Agriculture,g
+s,(^| )Ahmedabad,\1#Ahmedabad,g
+s,(^| )Ahvaz,\1#Ahvaz,g
+s,(^| )Air Products & Chemicals,\1#AirProductsChemicals,g
+s,(^| )Airbnb,\1#Airbnb,g
+s,(^| )Airline,\1#Airline,g
+s,(^| )Airpod,\1#Airpod,g
+s,(^| )Aitana Bonmatí,\1#AitanaBonmatí,g
+s,(^| )Ajit Pawar,\1#AjitPawar,g
+s,(^| )Alabama,\1#Alabama,g
+s,(^| )Alaska Air Group,\1#AlaskaAirGroup,g
+s,(^| )Alaska,\1#Alaska,g
+s,(^| )Albania,\1#Albania,g
+s,(^| )Albany,\1#Albany,g
+s,(^| )Albertsons,\1#Albertsons,g
+s,(^| )Albuquerque,\1#Albuquerque,g
+s,(^| )Alcoa,\1#Alcoa,g
+s,(^| )Aldi,\1#Aldi,g
+s,(^| )AlecBaldwin,\1#AlecBaldwin,g
+s,(^| )Aleppo,\1#Aleppo,g
+s,(^| )Alex Weaver,\1#AlexWeaver,g
+s,(^| )Alexander Zverev,\1#AlexanderZverev,g
+s,(^| )Alexandre Deakin,\1#AlexandreDeakin,g
+s,(^| )Alexandria,\1#Alexandria,g
+s,(^| )Algeria,\1#Algeria,g
+s,(^| )Algiers,\1#Algiers,g
+s,(^| )Aligarh,\1#Aligarh,g
+s,(^| )Allstate,\1#Allstate,g
+s,(^| )Ally Financial,\1#AllyFinancial,g
+s,(^| )Almaty,\1#Almaty,g
+s,(^| )Alphabet,\1#Alphabet,g
+s,(^| )Altice USA,\1#AlticeUSA,g
+s,(^| )Altoona,\1#Altoona,g
+s,(^| )Altria Group,\1#AltriaGroup,g
+s,(^| )Alzheimer,\1#Alzheimer,g
+s,(^| )Amazon,\1#Amazon,g
+s,(^| )America,\1#America,g
+s,(^| )American Airlines,\1#AmericanAirlines,g
+s,(^| )American Electric Power,\1#AmericanElectricPower,g
+s,(^| )American Express,\1#AmericanExpress,g
+s,(^| )American Family Insurance,\1#AmericanFamilyInsurance,g
+s,(^| )American Financial Group,\1#AmericanFinancialGroup,g
+s,(^| )American Tower,\1#AmericanTower,g
+s,(^| )Ameriprise Financial,\1#AmeripriseFinancial,g
+s,(^| )Amgen,\1#Amgen,g
+s,(^| )Amman,\1#Amman,g
+s,(^| )Amphenol,\1#Amphenol,g
+s,(^| )Amritsar,\1#Amritsar,g
+s,(^| )Amsterdam,\1#Amsterdam,g
+s,(^| )Anaheim Ducks,\1#AnaheimDucks,g
+s,(^| )Analog Devices,\1#AnalogDevices,g
+s,(^| )Anchorage,\1#Anchorage,g
+s,(^| )Andersons,\1#Andersons,g
+s,(^| )Andorra,\1#Andorra,g
+s,(^| )Andre Levrone Jr.,\1#AndreLevroneJr,g
+s,(^| )AndrewJackson,\1#AndrewJackson,g
+s,(^| )AndrewYang,\1#AndrewYang,g
+s,(^| )Android,\1#Android,g
+s,(^| )AndroidAuthority,\1#AndroidAuthority,g
+s,(^| )Angel Reese,\1#AngelReese,g
+s,(^| )Angelina Jolie,\1#AngelinaJolie,g
+s,(^| )Angola,\1#Angola,g
+s,(^| )Anil Ambani,\1#AnilAmbani,g
+s,(^| )Animal,\1#Animal,g
+s,(^| )Ankara,\1#Ankara,g
+s,(^| )Annapolis,\1#Annapolis,g
+s,(^| )Anshan,\1#Anshan,g
+s,(^| )Antalya,\1#Antalya,g
+s,(^| )Antananarivo,\1#Antananarivo,g
+s,(^| )Antarctica,\1#Antarctica,g
+s,(^| )Anthony Curley,\1#AnthonyCurley,g
+s,(^| )Anthony Edwards,\1#AnthonyEdwards,g
+s,(^| )AnthonyBourdain,\1#AnthonyBourdain,g
+s,(^| )AnthonyFauci,\1#AnthonyFauci,g
+s,(^| )Antigua and Barbuda,\1#AntiguaAndBarbuda,g
+s,(^| )Antoni Gaudi,\1#AntoniGaudi,g
+s,(^| )Anyang,\1#Anyang,g
+s,(^| )Apartments,\1#Apartments,g
+s,(^| )Apollo Global Management,\1#ApolloGlobalManagement,g
+s,(^| )Apple,\1#Apple,g
+s,(^| )Applied Materials,\1#AppliedMaterials,g
+s,(^| )Aquisitions,\1#Aquisitions,g
+s,(^| )Aramark,\1#Aramark,g
+s,(^| )Araya Doheny,\1#ArayaDoheny,g
+s,(^| )Archer Daniels Midland,\1#ArcherDanielsMidland,g
+s,(^| )Architecture,\1#Architecture,g
+s,(^| )Arequipa,\1#Arequipa,g
+s,(^| )Argentina,\1#Argentina,g
+s,(^| )Ariana Grande,\1#ArianaGrande,g
+s,(^| )Arizona Diamondbacks,\1#ArizonaDiamondbacks,g
+s,(^| )Arizona,\1#Arizona,g
+s,(^| )Arkansas,\1#Arkansas,g
+s,(^| )Armenia,\1#Armenia,g
+s,(^| )Arnold Jerocki,\1#ArnoldJerocki,g
+s,(^| )ArnoldSchwarzenegger,\1#ArnoldSchwarzenegger,g
+s,(^| )Arrow Electronics,\1#ArrowElectronics,g
+s,(^| )Art,\1#Art,g
+s,(^| )Arthur J. Gallagher,\1#ArthurJGallagher,g
+s,(^| )Article,\1#Article,g
+s,(^| )Artificial Intelligence,\1#AI,g
+s,(^| )Aryna Sabalenka,\1#ArynaSabalenka,g
+s,(^| )Asbury Automotive Group,\1#AsburyAutomotiveGroup,g
+s,(^| )Ashgabat,\1#Ashgabat,g
+s,(^| )Asia,\1#Asia,g
+s,(^| )Asmara,\1#Asmara,g
+s,(^| )Assurant,\1#Assurant,g
+s,(^| )Astana,\1#Astana,g
+s,(^| )Astrology,\1#Astrology,g
+s,(^| )Asuncion,\1#Asuncion,g
+s,(^| )Asus,\1#Asus,g
+s,(^| )Athens,\1#Athens,g
+s,(^| )Athletics,\1#Athletics,g
+s,(^| )Atlanta Braves,\1#AtlantaBraves,g
+s,(^| )Atlanta Hawks,\1#AtlantaHawks,g
+s,(^| )Atlanta,\1#Atlanta,g
+s,(^| )Attorney General,\1#AttorneyGeneral,g
+s,(^| )AttorneyGeneral,\1#AttorneyGeneral,g
+s,(^| )Auckland,\1#Auckland,g
+s,(^| )Augusta,\1#Augusta,g
+s,(^| )Aurangabad,\1#Aurangabad,g
+s,(^| )Aurora,\1#Aurora,g
+s,(^| )Aurore Marechal,\1#AuroreMarechal,g
+s,(^| )Austin,\1#Austin,g
+s,(^| )Australia,\1#Australia,g
+s,(^| )Austria,\1#Austria,g
+s,(^| )Auto Nation,\1#AutoNation,g
+s,(^| )Auto Zone,\1#AutoZone,g
+s,(^| )Auto,\1#Auto,g
+s,(^| )Auto-Owners Insurance,\1#AutoOwnersInsurance,g
+s,(^| )Autoliv,\1#Autoliv,g
+s,(^| )Automatic Data Processing,\1#AutomaticDataProcessing,g
+s,(^| )Avery Dennison,\1#AveryDennison,g
+s,(^| )Aviation,\1#Aviation,g
+s,(^| )Avis Budget Group,\1#AvisBudgetGroup,g
+s,(^| )Avnet,\1#Avnet,g
+s,(^| )Ayo Edebiri,\1#AyoEdebiri,g
+s,(^| )Azerbaijan,\1#Azerbaijan,g
+s,(^| )A’ja Wilson,\1#AjaWilson,g
+s,(^| )BBC,\1#BBC,g
+s,(^| )BJ's Wholesale Club,\1#BJsWholesaleClub,g
+s,(^| )BLM,\1#BLM,g
+s,(^| )BRICS,\1#BRICS,g
+s,(^| )BTC,\1#BTC,g
+s,(^| )Bad Bunny,\1#BadBunny,g
+s,(^| )Baghdad,\1#Baghdad,g
+s,(^| )Bahamas,\1#Bahamas,g
+s,(^| )Bahrain,\1#Bahrain,g
+s,(^| )Baker Hughes,\1#BakerHughes,g
+s,(^| )Baku,\1#Baku,g
+s,(^| )Ball,\1#Ball,g
+s,(^| )Baltimore Orioles,\1#BaltimoreOrioles,g
+s,(^| )Baltimore,\1#Baltimore,g
+s,(^| )Bamako,\1#Bamako,g
+s,(^| )Bandar Lampung,\1#BandarLampung,g
+s,(^| )Bandung,\1#Bandung,g
+s,(^| )Bangalore,\1#Bangalore,g
+s,(^| )Bangkok,\1#Bangkok,g
+s,(^| )Bangladesh,\1#Bangladesh,g
+s,(^| )Bangui,\1#Bangui,g
+s,(^| )Banjul,\1#Banjul,g
+s,(^| )Bank of America,\1#BankofAmerica,g
+s,(^| )Bank of New York,\1#BankofNewYork,g
+s,(^| )Banking,\1#Banking,g
+s,(^| )Baoding,\1#Baoding,g
+s,(^| )Baoji,\1#Baoji,g
+s,(^| )Baotou,\1#Baotou,g
+s,(^| )Baptist,\1#Baptist,g
+s,(^| )Barbados,\1#Barbados,g
+s,(^| )Barcelona,\1#Barcelona,g
+s,(^| )Bareilly,\1#Bareilly,g
+s,(^| )Barranquilla,\1#Barranquilla,g
+s,(^| )Barry Keoghan,\1#BarryKeoghan,g
+s,(^| )BarryManilow,\1#BarryManilow,g
+s,(^| )Basketball,\1#Basketball,g
+s,(^| )Basra,\1#Basra,g
+s,(^| )Basseterre,\1#Basseterre,g
+s,(^| )Batam,\1#Batam,g
+s,(^| )Baton Rouge,\1#BatonRouge,g
+s,(^| )Baxter International,\1#BaxterInternational,g
+s,(^| )Becton Dickinson,\1#BectonDickinson,g
+s,(^| )Beijing,\1#Beijing,g
+s,(^| )Beirut,\1#Beirut,g
+s,(^| )Bekasi,\1#Bekasi,g
+s,(^| )Belarus,\1#Belarus,g
+s,(^| )Belfast,\1#Belfast,g
+s,(^| )Belgium,\1#Belgium,g
+s,(^| )Belgrade,\1#Belgrade,g
+s,(^| )Belize City,\1#BelizeCity,g
+s,(^| )Belize,\1#Belize,g
+s,(^| )Bella Hadid,\1#BellaHadid,g
+s,(^| )Bella Ramsey,\1#BellaRamsey,g
+s,(^| )Belo Horizonte,\1#BeloHorizonte,g
+s,(^| )Belém,\1#Belém,g
+s,(^| )Ben Affleck,\1#BenAffleck,g
+s,(^| )Ben Shelton,\1#BenShelton,g
+s,(^| )BenQ,\1#BenQ,g
+s,(^| )Benedict Gross,\1#BenedictGross,g
+s,(^| )Bengbu,\1#Bengbu,g
+s,(^| )Benin City,\1#BeninCity,g
+s,(^| )Benin,\1#Benin,g
+s,(^| )Benny Blanco,\1#BennyBlanco,g
+s,(^| )Berkshire Hathaway,\1#BerkshireHathaway,g
+s,(^| )Berlin,\1#Berlin,g
+s,(^| )Bern,\1#Bern,g
+s,(^| )Berry Global Group,\1#BerryGlobalGroup,g
+s,(^| )Best Buy,\1#BestBuy,g
+s,(^| )Beverage,\1#Beverage,g
+s,(^| )Beyoncé,\1#sBeyoncé,g
+s,(^| )Bezos,\1#sBezos,g
+s,(^| )Bhiwandi,\1#Bhiwandi,g
+s,(^| )Bhopal,\1#Bhopal,g
+s,(^| )Bhubaneswar,\1#Bhubaneswar,g
+s,(^| )Bhutan,\1#Bhutan,g
+s,(^| )Bible,\1#Bible,g
+s,(^| )Biden,\1#Biden,g
+s,(^| )Bieber,\1#Bieber,g
+s,(^| )Bill Gates,\1#BillGates,g
+s,(^| )BillBrowder,\1#BillBrowder,g
+s,(^| )BillClinton,\1#BillClinton,g
+s,(^| )BillGates,\1#BillGates,g
+s,(^| )BillMurray,\1#BillMurray,g
+s,(^| )BillOfRights,\1#BillOfRights,g
+s,(^| )Billie Eilish,\1#BillieEilish,g
+s,(^| )Billings,\1#Billings,g
+s,(^| )BillyCrystal,\1#BillyCrystal,g
+s,(^| )Biogen,\1#Biogen,g
+s,(^| )Birmingham,\1#Birmingham,g
+s,(^| )Bishkek,\1#Bishkek,g
+s,(^| )Bismarck,\1#Bismarck,g
+s,(^| )Bissau,\1#Bissau,g
+s,(^| )Bitcoin,\1#Bitcoin,g
+s,(^| )BlackRock,\1#BlackRock,g
+s,(^| )Blackhawks,\1#Blackhawks,g
+s,(^| )Blackstone,\1#Blackstone,g
+s,(^| )Blake Lively,\1#BlakeLively,g
+s,(^| )Block,\1#Block,g
+s,(^| )Blue Origin,\BlueOrigin,g
+s,(^| )Bluetooth,\1#Bluetooth,g
+s,(^| )BobDylan,\1#BobDylan,g
+s,(^| )BobWoodward,\1#BobWoodward,g
+s,(^| )Bobo-Dioulasso,\1#BoboDioulasso,g
+s,(^| )Boebert,\1#Boebert,g
+s,(^| )Boeing,\1#Boeing,g
+s,(^| )Bogor,\1#Bogor,g
+s,(^| )Bogota,\1#Bogota,g
+s,(^| )Bogotá,\1#Bogotá,g
+s,(^| )Boing Boing,\1#BoingBoing,g
+s,(^| )Boise,\1#Boise,g
+s,(^| )Bolivia,\1#Bolivia,g
+s,(^| )Bondi,\1#Bondi,g
+s,(^| )Book,\1#Book,g
+s,(^| )Booking Holdings,\1#BookingHoldings,g
+s,(^| )Booz Allen Hamilton Holding,\1#BoozAllenHamiltonHolding,g
+s,(^| )Borg Warner,\1#BorgWarner,g
+s,(^| )Bosnia and Herzegovina,\1#BosniaAndHerzegovina,g
+s,(^| )Boston Bruins,\1#BostonBruins,g
+s,(^| )Boston Celtics,\1#BostonCeltics,g
+s,(^| )Boston Red Sox,\1#BostonRedSox,g
+s,(^| )Boston Scientific,\1#BostonScientific,g
+s,(^| )Boston,\1#Boston,g
+s,(^| )Botswana,\1#Botswana,g
+s,(^| )Boxing,\1#Boxing,g
+s,(^| )Brad Pitt,\1#BradPitt,g
+s,(^| )Bradley Cooper,\1#BradleyCooper,g
+s,(^| )Brambleton,\1#Brambleton,g
+s,(^| )Brandon,\1#Brandon,g
+s,(^| )Brasilia,\1#Brasilia,g
+s,(^| )Bratislava,\1#Bratislava,g
+s,(^| )Brazil,\1#Brazil,g
+s,(^| )Brazzaville,\1#Brazzaville,g
+s,(^| )Breanna Stewart,\1#BreannaStewart,g
+s,(^| )Brett Matsumoto,\1#BrettMatsumoto,g
+s,(^| )Brewers,\1#Brewers,g
+s,(^| )Bridgeport,\1#Bridgeport,g
+s,(^| )Bridgetown,\1#Bridgetown,g
+s,(^| )BrightSpring Health Services,\1#BrightSpringHealthServices,g
+s,(^| )Brisbane,\1#Brisbane,g
+s,(^| )Bristol,\1#Bristol,g
+s,(^| )Bristol-Myers Squibb,\1#BristolMyersSquibb,g
+s,(^| )Britain,\Britain,g
+s,(^| )British,\1#British,g
+s,(^| )BritneySpears,\1#BritneySpears,g
+s,(^| )Britons,\1#Britons,g
+s,(^| )Brittany Mahomes,\1#BrittanyMahomes,g
+s,(^| )Broadcasting,\1#Broadcasting,g
+s,(^| )Broadcom,\1#Broadcom,g
+s,(^| )Broncos,\1#Broncos,g
+s,(^| )Bronny James,\1#BronnyJames,g
+s,(^| )Brooklyn Nets,\1#BrooklynNets,g
+s,(^| )Brooklyn,\1#Brooklyn,g
+s,(^| )Brooks Brothers,\1#BrooksBrothers,g
+s,(^| )Bruce Bilson,\1#BruceBilson,g
+s,(^| )Bruins,\1#Bruins,g
+s,(^| )Brunei,\1#Brunei,g
+s,(^| )Brunswick,\1#Brunswick,g
+s,(^| )Brussels,\1#Brussels,g
+s,(^| )BubbaWallace,\1#BubbaWallace,g
+s,(^| )Bucharest,\1#Bucharest,g
+s,(^| )Bucks,\1#Bucks,g
+s,(^| )Budapest,\1#Budapest,g
+s,(^| )Buddah,\1#Buddah,g
+s,(^| )Buddhist,\1#Buddhist,g
+s,(^| )Buenos Aires,\1#BuenosAires,g
+s,(^| )Buffalo Sabres,\1#BuffaloSabres,g
+s,(^| )Buffalo,\1#Buffalo,g
+s,(^| )Builders FirstSource,\1#BuildersFirstSource,g
+s,(^| )Building,\1#Building,g
+s,(^| )Buiness,\#Buiness,g
+s,(^| )Bujumbura,\1#Bujumbura,g
+s,(^| )Bukavu,\1#Bukavu,g
+s,(^| )Bulawayo,\1#Bulawayo,g
+s,(^| )Bulgaria,\1#Bulgaria,g
+s,(^| )Bulls,\1#Bulls,g
+s,(^| )Burger King,\1#BurgerKing,g
+s,(^| )Burkina Faso,\1#BurkinaFaso,g
+s,(^| )Burlington Stores,\1#BurlingtonStores,g
+s,(^| )Burlington,\1#Burlington,g
+s,(^| )Burna Boy,\1#BurnaBoy,g
+s,(^| )Bursa,\1#Bursa,g
+s,(^| )Burundi,\1#Burundi,g
+s,(^| )Busan,\1#Busan,g
+s,(^| )C.H. Robinson Worldwide,\1#CHRobinsonWorldwide,g
+s,(^| )CACI International,\1#CACIInternational,g
+s,(^| )CBC,\1#CBC,g
+s,(^| )CBDC,\1#CBDC,g
+s,(^| )CBO,\1#CBO,g
+s,(^| )CBP,\1#CBP,g
+s,(^| )CBRE Group,\1#CBREGroup,g
+s,(^| )CBS,\1#CBS,g
+s,(^| )CCS,\1#CCS,g
+s,(^| )CCTV,\1#CCTV,g
+s,(^| )CDC,\1#CDC,g
+s,(^| )CDW,\1#CDW,g
+s,(^| )CENTCOM,\1#CENTCOM,g
+s,(^| )CEO,\1#CEO,g
+s,(^| )CFO,\1#CFO,g
+s,(^| )CHS,\1#CHS,g
+s,(^| )CIA,\1#CIA,g
+s,(^| )CMS Energy,\1#CMSEnergy,g
+s,(^| )CNN,\1#CNN,g
+s,(^| )CNNN,CNN,g
+s,(^| )COO,\1#COO,g
+s,(^| )CPI,\1#CPI,g
+s,(^| )CPU,\1#CPU,g
+s,(^| )CSX,\1#CSX,g
+s,(^| )CTO,\1#CTO,g
+s,(^| )CVS Health,\1#CVSHealth,g
+s,(^| )CVS,\1#CVS,g
+s,(^| )Cable,\1#Cable,g
+s,(^| )Cabo Verde,\1#CaboVerde,g
+s,(^| )Caesars Entertainment,\1#CaesarsEntertainment,g
+s,(^| )Cairo,\1#Cairo,g
+s,(^| )Caitlin Clark,\1#CaitlinClark,g
+s,(^| )Calgary Flames,\1#CalgaryFlames,g
+s,(^| )Calgary,\1#Calgary,g
+s,(^| )Cali,\1#Cali,g
+s,(^| )California,\1#California,g
+s,(^| )Callao,\1#Callao,g
+s,(^| )Caloocan,\1#Caloocan,g
+s,(^| )Cambodia,\1#Cambodia,g
+s,(^| )Cambridge,\1#Cambridge,g
+s,(^| )Cameroon,\1#Cameroon,g
+s,(^| )Campbell's,\1#Campbells,g
+s,(^| )Campinas,\1#Campinas,g
+s,(^| )Can Tho,\1#CanTho,g
+s,(^| )Canada,\1#Canada,g
+s,(^| )Canadian,\1#Canadian,g
+s,(^| )Canberra,\1#Canberra,g
+s,(^| )Cancer,\1#Cancer,g
+s,(^| )Canucks,\1#Canucks,g
+s,(^| )Cape Town,\1#CapeTown,g
+s,(^| )Capital One Financial,\1#CapitalOneFinancial,g
+s,(^| )CarMax,\1#CarMax,g
+s,(^| )Caracas,\1#Caracas,g
+s,(^| )Cardi B,\1#CardiB,g
+s,(^| )Cardiff,\1#Cardiff,g
+s,(^| )Cardinal Health,\1#CardinalHealth,g
+s,(^| )Careers,\1#Careers,g
+s,(^| )Carey Mulligan,\1#CareyMulligan,g
+s,(^| )Caribbean,\1#Caribbean,g
+s,(^| )CarlBernstein,\1#CarlBernstein,g
+s,(^| )Carlos Alcaraz,\1#CarlosAlcaraz,g
+s,(^| )Carolina Hurricanes,\1#CarolinaHurricanes,g
+s,(^| )Carrier Global,\1#CarrierGlobal,g
+s,(^| )Carson City,\1#CarsonCity,g
+s,(^| )Cartagena,\1#Cartagena,g
+s,(^| )Carvana,\1#Carvana,g
+s,(^| )Casablanca,\1#Casablanca,g
+s,(^| )Casey Wasserman,\1#CaseyWasserman,g
+s,(^| )Casey's General Stores,\1#CaseysGeneralStores,g
+s,(^| )Casper,\1#Casper,g
+s,(^| )Castries,\1#Castries,g
+s,(^| )Caterpillar,\1#Caterpillar,g
+s,(^| )Catherine O’Hara,\1#CatherineO’Hara,g
+s,(^| )Catherine, Princess of Wales,g
+s,(^| )Catholic,\1#Catholic,g
+s,(^| )Cebu City,\1#CebuCity,g
+s,(^| )Cedar Rapids,\1#CedarRapids,g
+s,(^| )Celanese,\1#Celanese,g
+s,(^| )Celine Cremer,\1#CelineCremer,g
+s,(^| )Celtics,\1#Celtics,g
+s,(^| )Cencora,\1#Cencora,g
+s,(^| )Centene,\1#Centene,g
+s,(^| )Center Point Energy,\1#CenterPointEnergy,g
+s,(^| )Central African Republic,\1#CentralAfricanRepublic,g
+s,(^| )Central Cee,\1#CentralCee,g
+s,(^| )Central Coast,\1#CentralCoast,g
+s,(^| )Chad,\1#Chad,g
+s,(^| )Chandigarh,\1#Chandigarh,g
+s,(^| )Changchun,\1#Changchun,g
+s,(^| )Changde,\1#Changde,g
+s,(^| )Changsha,\1#Changsha,g
+s,(^| )Changshu,\1#Changshu,g
+s,(^| )Changwon,\1#Changwon,g
+s,(^| )Changzhi,\1#Changzhi,g
+s,(^| )Changzhou,\1#Changzhou,g
+s,(^| )Channing Tatum,\1#ChanningTatum,g
+s,(^| )Chaozhou,\1#Chaozhou,g
+s,(^| )Chappell Roan,\1#ChappellRoan,g
+s,(^| )Charity,\1#Charity,g
+s,(^| )Charles Leclerc,\1#CharlesLeclerc,g
+s,(^| )Charles Schwab,\1#CharlesSchwab,g
+s,(^| )Charleston,\1#Charleston,g
+s,(^| )Charli XCX,\1#CharliXCX,g
+s,(^| )Charlotte Hornets,\1#CharlotteHornets,g
+s,(^| )Charlotte,\1#Charlotte,g
+s,(^| )Charter Communications,\1#CharterCommunications,g
+s,(^| )ChatGPT,\1#ChatGPT,g
+s,(^| )Chelyabinsk,\1#Chelyabinsk,g
+s,(^| )Chengdu,\1#Chengdu,g
+s,(^| )Cheniere Energy,\1#CheniereEnergy,g
+s,(^| )Chennai,\1#Chennai,g
+s,(^| )Chesapeake,\1#Chesapeake,g
+s,(^| )Chevron,\1#Chevron,g
+s,(^| )Chewy,\1#Chewy,g
+s,(^| )Cheyenne,\1#Cheyenne,g
+s,(^| )Chicago Blackhawks,\1#ChicagoBlackhawks,g
+s,(^| )Chicago Bulls,\1#ChicagoBulls,g
+s,(^| )Chicago Cubs,\1#ChicagoCubs,g
+s,(^| )Chicago White Sox,\1#ChicagoWhiteSox,g
+s,(^| )Chicago,\1#Chicago,g
+s,(^| )Chifeng,\1#Chifeng,g
+s,(^| )ChildLaborAct,\1#ChildLaborAct,g
+s,(^| )Chile,\1#Chile,g
+s,(^| )China,\1#China,g
+s,(^| )Chinese,\1#Chinese,g
+s,(^| )Chipotle Mexican Grill,\1#ChipotleMexicanGrill,g
+s,(^| )Chisinau,\1#Chisinau,g
+s,(^| )Chittagong,\1#Chittagong,g
+s,(^| )Chongqing,\1#Chongqing,g
+s,(^| )Chris Martin,\1#ChrisMartin,g
+s,(^| )ChrisRock,\1#ChrisRock,g
+s,(^| )Christchurch,\1#Christchurch,g
+s,(^| )Christian,\1#Christian,g
+s,(^| )Christmas,\1#Christmas,g
+s,(^| )Christopher Nolan,\1#ChristopherNolan,g
+s,(^| )Chrome,\1#Chrome,g
+s,(^| )Chromebook,\1#Chromebook,g
+s,(^| )Chromecast,\1#Chromecast,g
+s,(^| )ChuckECheese,\1#ChuckECheese,g
+s,(^| )ChuckSchumer,\1#ChuckSchumer,g
+s,(^| )Cigna,\1#Cigna,g
+s,(^| )Cillian Murphy,\1#CillianMurphy,g
+s,(^| )Cincinnati Financial,\1#CincinnatiFinancial,g
+s,(^| )Cincinnati Reds,\1#CincinnatiReds,g
+s,(^| )CindyCrawford,\1#CindyCrawford,g
+s,(^| )Cinnabon,\1#Cinnabon,g
+s,(^| )Cintas,\1#Cintas,g
+s,(^| )Cisco Systems,\1#CiscoSystems,g
+s,(^| )Citigroup,\1#Citigroup,g
+s,(^| )Citizen Health,\1#Citizen Health,g
+s,(^| )Citizens Financial Group,\1#CitizensFinancialGroup,g
+s,(^| )City,\1#City,g
+s,(^| )Ciudad Juárez,\1#CiudadJuárez,g
+s,(^| )Cixi,\1#Cixi,g
+s,(^| )Cleveland Cavaliers,\1#ClevelandCavaliers,g
+s,(^| )Cleveland Guardians,\1#ClevelandGuardians,g
+s,(^| )Cleveland,\1#Cleveland,g
+s,(^| )Cleveland-Cliffs,\1#ClevelandCliffs,g
+s,(^| )Climate Crisis,\1#ClimateCrisis,g
+s,(^| )Cnet,\1#Cnet,g
+s,(^| )Coca-Cola,\1#CocaCola,g
+s,(^| )Coco Gauff,\1#CocoGauff,g
+s,(^| )Code Switch,\1#CodeSwitch,g
+s,(^| )Cognizant Technology Solutions,\1#CognizantTechnologySolutions,g
+s,(^| )Coimbatore,\1#Coimbatore,g
+s,(^| )Cointelegraph,\1#Cointelegraph,g
+s,(^| )Colgate-Palmolive,\1#ColgatePalmolive,g
+s,(^| )College,\1#College,g
+s,(^| )Colman Domingo,\1#ColmanDomingo,g
+s,(^| )Cologne,\1#Cologne,g
+s,(^| )Colombia,\1#Colombia,g
+s,(^| )Colombo,\1#Colombo,g
+s,(^| )Colorado Avalanche,\1#ColoradoAvalanche,g
+s,(^| )Colorado Rockies,\1#ColoradoRockies,g
+s,(^| )Colorado Springs,\1#ColoradoSprings,g
+s,(^| )Colorado,\1#Colorado,g
+s,(^| )Columbia,\1#Columbia,g
+s,(^| )Columbus Blue Jackets,\1#ColumbusBlueJackets,g
+s,(^| )Columbus,\1#Columbus,g
+s,(^| )Comcast,\1#Comcast,g
+s,(^| )Commanders,\1#Commanders,g
+s,(^| )Commercial Metals,\1#CommercialMetals,g
+s,(^| )Commodities,\1#Commodities,g
+s,(^| )Community Health Systems,\1#CommunityHealthSystems,g
+s,(^| )Comoros,\1#Comoros,g
+s,(^| )Computer,\1#Computer,g
+s,(^| )Conagra Brands,\1#ConagraBrands,g
+s,(^| )Conakry,\1#Conakry,g
+s,(^| )Concentrix,\1#Concentrix,g
+s,(^| )Concord,\1#Concord,g
+s,(^| )Congo Democratic Republic of the,\1#DRCongo,g
+s,(^| )Congo Republic of the,\1#CongoRepublic,g
+s,(^| )Congo,\1#Congo,g
+s,(^| )Congress,\1#Congress,g
+s,(^| )Connecticut,\1#Connecticut,g
+s,(^| )Connor Storrie,\1#ConnorStorrie,g
+s,(^| )ConocoPhillips,\1#ConocoPhillips,g
+s,(^| )Consolidated Edison,\1#ConsolidatedEdison,g
+s,(^| )Constellation Brands,\1#ConstellationBrands,g
+s,(^| )Constellation Energy,\1#ConstellationEnergy,g
+s,(^| )Construction,\1#Construction,g
+s,(^| )Consumer,\1#Consumer,g
+s,(^| )Copenhagen,\1#Copenhagen,g
+s,(^| )Cordoba,\1#Cordoba,g
+s,(^| )Core & Main,\1#CoreMain,g
+s,(^| )Corebridge Financial,\1#CorebridgeFinancial,g
+s,(^| )Corning,\1#Corning,g
+s,(^| )Corporations,\1#Corporations,g
+s,(^| )Corteva,\1#Corteva,g
+s,(^| )Corvette,\1#Corvette,g
+s,(^| )Costa Rica,\1#CostaRica,g
+s,(^| )Costco Wholesale,\1#CostcoWholesale,g
+s,(^| )Costco,\1#Costco,g
+s,(^| )Cotonou,\1#Cotonou,g
+s,(^| )Coupang,\1#Coupang,g
+s,(^| )Crafts,\1#Crafts,g
+s,(^| )Cranston,\1#Cranston,g
+s,(^| )Cricket,\1#Cricket,g
+s,(^| )Cristiano Ronaldo,\1#CristianoRonaldo,g
+s,(^| )Croatia,\1#Croatia,g
+s,(^| )Crops,\1#Crops,g
+s,(^| )Crossword,\1#Crossword,g
+s,(^| )Crown Holdings,\1#CrownHoldings,g
+s,(^| )Crunch,\1#Crunch,g
+s,(^| )Crypto,\1#Crypto,g
+s,(^| )Cuba,\1#Cuba,g
+s,(^| )Cubs,\1#Cubs,g
+s,(^| )Cultural,\1#Cultural,g
+s,(^| )Cummins,\1#Cummins,g
+s,(^| )Cuomo,\1#Cuomo,g
+s,(^| )Curitiba,\1#Curitiba,g
+s,(^| )Currency,\1#Currency,g
+s,(^| )Cycling,\1#Cycling,g
+s,(^| )Cyprus,\1#Cyprus,g
+s,(^| )Czech Republic,\1#CzechRepublic,g
+s,(^| )Czechia,\1#Czechia,g
+s,(^| )Córdoba,\1#Córdoba,g
+s,(^| )D.R. Horton,\1#DRHorton,g
+s,(^| )DACA,\1#DACA,g
+s,(^| )DBCooper,\1#DBCooper,g
+s,(^| )DC,\1#DC,g
+s,(^| )DEI,\1#DEI,g
+s,(^| )DHS,\1#DHS,g
+s,(^| )DNA,\1#DNA,g
+s,(^| )DNC,\1#DNC,g
+s,(^| )DNS,\1#DNS,g
+s,(^| )DOD,\1#DOD,g
+s,(^| )DOGE,\1#DOGE,g
+s,(^| )DOJ,\1#DOJ,g
+s,(^| )DTE Energy,\1#DTEEnergy,g
+s,(^| )DXC Technology,\1#DXCTechnology,g
+s,(^| )Da Nang,\1#DaNang,g
+s,(^| )Da'Vine Joy Randolph,\1#DaVineJoyRandolph,g
+s,(^| )DaVita,\1#DaVita,g
+s,(^| )Daegu,\1#Daegu,g
+s,(^| )Daejeon,\1#Daejeon,g
+s,(^| )Daily Mirror,\1#DailyMirror,g
+s,(^| )Dakar,\1#Dakar,g
+s,(^| )Dakota Johnson,\1#DakotaJohnson,g
+s,(^| )Dalian,\1#Dalian,g
+s,(^| )Dallas Mavericks,\1#DallasMavericks,g
+s,(^| )Dallas Stars,\1#DallasStars,g
+s,(^| )Dallas,\1#Dallas,g
+s,(^| )Damascus,\1#Damascus,g
+s,(^| )Dammam,\1#Dammam,g
+s,(^| )Dana,\1#Dana,g
+s,(^| )Danaher,\1#Danaher,g
+s,(^| )Daniel Noboa,\1#DanielNoboa,g
+s,(^| )Danielle Venturelli,\1#DanielleVenturelli,g
+s,(^| )Daniil Medvedev,\1#DaniilMedvedev,g
+s,(^| )Daqing,\1#Daqing,g
+s,(^| )Dar es Salaam,\1#DarEsSalaam,g
+s,(^| )Dar es Salaam,\1#DaresSalaam,g
+s,(^| )Darden Restaurants,\1#DardenRestaurants,g
+s,(^| )Darwin,\1#Darwin,g
+s,(^| )Datong,\1#Datong,g
+s,(^| )Davao City,\1#DavaoCity,g
+s,(^| )Dazhou,\1#Dazhou,g
+s,(^| )DeSantis,\1#DeSantis,g
+s,(^| )Deere,\1#Deere,g
+s,(^| )Defense,\1#Defense,g
+s,(^| )DeionSanders,\1#DeionSanders,g
+s,(^| )Delaware,\1#Delaware,g
+s,(^| )Delcy Rodríguez,\1#DelcyRodríguez,g
+s,(^| )Delek US Holdings,\1#DelekUSHoldings,g
+s,(^| )Delhi,\1#Delhi,g
+s,(^| )Dell,\1#Dell,g
+s,(^| )Delroy Lindo,\1#DelroyLindo,g
+s,(^| )Delta Air Lines,\1#DeltaAirLines,g
+s,(^| )Delta,\1#Delta,g
+s,(^| )Demi Moore,\1#DemiMoore,g
+s,(^| )Democrat,\1#Democrat,g
+s,(^| )Denis Villeneuve,\1#DenisVilleneuve,g
+s,(^| )Denmark,\1#Denmark,g
+s,(^| )Denver Nuggets,\1#DenverNuggets,g
+s,(^| )Denver,\1#Denver,g
+s,(^| )Depok,\1#Depok,g
+s,(^| )Derry,\1#Derry,g
+s,(^| )Des Moines,\1#DesMoines,g
+s,(^| )Detroit Pistons,\1#DetroitPistons,g
+s,(^| )Detroit Red Wings,\1#DetroitRedWings,g
+s,(^| )Detroit Tigers,\1#DetroitTigers,g
+s,(^| )Detroit,\1#Detroit,g
+s,(^| )Devon Energy,\1#DevonEnergy,g
+s,(^| )Dhaka,\1#Dhaka,g
+s,(^| )Dhanbad,\1#Dhanbad,g
+s,(^| )Diabetes,\1#Diabetes,g
+s,(^| )Diabetic,\1#Diabetic,g
+s,(^| )Diamondback Energy,\1#DiamondbackEnergy,g
+s,(^| )Diamondbacks,\1#Diamondbacks,g
+s,(^| )Dick's Sporting Goods,\1#DicksSportingGoods,g
+s,(^| )Dili,\1#Dili,g
+s,(^| )Direct Marketing,\1#DirectMarketing,g
+s,(^| )Discover,\1#Discover,g
+s,(^| )DishTV,\1#DishTV,g
+s,(^| )Disney,\1#Disney,g
+s,(^| )Diyarbakır,\1#Diyarbakır,g
+s,(^| )Djibouti City,\1#DjiboutiCity,g
+s,(^| )Djibouti,\1#Djibouti,g
+s,(^| )Dodgers,\1#Dodgers,g
+s,(^| )Dogecoin,\1#Dogecoin,g
+s,(^| )Doha,\1#Doha,g
+s,(^| )Dollar General,\1#DollarGeneral,g
+s,(^| )Dollar Tree,\1#DollarTree,g
+s,(^| )DollyParton,\1#DollyParton,g
+s,(^| )Dominica,\1#Dominica,g
+s,(^| )Dominican Republic,\1#DominicanRepublic,g
+s,(^| )Dominion Energy,\1#DominionEnergy,g
+s,(^| )Donald Trump,\1#DonaldTrump,g
+s,(^| )Donegal,\1#Donegal,g
+s,(^| )Dongguan,\1#Dongguan,g
+s,(^| )Donna Kelce,\1#DonnaKelce,g
+s,(^| )DoorDash,\1#DoorDash,g
+s,(^| )Douala,\1#Douala,g
+s,(^| )Dover,\1#Dover,g
+s,(^| )Dow,\1#Dow,g
+s,(^| )DrPepper,\1#DrPepper,g
+s,(^| )Drake,\1#Drake,g
+s,(^| )DredScott,\1#DredScott,g
+s,(^| )DuPont,\1#DuPont,g
+s,(^| )Dua Lipa,\1#DuaLipa,g
+s,(^| )Dubai,\1#Dubai,g
+s,(^| )Dublin,\1#Dublin,g
+s,(^| )Duchess,\1#Duchess,g
+s,(^| )Duke Energy,\1#DukeEnergy,g
+s,(^| )Dushanbe,\1#Dushanbe,g
+s,(^| )E-Commerce,\1#E-Commerce,g
+s,(^| )E. A. Siddiq,\1#EASiddiq,g
+s,(^| )EMCOR Group,\1#EMCORGroup,g
+s,(^| )EOG Resources,\1#EOGResources,g
+s,(^| )EPA,\1#EPA,g
+s,(^| )EPS,\1#EPS,g
+s,(^| )ESA,\1#ESA,g
+s,(^| )ESG,\1#ESG,g
+s,(^| )ESPN,\1#ESPN,g
+s,(^| )ETF,\1#ETF,g
+s,(^| )ETH,\1#ETH,g
+s,(^| )EU,\1#EU,g
+s,(^| )EV,\1#EV,g
+s,(^| )Earth,\1#Earth,g
+s,(^| )East Honolulu,\1#EastHonolulu,g
+s,(^| )Easter,\1#EastHer,g
+s,(^| )Eastman Chemical,\1#EastmanChemical,g
+s,(^| )Ebay,\1#Ebay,g
+s,(^| )Ecatepec de Morelos,\1#EcatepecdeMorelos,g
+s,(^| )EchoStar,\1#EchoStar,g
+s,(^| )Ecolab,\1#Ecolab,g
+s,(^| )Economics,\1#Economics,g
+s,(^| )Ecuador,\1#Ecuador,g
+s,(^| )Edinburgh,\1#Edinburgh,g
+s,(^| )Edison International,\1#EdisonInternational,g
+s,(^| )Edminton,\1#Edminton,g
+s,(^| )Edmonton Oilers,\1#EdmontonOilers,g
+s,(^| )Edmonton,\1#Edmonton,g
+s,(^| )Education,\1#Education,g
+s,(^| )Edward Island,\1#EdwardIsland,g
+s,(^| )Egypt,\1#Egypt,g
+s,(^| )Eisenhower,\1#Eisenhower,g
+s,(^| )Ekurhuleni,\1#Ekurhuleni,g
+s,(^| )El Salvador,\1#ElSalvador,g
+s,(^| )Election,\1#Election,g
+s,(^| )Elections,\1#Elections,g
+s,(^| )Electric Vehicles,\l#ElectricVehicles,g
+s,(^| )Electronic Arts,\1#ElectronicArts,g
+s,(^| )Elena Rybakina,\1#ElenaRybakina,g
+s,(^| )Elevance Health,\1#ElevanceHealth,g
+s,(^| )Eli Lilly,\1#EliLilly,g
+s,(^| )Elon Musk,\1#ElonMusk,g
+s,(^| )Emerson Electric,\1#EmersonElectric,g
+s,(^| )Emma Stone,\1#EmmaStone,g
+s,(^| )EmmaStone,\1#EmmaStone,g
+s,(^| )EmmaWatson,\1#EmmaWatson,g
+s,(^| )Encryption,\1#Encryption,g
+s,(^| )Endeavor Group Holdings,\1#EndeavorGroupHoldings,g
+s,(^| )Endgadget,\1#Endgadget,g
+s,(^| )Energy Transfer,\1#EnergyTransfer,g
+s,(^| )Engineering,\1#Engineering,g
+s,(^| )Entergy,\1#Entergy,g
+s,(^| )Enterprise Products Partners,\1#EnterpriseProductsPartners,g
+s,(^| )Entertainment,\1#Entertainment,g
+s,(^| )Environment,\1#Environment,g
+s,(^| )Epstein,\1#Epstein,g
+s,(^| )Equatorial Guinea,\1#EquatorialGuinea,g
+s,(^| )Equinix,\1#Equinix,g
+s,(^| )Equitable Holdings,\1#EquitableHoldings,g
+s,(^| )Erie Insurance Group,\1#ErieInsuranceGroup,g
+s,(^| )Eritrea,\1#Eritrea,g
+s,(^| )Erling Haaland,\1#ErlingHaaland,g
+s,(^| )Esquire,\1#Esquire,g
+s,(^| )Estee Lauder,\1#EsteeLauder,g
+s,(^| )Estonia,\1#Estonia,g
+s,(^| )Eswatini,\1#Eswatini,g
+s,(^| )Ethiopia,\1#Ethiopia,g
+s,(^| )Europe,\1#Europe,g
+s,(^| )Eversource Energy,\1#EversourceEnergy,g
+s,(^| )Evoke,\1#Evoke,g
+s,(^| )Exchange,\1#Exchange,g
+s,(^| )Exelon,\1#Exelon,g
+s,(^| )Expedia Group,\1#ExpediaGroup,g
+s,(^| )Expeditors Intl. of Washington,\1#ExpeditorsIntlofWashington,g
+s,(^| )Express,\1#Express,g
+s,(^| )Exxon,\1#Exxon,g
+s,(^| )FAA,\1#FAA,g
+s,(^| )FBI,\1#FBI,g
+s,(^| )FCC,\1#FCC,g
+s,(^| )FDA,\1#FDA,g
+s,(^| )FDI,\1#FDI,g
+s,(^| )FDIC,\1#FDIC,g
+s,(^| )FEMA,\1#FEMA,g
+s,(^| )FLOTUS,\1#FLOTUS,g
+s,(^| )FM,\1#FM,g
+s,(^| )FOIA,\1#FOIA,g
+s,(^| )FOMC,\1#FOMC,g
+s,(^| )FTC,\1#FTC,g
+s,(^| )Facebook,\1#Facebook,g
+s,(^| )Fairbanks,\1#Fairbanks,g
+s,(^| )Faisalabad,\1#Faisalabad,g
+s,(^| )Falcons,\1#Falcons,g
+s,(^| )Family,\1#Family,g
+s,(^| )Fannie Mae,\1#FannieMae,g
+s,(^| )Fargo,\1#Fargo,g
+s,(^| )Faridabad,\1#Faridabad,g
+s,(^| )Farmers Insurance Exchange,\1#FarmersInsuranceExchange,g
+s,(^| )Farming,\1#Farming,g
+s,(^| )Fashion,\1#Fashion,g
+s,(^| )Fastenal,\1#Fastenal,g
+s,(^| )FedEx,\1#FedEx,g
+s,(^| )Federal Reserve,\1#FederalReserve,g
+s,(^| )Feed,\1#Feed,g
+s,(^| )Ferguson Enterprises,\1#FergusonEnterprises,g
+s,(^| )Fiction,\1#Fiction,g
+s,(^| )Fidelity National Financial,\1#FidelityNationalFinancial,g
+s,(^| )Fidelity National Information Services,\1#FidelityNationalInformationServices,g
+s,(^| )Fifth Third Bancorp,\1#FifthThirdBancorp,g
+s,(^| )Fiji,\1#Fiji,g
+s,(^| )Film Making,\1#Filmaking,g
+s,(^| )Finance,\1#Finance,g
+s,(^| )Financi,\1#Financi,g
+s,(^| )Finland,\1#Finland,g
+s,(^| )First Citizens BancShares,\1#FirstCitizensBancShares,g
+s,(^| )FirstEnergy,\1#FirstEnergy,g
+s,(^| )Fiserv,\1#Fiserv,g
+s,(^| )Fitness,\1#Fitness,g
+s,(^| )Five Guys,\1#FiveGuys,g
+s,(^| )Fixed,\1#Fixed,g
+s,(^| )Florida Panthers,\1#FloridaPanthers,g
+s,(^| )Florida,\1#Florida,g
+s,(^| )Fluor,\1#Fluor,g
+s,(^| )Food,\1#Food,g
+s,(^| )Foot Locker,\1#FootLocker,g
+s,(^| )Football,\1#Football,g
+s,(^| )Ford Motor,\1#FordMotor,g
+s,(^| )Ford,\1#Fprd,g
+s,(^| )Forecast,\1#Forecast,g
+s,(^| )Foreign,\1#Foreign,g
+s,(^| )Fort Smith,\1#FortSmith,g
+s,(^| )Fort Wayne,\1#FortWayne,g
+s,(^| )Fort Worth,\1#FortWorth,g
+s,(^| )Fortaleza,\1#Fortaleza,g
+s,(^| )Foshan,\1#Foshan,g
+s,(^| )Fox,\1#Fox,g
+s,(^| )France,\1#France,g
+s,(^| )Francis Buchholz,\1#FrancisBuchholz,g
+s,(^| )Frankfort,\1#Frankfort,g
+s,(^| )Franklin Resources,\1#FranklinResources,g
+s,(^| )François Arnaud,\1#FrançoisArnaud,g
+s,(^| )Freddie Mac,\1#FreddieMac,g
+s,(^| )Frederick,\1#Frederick,g
+s,(^| )Free,\1#Free,g
+s,(^| )Freeport-McMoRan,\1#FreeportMcMoRan,g
+s,(^| )Freetown,\1#Freetown,g
+s,(^| )Fukiko Takase,\1#FukikoTakase,g
+s,(^| )Fukuoka,\1#Fukuoka,g
+s,(^| )Funds,\1#Funds,g
+s,(^| )Fushun,\1#Fushun,g
+s,(^| )Future,\1#Future,g
+s,(^| )Fuyang,\1#Fuyang,g
+s,(^| )Fuzhou,\1#Fuzhou,g
+s,(^| )Fès,\1#Fès,g
+s,(^| )G20,\1#G20,g
+s,(^| )G7,\1#G7,g
+s,(^| )GDP,\1#GDP,g
+s,(^| )GE HealthCare Technologies,\1#GEHealthCareTechnologies,g
+s,(^| )GE Vernova,\1#GEVernova,g
+s,(^| )GHG,\1#GHG,g
+s,(^| )GM,\1#GM,g
+s,(^| )GMO,\1#GMO,g
+s,(^| )GOP,\1#GOP,g
+s,(^| )GPU,\1#GPU,g
+s,(^| )GXO Logistics,\1#GXOLogistics,g
+s,(^| )Gabon,\1#Gabon,g
+s,(^| )Gaborone,\1#Gaborone,g
+s,(^| )Gambia,\1#Gambia,g
+s,(^| )Games,\1#Games,g
+s,(^| )Gaming,\1#Gaming,g
+s,(^| )Gandhi,\1#Gandhi,g
+s,(^| )Ganzhou,\1#Ganzhou,g
+s,(^| )Gap,\1#Gap,g
+s,(^| )Garden,\1#Garden,g
+s,(^| )Gas,\1#Gas,g
+s,(^| )Gaza,\1#Gaza,g
+s,(^| )Gaziantep,\1#Gaziantep,g
+s,(^| )Gazipur,\1#Gazipur,g
+s,(^| )Gear,\1#Gear,g
+s,(^| )GenAI,\1#GenAI,g
+s,(^| )General Dynamics,\1#GeneralDynamics,g
+s,(^| )General Electric (GE Aerospace),\1#GeneralElectricGEAerospace,g
+s,(^| )General Mills,\1#GeneralMills,g
+s,(^| )General Motors,\1#GeneralMotors,g
+s,(^| )Geneva,\1#Geneva,g
+s,(^| )Genuine Parts,\1#GenuineParts,g
+s,(^| )George Clooney,\1#GeorgeClooney,g
+s,(^| )GeorgeClooney,\1#GeorgeClooney,g
+s,(^| )GeorgeWashington,\1#GeorgeWashington,g
+s,(^| )Georgetown,\1#Georgetown,g
+s,(^| )Georgia,\1#Georgia,g
+s,(^| )German,\1#German,g
+s,(^| )Germany,\1#Germany,g
+s,(^| )Ghana,\1#Ghana,g
+s,(^| )Ghaziabad,\1#Ghaziabad,g
+s,(^| )Giannis Antetokounmpo,\1#GiannisAntetokounmpo,g
+s,(^| )Gilead Sciences,\1#GileadSciences,g
+s,(^| )Giuliani,\1#Giuliani,g
+s,(^| )Giza,\1#Giza,g
+s,(^| )Gizmodo,\1#Gizmodo,g
+s,(^| )Gladys West,\1#GladysWest,g
+s,(^| )Glamour,\1#Glamour,g
+s,(^| )Glasgow,\1#Glasgow,g
+s,(^| )GloRilla,\1#GloRilla,g
+s,(^| )Global Partners,\1#GlobalPartners,g
+s,(^| )Global Payments,\1#GlobalPayments,g
+s,(^| )Global,\1#Global,g
+s,(^| )God,\1#God,g
+s,(^| )Goiânia,\1#Goiânia,g
+s,(^| )Golden State Warriors,\1#GoldenStateWarriors,g
+s,(^| )Goldie Hawn,\1#GoldieHawn,g
+s,(^| )Goldman Sachs,\1#GoldmanSachs,g
+s,(^| )GoldmanSachs,\1#GoldmanSachs,g
+s,(^| )Golf,\1#Golf,g
+s,(^| )Goodyear Tire & Rubber,\1#GoodyearTireRubber,g
+s,(^| )Google,\1#Google,g
+s,(^| )Googlebook,\1#Googlebook,g
+s,(^| )Gorakhpur,\1#Gorakhpur,g
+s,(^| )Gordon Ramsay,\1#GordonRamsay,g
+s,(^| )GordonRamsay,\1#GordonRamsay,g
+s,(^| )Government,\1#Government,g
+s,(^| )Governor,\1#Governor,g
+s,(^| )Goyang,\1#Goyang,g
+s,(^| )Graduate,\1#Graduate,g
+s,(^| )Grain,\1#Grain,g
+s,(^| )Grammy,\1#Grammy,g
+s,(^| )Grand Rapids,\1#GrandRapids,g
+s,(^| )Graphic Packaging Holding,\1#GraphicPackagingHolding,g
+s,(^| )Graybar Electric,\1#GraybarElectric,g
+s,(^| )Greece,\1#Greece,g
+s,(^| )Greenland,\1#Greenland,g
+s,(^| )Greenpeace,\1#Greenpeace,g
+s,(^| )Grenada,\1#Grenada,g
+s,(^| )Greta Gerwig,\1#GretaGerwig,g
+s,(^| )Group 1 Automotive,\1#Group1Automotive,g
+s,(^| )Guadalajara,\1#Guadalajara,g
+s,(^| )Guangzhou,\1#Guangzhou,g
+s,(^| )Guardian Life Ins. Co. of America,\1#GuardianLifeInsCoofAmerica,g
+s,(^| )Guarulhos,\1#Guarulhos,g
+s,(^| )Guatemala City,\1#GuatemalaCity,g
+s,(^| )Guatemala,\1#Guatemala,g
+s,(^| )Guayaquil,\1#Guayaquil,g
+s,(^| )Gucci,\1#Gucci,g
+s,(^| )GuideWell Mutual Holding,\1#GuideWellMutualHolding,g
+s,(^| )Guilin,\1#Guilin,g
+s,(^| )Guinea,\1#Guinea,g
+s,(^| )Guinea-Bissau,\1#GuineaBissau,g
+s,(^| )Guiyang,\1#Guiyang,g
+s,(^| )Gujranwala,\1#Gujranwala,g
+s,(^| )Gulfport,\1#Gulfport,g
+s,(^| )Gurgaon,\1#Gurgaon,g
+s,(^| )Gustavo Petro,\1#GustavoPetro,g
+s,(^| )Guwahati,\1#Guwahati,g
+s,(^| )Guyana,\1#Guyana,g
+s,(^| )Gwalior,\1#Gwalior,g
+s,(^| )Gwangju,\1#Gwangju,g
+s,(^| )HAcker,\1#HAcker,g
+s,(^| )HCA Healthcare,\1#HCAHealthcare,g
+s,(^| )HF Sinclair,\1#HFSinclair,g
+s,(^| )HIPAA,\1#HIPAA,g
+s,(^| )HP,\1#HP,g
+s,(^| )HSE,\1#HSE,g
+s,(^| )HTML,\1#HTML,g
+s,(^| )HUD,\1#HUD,g
+s,(^| )Haikou,\1#Haikou,g
+s,(^| )Haiphong,\1#Haiphong,g
+s,(^| )Haiti,\1#Haiti,g
+s,(^| )Halliburton,\1#Halliburton,g
+s,(^| )Hamburg,\1#Hamburg,g
+s,(^| )Hamilton,\1#Hamilton,g
+s,(^| )Handan,\1#Handan,g
+s,(^| )Hangzhou,\1#Hangzhou,g
+s,(^| )Hanoi,\1#Hanoi,g
+s,(^| )Harare,\1#Harare,g
+s,(^| )Harbin,\1#Harbin,g
+s,(^| )Hargeisa,\1#Hargeisa,g
+s,(^| )Harrisburg,\1#Harrisburg,g
+s,(^| )Harry Potter,\1#HarryPotter,g
+s,(^| )Harry Styles,\1#HarryStyles,g
+s,(^| )Hartford Insurance Group,\1#HartfordInsuranceGroup,g
+s,(^| )Hartford,\1#Hartford,g
+s,(^| )Harvard,\1#Harvard,g
+s,(^| )Hathaway,\1#Hathaway,g
+s,(^| )Havana,\1#Havana,g
+s,(^| )Hawaii,\1#Hawaii,g
+s,(^| )Hawks,\1#Hawks,g
+s,(^| )Health,\1#Health,g
+s,(^| )Healthy,\1#Healthy,g
+s,(^| )Heating,\1#Heating,g
+s,(^| )Hefei,\1#Hefei,g
+s,(^| )Helena,\1#Helena,g
+s,(^| )Helsinki,\1#Helsinki,g
+s,(^| )Henderson,\1#Henderson,g
+s,(^| )Hengyang,\1#Hengyang,g
+s,(^| )Henry Schein,\1#HenrySchein,g
+s,(^| )Herat,\1#Herat,g
+s,(^| )Hershey,\1#Hershey,g
+s,(^| )Hertz Global Holdings,\1#HertzGlobalHoldings,g
+s,(^| )Hess,\1#Hess,g
+s,(^| )Hewlett Packard Enterprise,\1#HewlettPackardEnterprise,g
+s,(^| )Heze,\1#Heze,g
+s,(^| )Hillary Clinton,\1#HillaryClinton,g
+s,(^| )HillaryClinton,\1#HillaryClinton,g
+s,(^| )HillaryRodhamClinton,\1#HillaryRodhamClinton,g
+s,(^| )Hilton Worldwide Holdings,\1#HiltonWorldwideHoldings,g
+s,(^| )Hindu,\1#Hindu,g
+s,(^| )Hiroshima,\1#Hiroshima,g
+s,(^| )Histor,\1#Histor,g
+s,(^| )Hitler,\1#Hitler,g
+s,(^| )Ho Chi Minh City,\1#HoChiMinhCity,g
+s,(^| )Hockey,\1#Hockey,g
+s,(^| )Hohhot,\1#Hohhot,g
+s,(^| )Holger Rune,\1#HolgerRune,g
+s,(^| )Holiday,\1#Holiday,g
+s,(^| )Hollywood,\1#Hollywood,g
+s,(^| )Holocaust,\1#Holocaust,g
+s,(^| )Holy See,\1#HolySee,g
+s,(^| )Home Depot,\1#HomeDepot,g
+s,(^| )Home,\1#Home,g
+s,(^| )Honduras,\1#Honduras,g
+s,(^| )Honeywell International,\1#HoneywellInternational,g
+s,(^| )Hong Kong,\1#HongKong,g
+s,(^| )Honiara,\1#Honiara,g
+s,(^| )Honolulu,\1#Honolulu,g
+s,(^| )Hormel Foods,\1#HormelFoods,g
+s,(^| )Horoscope,\1#Horoscope,g
+s,(^| )Horror,\1#Horror,g
+s,(^| )Horse,\1#Horse,g
+s,(^| )Hospital,\1#Hospital,g
+s,(^| )Hospitality,\1#Hospitality,g
+s,(^| )House,\1#House,g
+s,(^| )Houston Astros,\1#HoustonAstros,g
+s,(^| )Houston Rockets,\1#HoustonRockets,g
+s,(^| )Houston,\1#Houston,g
+s,(^| )Howmet Aerospace,\1#HowmetAerospace,g
+s,(^| )Howrah,\1#Howrah,g
+s,(^| )Huai'an,\1#Huai'an,g
+s,(^| )Huainan,\1#Huainan,g
+s,(^| )Hubli-Dharwad,\1#HubliDharwad,g
+s,(^| )Hudson Williams,\1#HudsonWilliams,g
+s,(^| )Huffington Post,\1#HuffingtonPost,g
+s,(^| )Hugh Jackman,\1#HughJackman,g
+s,(^| )Huizhou,\1#Huizhou,g
+s,(^| )Human Resources,\1#HR,g
+s,(^| )Human Right,\1#HumanRight,g
+s,(^| )Humana,\1#Humana,g
+s,(^| )Humanities,\1#Humanities,g
+s,(^| )Hungary,\1#Hungary,g
+s,(^| )Huntington Bancshares,\1#HuntingtonBancshares,g
+s,(^| )Huntington Ingalls Industries,\1#HuntingtonIngallsIndustries,g
+s,(^| )Huntington,\1#Huntington,g
+s,(^| )Huzhou,\1#Huzhou,g
+s,(^| )Huế,\1#Huế,g
+s,(^| )Hyderabad,\1#Hyderabad,g
+s,(^| )IAEA,\1#IAEA,g
+s,(^| )IBM,\1#IBM,g
+s,(^| )ICBM,\1#ICBM,g
+s,(^| )ICC,\1#ICC,g
+s,(^| )ICE,\1#ICE,g
+s,(^| )ICJ,\1#ICJ,g
+s,(^| )ICU,\1#ICU,g
+s,(^| )IDF,\1#IDF,g
+s,(^| )IED,\1#IED,g
+s,(^| )IMF,\1#IMF,g
+s,(^| )IPCC,\1#IPCC,g
+s,(^| )IPO,\1#IPO,g
+s,(^| )IQVIA Holdings,\1#IQVIAHoldings,g
+s,(^| )IRS,\1#IRS,g
+s,(^| )ISP,\1#ISP,g
+s,(^| )ISR,\1#ISR,g
+s,(^| )ISS,\1#ISS,g
+s,(^| )IT ,\1#IT ,g
+s,(^| )IVF,\1#IVF,g
+s,(^| )Ibadan,\1#Ibadan,g
+s,(^| )Icahn Enterprises,\1#IcahnEnterprises,g
+s,(^| )Ice Spice,\1#IceSpice,g
+s,(^| )Iceland,\1#Iceland,g
+s,(^| )Idaho,\1#Idaho,g
+s,(^| )Idiom,\1#Idiom,g
+s,(^| )Iga Świątek,\1#IgaŚwiątek,g
+s,(^| )IlhanOmar,\1#IlhanOmar,g
+s,(^| )Ilie Bolojan,\1#IlieBolojan,g
+s,(^| )Illinois Tool Works,\1#IllinoisToolWorks,g
+s,(^| )Illinois,\1#Illinois,g
+s,(^| )Illness,\1#Illness,g
+s,(^| )Immigration,\1#Immigration,g
+s,(^| )Incheon,\1#Incheon,g
+s,(^| )India,\1#India,g
+s,(^| )Indiana Pacers,\1#IndianaPacers,g
+s,(^| )Indiana,\1#Indiana,g
+s,(^| )Indianapolis,\1#Indianapolis,g
+s,(^| )Indonesia,\1#Indonesia,g
+s,(^| )Indore,\1#Indore,g
+s,(^| )Industr,\1#Industr,g
+s,(^| )Inflation,\1#Inflation,g
+s,(^| )Information,\1#Information,g
+s,(^| )Ingram Micro Holding,\1#IngramMicroHolding,g
+s,(^| )Ingredion,\1#Ingredion,g
+s,(^| )Insight Enterprises,\1#InsightEnterprises,g
+s,(^| )Insurance,\1#Insurance,g
+s,(^| )Intel,\1#Intel,g
+s,(^| )Interactive Brokers Group,\1#InteractiveBrokersGroup,g
+s,(^| )Intercontinental Exchange,\1#IntercontinentalExchange,g
+s,(^| )Interest,\1#Interest,g
+s,(^| )Interior Design,\1#InteriorDesign,g
+s,(^| )International Flavors & Fragrances,\1#InternationalFlavorsFragrances,g
+s,(^| )International Paper,\1#InternationalPaper,g
+s,(^| )International,\1#International,g
+s,(^| )Internet,\1#Internet,g
+s,(^| )Interpublic Group,\1#InterpublicGroup,g
+s,(^| )Intuit,\1#Intuit,g
+s,(^| )Intuitive Surgical,\1#IntuitiveSurgical,g
+s,(^| )Investment,\1#Investment,g
+s,(^| )IoT,\1#IoT,g
+s,(^| )Iowa,\1#Iowa,g
+s,(^| )Iran,\1#Iran,g
+s,(^| )Iranian,\1#Iranian,g
+s,(^| )Iraq,\1#Iraq,g
+s,(^| )Ireland,\1#Ireland,g
+s,(^| )Iribarren (Barquisimeto),\1#Iribarren,g
+s,(^| )Irish,\1#Irish,g
+s,(^| )Isaac Herzog,\1#IsaacHerzog,g
+s,(^| )Isfahan,\1#Isfahan,g
+s,(^| )Islamabad,\1#Islamabad,g
+s,(^| )Islanders,\1#Islanders,g
+s,(^| )Israel,\1#Israel,g
+s,(^| )Istagram,\1#Istagram,g
+s,(^| )Istanbul,\1#Istanbul,g
+s,(^| )Italy,\1#Italy,g
+s,(^| )J. Cole,\1#JCole,g
+s,(^| )J.B. Hunt Transport Services,\1#JBHuntTransportServices,g
+s,(^| )J.M. Smucker,\1#JMSmucker,g
+s,(^| )JCS,\1#JCS,g
+s,(^| )JPMorgan Chase,\1#JPMorganChase,g
+s,(^| )JPMorgan,\1#JPMorgan,g
+s,(^| )Jabalpur,\1#Jabalpur,g
+s,(^| )Jabil,\1#Jabil,g
+s,(^| )Jackson,\1#Jackson,g
+s,(^| )Jacksonville,\1#Jacksonville,g
+s,(^| )Jacob Elordi,\1#JacobElordi,g
+s,(^| )Jacobs Solutions,\1#JacobsSolutions,g
+s,(^| )Jaipur,\1#Jaipur,g
+s,(^| )Jakarta,\1#Jakarta,g
+s,(^| )Jake Dunn,\1#JakeDunn,g
+s,(^| )Jalandhar,\1#Jalandhar,g
+s,(^| )Jamaica,\1#Jamaica,g
+s,(^| )James Cameron,\1#JamesCameron,g
+s,(^| )Jamie Dimon,\1#JamieDimon,g
+s,(^| )Japan,\1#Japan,g
+s,(^| )Jarah Mariano,\1#JarahMariano,g
+s,(^| )Jason Kelce,\1#JasonKelce,g
+s,(^| )Jay-Z,\1#Jay-Z,g
+s,(^| )Jaylen Brown,\1#JaylenBrown,g
+s,(^| )Jayson Tatum,\1#JaysonTatum,g
+s,(^| )Jeddah,\1#Jeddah,g
+s,(^| )Jefferies Financial Group,\1#JefferiesFinancialGroup,g
+s,(^| )Jefferson City,\1#JeffersonCity,g
+s,(^| )Jeffrey Wright,\1#JeffreyWright,g
+s,(^| )Jenna Ortega,\1#JennaOrtega,g
+s,(^| )Jennifer Aniston,\1#JenniferAniston,g
+s,(^| )Jennifer Lopez,\1#JenniferLopez,g
+s,(^| )Jeremy Allen White,\1#JeremyAllenWhite,g
+s,(^| )JeremyClarkson,\1#JeremyClarkson,g
+s,(^| )Jerome Powell,\1#JeromePowell,g
+s,(^| )Jersey City,\1#JerseyCity,g
+s,(^| )Jersey,\1#Jersey,g
+s,(^| )Jerusalem,\1#Jerusalem,g
+s,(^| )JesseEisenberg,\1#JesseEisenbergs,g
+s,(^| )Jesus,\1#Jesus,g
+s,(^| )JesusChrist,\1#JesusChrist,g
+s,(^| )JetBlue Airways,\1#JetBlueAirways,g
+s,(^| )Jewelry,\1#Jewelry,g
+s,(^| )Jewish,\1#Jewish,g
+s,(^| )Jiangmen,\1#Jiangmen,g
+s,(^| )Jiangyin,\1#Jiangyin,g
+s,(^| )Jiaxing,\1#Jiaxing,g
+s,(^| )Jieyang,\1#Jieyang,g
+s,(^| )Jilin,\1#Jilin,g
+s,(^| )Jim Curtis,\1#JimCurtis,g
+s,(^| )Jinan,\1#Jinan,g
+s,(^| )Jinhua,\1#Jinhua,g
+s,(^| )Jining,\1#Jining,g
+s,(^| )Jinjiang,\1#Jinjiang,g
+s,(^| )Jinzhou,\1#Jinzhou,g
+s,(^| )Joaquin Phoenix,\1#JoaquinPhoenix,g
+s,(^| )Jobs,\1#Jobs,g
+s,(^| )Jodhpur,\1#Jodhpur,g
+s,(^| )JoeManganiello,\1#JoeManganiello,g
+s,(^| )JoeScarborough,\1#JoeScarborough,g
+s,(^| )Joel Kowsky,\1#JoelKowsky,g
+s,(^| )Johannesburg,\1#Johannesburg,g
+s,(^| )John Carlos Cabrera,\1#JohnCarlosCabrera,g
+s,(^| )John H. Beyer,\1#JohnHBeyer,g
+s,(^| )John Sciulli,\1#JohnSciulli,g
+s,(^| )Johnson & Johnson,\1#JohnsonJohnson,g
+s,(^| )Jon Batiste,\1#JonBatiste,g
+s,(^| )Jonathan Owens,\1#JonathanOwens,g
+s,(^| )Jones Financial (Edward Jones),\1#JonesFinancialEdwardJones,g
+s,(^| )Jones Lang LaSalle,\1#JonesLangLaSalle,g
+s,(^| )Jones,\1#Jones,g
+s,(^| )Jordan,\1#Jordan,g
+s,(^| )Juba,\1#Juba,g
+s,(^| )Jude Bellingham,\1#JudeBellingham,g
+s,(^| )Julia Roberts,\1#JuliaRoberts,g
+s,(^| )Julianne Moore,\1#JulianneMoore,g
+s,(^| )Juneau,\1#Juneau,g
+s,(^| )Justice Department,\1#JusticeDepartment,g
+s,(^| )Justin Bieber,\1#JustinBieber,g
+s,(^| )Justin Trudeau,\1#JustinTrudeau,g
+s,(^| )KBR,\1#KBR,g
+s,(^| )KKR,\1#KKR,g
+s,(^| )KLA,\1#KLA,g
+s,(^| )KPI,\1#KPI,g
+s,(^| )Kabul,\1#Kabul,g
+s,(^| )Kaduna,\1#Kaduna,g
+s,(^| )Kaifeng,\1#Kaifeng,g
+s,(^| )Kalyan-Dombivli,\1#KalyanDombivli,g
+s,(^| )Kampala,\1#Kampala,g
+s,(^| )Kananga,\1#Kananga,g
+s,(^| )Kandahar,\1#Kandahar,g
+s,(^| )Kano,\1#Kano,g
+s,(^| )Kanpur,\1#Kanpur,g
+s,(^| )Kansas City Royals,\1#KansasCityRoyals,g
+s,(^| )Kansas City,\1#KansasCity,g
+s,(^| )Kansas,\1#Kansas,g
+s,(^| )Kaohsiung,\1#Kaohsiung,g
+s,(^| )Karachi,\1#Karachi,g
+s,(^| )Karaj,\1#Karaj,g
+s,(^| )Kardashian,\1#Kardashian,g
+s,(^| )Karol G,\1#KarolG,g
+s,(^| )KashPatel,\1#KashPatel,g
+s,(^| )Kate Hudson,\1#KateHudson,g
+s,(^| )KateMiddleton,\1#KateMiddleton,g
+s,(^| )Kathmandu,\1#Kathmandu,g
+s,(^| )Katy Perry,\1#KatyPerry,g
+s,(^| )Kawasaki,\1#Kawasaki,g
+s,(^| )Kazakhstan,\1#Kazakhstan,g
+s,(^| )Kazan,\1#Kazan,g
+s,(^| )Keanu Reeves,\1#KeanuReeves,g
+s,(^| )Keith Urban,\1#KeithUrban,g
+s,(^| )Kellanova,\1#Kellanova,g
+s,(^| )KellyClarkson,\1#KellyClarkson,g
+s,(^| )KellyOsbourne,\1#KellyOsbourne,g
+s,(^| )Kendall Jenner,\1#KendallJenner,g
+s,(^| )KendallJenner,\1#KendallJenner,g
+s,(^| )Kendrick Lamar,\1#KendrickLamar,g
+s,(^| )Kentucky,\1#Kentucky,g
+s,(^| )Kenvue,\1#Kenvue,g
+s,(^| )Kenya,\1#Kenya,g
+s,(^| )Keurig Dr Pepper,\1#KeurigDrPepper,g
+s,(^| )Kevin Durant,\1#KevinDurant,g
+s,(^| )Kevin Warsh,\1#KevinWarsh,g
+s,(^| )KeyCorp,\1#KeyCorp,g
+s,(^| )Kharkiv,\1#Kharkiv,g
+s,(^| )Khartoum Bahri,\1#KhartoumBahri,g
+s,(^| )Khartoum,\1#Khartoum,g
+s,(^| )Khloé Kardashian,\1#KhloéKardashian,g
+s,(^| )Kiev,\1#Kiev,g
+s,(^| )Kigali,\1#Kigali,g
+s,(^| )Kilkenny,\1#Kilkenny,g
+s,(^| )Kim Kardashian,\1#KimKardashian,g
+s,(^| )Kimberly-Clark,\1#KimberlyClark,g
+s,(^| )Kinder Morgan,\1#KinderMorgan,g
+s,(^| )King Charles,\1#KingCharles,g
+s,(^| )Kingston,\1#Kingston,g
+s,(^| )Kinshasa,\1#Kinshasa,g
+s,(^| )Kiribati,\1#Kiribati,g
+s,(^| )Kirkuk,\1#Kirkuk,g
+s,(^| )Kirsty Duncan,\1#KirstyDuncan,g
+s,(^| )Kisangani,\1#Kisangani,g
+s,(^| )Kitchener,\1#Kitchener,g
+s,(^| )Klobuchar ,\Klobuchar ,g
+s,(^| )Kohl's,\1#Kohls,g
+s,(^| )Kolata,\1#Kolata,g
+s,(^| )Kolkata,\1#Kolkata,g
+s,(^| )Konya,\1#Konya,g
+s,(^| )Korea North,\1#NorthKorea,g
+s,(^| )Korea South,\1#SouthKorea,g
+s,(^| )Kosovo,\1#Kosovo,g
+s,(^| )Kota,\1#Kota,g
+s,(^| )Kraft Heinz,\1#KraftHeinz,g
+s,(^| )Kraft,\1#Kraft,g
+s,(^| )Krasnodar,\1#Krasnodar,g
+s,(^| )Krasnoyarsk,\1#Krasnoyarsk,g
+s,(^| )Kremlin,\1#Kremlin,g
+s,(^| )Kroger,\1#Kroger,g
+s,(^| )Kuala Lumpur,\1#KualaLumpur,g
+s,(^| )Kumasi,\1#Kumasi,g
+s,(^| )Kunming,\1#Kunming,g
+s,(^| )Kunshan,\1#Kunshan,g
+s,(^| )Kurt Russell,\1#KurtRussell,g
+s,(^| )Kuwait City,\1#KuwaitCity,g
+s,(^| )Kuwait,\1#Kuwait,g
+s,(^| )Kyiv,\1#Kyiv,g
+s,(^| )Kylian Mbappé,\1#KylianMbappé,g
+s,(^| )Kylie Jenner,\1#KylieJenner,g
+s,(^| )Kyndryl Holdings,\1#KyndrylHoldings,g
+s,(^| )Kyrgyzstan,\1#Kyrgyzstan,g
+s,(^| )Kyōto,\1#Kyōto,g
+s,(^| )Kōbe,\1#Kōbe,g
+s,(^| )L3Harris Technologies,\1#L3HarrisTechnologies,g
+s,(^| )LA,\1#LA,g
+s,(^| )LGBTQ,\1#LGBTQ,g
+s,(^| )LKQ,\1#LKQ,g
+s,(^| )LLM,\1#LLM,g
+s,(^| )LPL Financial Holdings,\1#LPLFinancialHoldings,g
+s,(^| )La Paz,\1#LaPaz,g
+s,(^| )Labcorp Holdings,\1#LabcorpHoldings,g
+s,(^| )Labour Party,\1#LabourParty,g
+s,(^| )Lady Gaga,\1#LadyGaga,g
+s,(^| )Lagos,\1#Lagos,g
+s,(^| )Lahore,\1#Lahore,g
+s,(^| )Lam Research,\1#LamResearch,g
+s,(^| )Land O'Lakes,\1#LandOLakes,g
+s,(^| )Lando Norris,\1#LandoNorris,g
+s,(^| )Lansing,\1#Lansing,g
+s,(^| )Lanzhou,\1#Lanzhou,g
+s,(^| )Laos,\1#Laos,g
+s,(^| )Las ,\1#Las,g
+s,(^| )Las Cruces,\1#LasCruces,g
+s,(^| )Las Vegas Sands,\1#LasVegasSands,g
+s,(^| )Las Vegas,\1#LasVegas,g
+s,(^| )Latvia,\1#Latvia,g
+s,(^| )Laura Dogu,\1#LauraDogu,g
+s,(^| )Law,\1#Law,g
+s,(^| )LeBron James,\1#LeBronJames,g
+s,(^| )Lear,\1#Lear,g
+s,(^| )Lebanon,\1#Lebanon,g
+s,(^| )Legal,\1#Legal,g
+s,(^| )Leidos Holdings,\1#LeidosHoldings,g
+s,(^| )Lennar,\1#Lennar,g
+s,(^| )Lent,\1#Lent,g
+s,(^| )Leon Bennett,\1#LeonBennett,g
+s,(^| )Leonardo DiCaprio,\1#LeonardoDiCaprio,g
+s,(^| )Lesotho,\1#Lesotho,g
+s,(^| )Lewis Hamilton,\1#LewisHamilton,g
+s,(^| )Lewiston,\1#Lewiston,g
+s,(^| )Lexington,\1#Lexington,g
+s,(^| )León,\1#León,g
+s,(^| )Lianyungang,\1#Lianyungang,g
+s,(^| )Liaocheng,\1#Liaocheng,g
+s,(^| )Liberal Party,\1#LiberalParty,g
+s,(^| )Liberia,\1#Liberia,g
+s,(^| )Liberty Mutual Insurance Group,\1#LibertyMutualInsuranceGroup,g
+s,(^| )Libreville,\1#Libreville,g
+s,(^| )Libya,\1#Libya,g
+s,(^| )Liechtenstein,\1#Liechtenstein,g
+s,(^| )Lifestyle,\1#Lifestyle,g
+s,(^| )Lilongwe,\1#Lilongwe,g
+s,(^| )Lily Gladstone,\1#LilyGladstone,g
+s,(^| )Lima,\1#Lima,g
+s,(^| )Limerick,\1#Limerick,g
+s,(^| )Lincoln National,\1#LincolnNational,g
+s,(^| )Lincoln,\1#Lincoln,g
+s,(^| )Lindsey Vonn,\1#LindseyVonn,g
+s,(^| )Linux,\1#Linux,g
+s,(^| )Linyi,\1#Linyi,g
+s,(^| )Lionel Messi,\1#LionelMessi,g
+s,(^| )Lisbon,\1#Lisbon,g
+s,(^| )Lithia Motors,\1#LithiaMotors,g
+s,(^| )Lithuania,\1#Lithuania,g
+s,(^| )Little Rock,\1#LittleRock,g
+s,(^| )Liuzhou,\1#Liuzhou,g
+s,(^| )Live Nation Entertainment,\1#LiveNationEntertainment,g
+s,(^| )Liverpool,\1#Liverpool,g
+s,(^| )Ljubljana,\1#Ljubljana,g
+s,(^| )Local,\1#Local,g
+s,(^| )Lockheed Martin,\1#LockheedMartin,g
+s,(^| )Loews,\1#Loews,g
+s,(^| )Logitech,\1#Logitech,g
+s,(^| )Lome,\1#Lome,g
+s,(^| )Lomé,\1#Lomé,g
+s,(^| )London,\1#London,g
+s,(^| )Los Angeles Angels,\1#LosAngelesAngels,g
+s,(^| )Los Angeles Clippers,\1#LosAngelesClippers,g
+s,(^| )Los Angeles Dodgers,\1#LosAngelesDodgers,g
+s,(^| )Los Angeles Kings,\1#LosAngelesKings,g
+s,(^| )Los Angeles Lakers,\1#LosAngelesLakers,g
+s,(^| )Los Angeles,\1#LosAngeles,g
+s,(^| )Louisiana,\1#Louisiana,g
+s,(^| )Louisville,\1#Louisville,g
+s,(^| )Louvre,\1#Louvre,g
+s,(^| )Lowe's,\1#Lowes,g
+s,(^| )Luanda,\1#Luanda,g
+s,(^| )Lubumbashi,\1#Lubumbashi,g
+s,(^| )Lucknow,\1#Lucknow,g
+s,(^| )Ludhiana,\1#Lufthansa,g
+s,(^| )Lufthansa,\1#Ludhiana,g
+s,(^| )Luigi Mangione,\1#LuigiMangione,g
+s,(^| )Luka Dončić,\1#LukaDončić,g
+s,(^| )Lululemon athletica,\1#Lululemonathletica,g
+s,(^| )Lumen Technologies,\1#LumenTechnologies,g
+s,(^| )Luoyang,\1#Luoyang,g
+s,(^| )Lusaka,\1#Lusaka,g
+s,(^| )Luxembourg City,\1#LuxembourgCity,g
+s,(^| )Luxembourg,\1#Luxembourg,g
+s,(^| )Luzhou,\1#Luzhou,g
+s,(^| )Lu’an,\1#Lu’an,g
+s,(^| )Lyon,\1#Lyon,g
+s,(^| )M&T Bank,\1#MTBank,g
+s,(^| )M.K. Stalin,\1#MKStalin,g
+s,(^| )MAC,\1#MAC,g
+s,(^| )MAGA,\1#MAGA,g
+s,(^| )MAHA,\1#MAHA,g
+s,(^| )MGM Resorts International,\1#MGMResortsInternational,g
+s,(^| )MIT,\1#MIT,g
+s,(^| )ML,\1#ML,g
+s,(^| )MLB,\1#MLB,g
+s,(^| )MOU,\1#MOU,g
+s,(^| )MRI,\1#MRI,g
+s,(^| )Mac#Book,\1#Mac#Book,g
+s,(^| )Mac,\1#Mac,g
+s,(^| )MacBook,\1#MacBook,g
+s,(^| )Macy's,\1#Macys,g
+s,(^| )Madagascar,\1#Madagascar,g
+s,(^| )Madison,\1#Madison,g
+s,(^| )Madrid,\1#Madrid,g
+s,(^| )Madurai,\1#Madurai,g
+s,(^| )Maine,\1#Maine,g
+s,(^| )Majuro,\1#Majuro,g
+s,(^| )Makassar,\1#Makassar,g
+s,(^| )Malabo,\1#Malabo,g
+s,(^| )Malawi,\1#Malawi,g
+s,(^| )Malaysia,\1#Malaysia,g
+s,(^| )Maldives,\1#Maldives,g
+s,(^| )Male,\1#Male,g
+s,(^| )Mali,\1#Mali,g
+s,(^| )Malta,\1#Malta,g
+s,(^| )Mamdani,\1#Mamdani,g
+s,(^| )Managua,\1#Managua,g
+s,(^| )Manama,\1#Manama,g
+s,(^| )Manaus,\1#Manaus,g
+s,(^| )Manchester,\1#Manchester,g
+s,(^| )Mandalay,\1#Mandalay,g
+s,(^| )Manila,\1#Manila,g
+s,(^| )Manitoba,\1#Manitoba,g
+s,(^| )ManpowerGroup,\1#ManpowerGroup,g
+s,(^| )Manufactur,\1#Manufactur,g
+s,(^| )Maoming,\1#Maoming,g
+s,(^| )Maputo,\1#Maputo,g
+s,(^| )Maracaibo,\1#Maracaibo,g
+s,(^| )Marathon Petroleum,\1#MarathonPetroleum,g
+s,(^| )Margot Robbie,\1#MargotRobbie,g
+s,(^| )Maria Corina Machado,\1#MariaCorinaMachado,g
+s,(^| )Markel Group,\1#MarkelGroup,g
+s,(^| )Markets,\1#Markets,g
+s,(^| )Marrakesh,\1#Marrakesh,g
+s,(^| )Marriott International,\1#MarriottInternational,g
+s,(^| )Marsh & McLennan,\1#MarshMcLennan,g
+s,(^| )Marshall Islands,\1#MarshallIslands,g
+s,(^| )Martin Scorsese,\1#MartinScorsese,g
+s,(^| )Maryland,\1#Maryland,g
+s,(^| )MasTec,\1#MasTec,g
+s,(^| )Masco,\1#Masco,g
+s,(^| )Maseru,\1#Maseru,g
+s,(^| )Mashable,\1#Mashable,g
+s,(^| )Mashhad,\1#Mashhad,g
+s,(^| )Masoud Pezeshkian,\1#MasoudPezeshkian,g
+s,(^| )Massachusetts Mutual Life Insurance,\1#MassachusettsMutualLifeInsurance,g
+s,(^| )Massachusetts,\1#Massachusetts,g
+s,(^| )Mastercard,\1#Mastercard,g
+s,(^| )Matola,\1#Matola,g
+s,(^| )Matt Benns,\1#MattBenns,g
+s,(^| )Matt Clark,\1#MattClark,g
+s,(^| )Matt Damon,\1#MattDamon,g
+s,(^| )Mauritania,\1#Mauritania,g
+s,(^| )Mauritius,\1#Mauritius,g
+s,(^| )Max Verstappen,\1#MaxVerstappen,g
+s,(^| )Mbabane,\1#Mbabane,g
+s,(^| )Mbuji-Mayi,\1#MbujiMayi,g
+s,(^| )McDonald's,\1#McDonalds,g
+s,(^| )McDonald,\1#McDonald,g
+s,(^| )McDonalds,\1#McDonalds,g
+s,(^| )McDonald’s,\1#McDonald’s,g
+s,(^| )McKesson,\1#McKesson,g
+s,(^| )Mecca,\1#Mecca,g
+s,(^| )Medan,\1#Medan,g
+s,(^| )Medellin,\1#Medellin,g
+s,(^| )Medellín,\1#Medellín,g
+s,(^| )Media,\1#Media,g
+s,(^| )Medicaid,\1#Medicaid,g
+s,(^| )Medical,\1#Medical,g
+s,(^| )Medicare,\1#Medicare,g
+s,(^| )Medina,\1#Medina,g
+s,(^| )Meerut,\1#Meerut,g
+s,(^| )Mega Lotto,\1#MegaLotto,g
+s,(^| )Megan Thee Stallion,\1#MeganTheeStallion,g
+s,(^| )Meghan Markle,\1#MeghanMarkle,g
+s,(^| )Meghan Trainor,\1#MeghanTrainor,g
+s,(^| )Melania,\1#Melania,g
+s,(^| )Melbourne,\1#Melbourne,g
+s,(^| )Memphis Grizzlies,\1#MemphisGrizzlies,g
+s,(^| )Memphis,\1#Memphis,g
+s,(^| )Merck,\1#Merck,g
+s,(^| )Meredith Wilshere,\1#MeredithWilshere,g
+s,(^| )Mergers and,\1#Mergersand,g
+s,(^| )Meridian,\1#Meridian,g
+s,(^| )Mersin,\1#Mersin,g
+s,(^| )Messi,\1#Messi,g
+s,(^| )MetLife,\1#MetLife,g
+s,(^| )Meta,\1#Meta,g
+s,(^| )Metals,\1#Metals,g
+s,(^| )Metro Boomin,\1#MetroBoomin,g
+s,(^| )Mexico City,\1#MexicoCity,g
+s,(^| )Mexico,\1#Mexico,g
+s,(^| )Miami Heat,\1#MiamiHeat,g
+s,(^| )Miami Marlins,\1#MiamiMarlins,g
+s,(^| )Miami,\1#Miami,g
+s,(^| )Mianyang,\1#Mianyang,g
+s,(^| )Michael B. Jordan,\1#MichaelBJordan,g
+s,(^| )Michael Buckner,\1#MichaelBuckner,g
+s,(^| )Michael Keaton,\1#MichaelKeaton,g
+s,(^| )Michigan,\1#Michigan,g
+s,(^| )Microchip Technology,\1#MicrochipTechnology,g
+s,(^| )Micron Technology,\1#MicronTechnology,g
+s,(^| )Micronesia,\1#Micronesia,g
+s,(^| )Microsoft,\1#Microsoft,g
+s,(^| )Middle East,\1#MiddleEast,g
+s,(^| )Mideast,\1#Mideast,g
+s,(^| )Mike Marsland,\1#MikeMarsland,g
+s,(^| )MikeDitka,\1#MikeDitka,g
+s,(^| )Milan,\1#Milan,g
+s,(^| )Miley Cyrus,\1#MileyCyrus,g
+s,(^| )Military,\1#Military,g
+s,(^| )Milo Ventimiglia,\1#MiloVentimiglia,g
+s,(^| )Milwaukee Brewers,\1#MilwaukeeBrewers1,g
+s,(^| )Milwaukee Bucks,\1#MilwaukeeBucks,g
+s,(^| )Milwaukee,\1#Milwaukee,g
+s,(^| )Mining and,\1#Miningand,g
+s,(^| )Minnapolis,\1#Minnapolis,g
+s,(^| )Minneapolis,\1#Minneapolis,g
+s,(^| )Minnesota Timberwolves,\1#MinnesotaTimberwolves,g
+s,(^| )Minnesota Twins,\1#MinnesotaTwins,g
+s,(^| )Minnesota Wild,\1#MinnesotaWild,g
+s,(^| )Minnesota,\1#Minnesota,g
+s,(^| )Minsk,\1#Minsk,g
+s,(^| )Mira-Bhayandar,\1#MiraBhayandar,g
+s,(^| )Mirra Andreeva,\1#MirraAndreeva,g
+s,(^| )Mississippi,\1#Mississippi,g
+s,(^| )Missoula,\1#Missoula,g
+s,(^| )Missouri,\1#Missouri,g
+s,(^| )Mobile,\1#Mobile,g
+s,(^| )Mogadishu,\1#Mogadishu,g
+s,(^| )Mohawk Industries,\1#MohawkIndustries,g
+s,(^| )Moldova,\1#Moldova,g
+s,(^| )Molina Healthcare,\1#MolinaHealthcare,g
+s,(^| )Molson Coors Beverage,\1#MolsonCoorsBeverage,g
+s,(^| )Mombasa,\1#Mombasa,g
+s,(^| )Monaco,\1#Monaco,g
+s,(^| )Mondelez International,\1#MondelezInternational,g
+s,(^| )Money,\1#Money,g
+s,(^| )Mongolia,\1#Mongolia,g
+s,(^| )Monica Bellucci,\1#MonicaBellucci,g
+s,(^| )Monrovia,\1#Monrovia,g
+s,(^| )Monster Beverage,\1#MonsterBeverage,g
+s,(^| )Montana,\1#Montana,g
+s,(^| )Monte Carlo,\1#MonteCarlo,g
+s,(^| )Montenegro,\1#Montenegro,g
+s,(^| )Monterrey,\1#Monterrey,g
+s,(^| )Montevideo,\1#Montevideo,g
+s,(^| )Montgomery,\1#Montgomery,g
+s,(^| )Montpelier,\1#Montpelier,g
+s,(^| )Montreal,\1#Montreal,g
+s,(^| )Montréal Canadiens,\1#MontréalCanadiens,g
+s,(^| )Moradabad,\1#Moradabad,g
+s,(^| )Morgan Stanley,\1#MorganStanley,g
+s,(^| )Morocco,\1#Morocco,g
+s,(^| )Mortgage,\1#Mortgage,g
+s,(^| )Mosaic,\1#Mosaic,g
+s,(^| )Moscow,\1#Moscow,g
+s,(^| )Mosul,\1#Mosul,g
+s,(^| )Mother,\1#Mother,g
+s,(^| )Motor,\1#Motor,g
+s,(^| )Motorola Solutions,\1#MotorolaSolutions,g
+s,(^| )Movie,\1#Movie,g
+s,(^| )Mozambique,\1#Mozambique,g
+s,(^| )Mubarak,\1#Mubarak,g
+s,(^| )Multan,\1#Multan,g
+s,(^| )Multimedia,\1#Multimedia,g
+s,(^| )Mumbai,\1#Mumbai,g
+s,(^| )Munich,\1#Munich,g
+s,(^| )Murphy USA,\1#MurphyUSA,g
+s,(^| )Muscat,\1#Muscat,g
+s,(^| )Music,\1#Music,g
+s,(^| )Musk,\1#Musk,g
+s,(^| )Muslim,\1#Muslim,g
+s,(^| )Mutual of Omaha,\1#MutualofOmaha,g
+s,(^| )Mwanza,\1#Mwanza,g
+s,(^| )Myanmar,\1#Myanmar,g
+s,(^| )Mysore,\1#Mysore,g
+s,(^| )N'Djamena,\1#N'Djamena,g
+s,(^| )N'Djamena,\1#NDjamena,g
+s,(^| )NASA,\1#NASA,g
+s,(^| )NASDAQ,\1#NASDAQ,g
+s,(^| )NATO,\1#NATO,g
+s,(^| )NBA,\1#NBA,g
+s,(^| )NBC,\1#NBC,g
+s,(^| )NCAA,\1#NCAA,g
+s,(^| )NDA,\1#NDA,g
+s,(^| )NFC,\1#NFC,g
+s,(^| )NFL,\1#NFL,g
+s,(^| )NHL,\1#NHL,g
+s,(^| )NIH,\1#NIH,g
+s,(^| )NLP,\1#NLP,g
+s,(^| )NOV,\1#NOV,g
+s,(^| )NPR,\1#NPR,g
+s,(^| )NRA,\1#NRA,g
+s,(^| )NRG Energy,\1#NRGEnergy,g
+s,(^| )NSA,\1#NSA,g
+s,(^| )NVR,\1#NVR,g
+s,(^| )NYC,\1#NYC,g
+s,(^| )NYPD,\1#NYPD,g
+s,(^| )NYSE,\1#NYSE,g
+s,(^| )Nagoya,\1#Nagoya,g
+s,(^| )Nagpur,\1#Nagpur,g
+s,(^| )Nairobi,\1#Nairobi,g
+s,(^| )Namibia,\1#Namibia,g
+s,(^| )Nanchang,\1#Nanchang,g
+s,(^| )Nanchong,\1#Nanchong,g
+s,(^| )Nanjing,\1#Nanjing,g
+s,(^| )Nanning,\1#Nanning,g
+s,(^| )Nantong,\1#Nantong,g
+s,(^| )Nanyang,\1#Nanyang,g
+s,(^| )Narendra Modi,\1#NarendraModi,g
+s,(^| )Nashik,\1#Nashik,g
+s,(^| )Nashua,\1#Nashua,g
+s,(^| )Nashville Predators,\1#NashvillePredators,g
+s,(^| )Nashville,\1#Nashville,g
+s,(^| )Nassau,\1#Nassau,g
+s,(^| )Natalie Portman,\1#NataliePortman,g
+s,(^| )Natasha Campos,\1#NatashaCampos,g
+s,(^| )Nate Bryan,\1#NateBryan,g
+s,(^| )Nation,\1#Nation,g
+s,(^| )Nations,\1#Nations,g
+s,(^| )Nationwide,\1#Nationwide,g
+s,(^| )Nauru,\1#Nauru,g
+s,(^| )Navi Mumbai,\1#NaviMumbai,g
+s,(^| )Naypyidaw,\1#Naypyidaw,g
+s,(^| )Nazi,\1#Nazi,g
+s,(^| )Nebraska,\1#Nebraska,g
+s,(^| )Nelly Korda,\1#NellyKorda,g
+s,(^| )Nelson Mandela Bay (Gqeberha),\1#NelsonMandelaBay,g
+s,(^| )Nepal,\1#Nepal,g
+s,(^| )Netanyahu,\1#Netanyahu,g
+s,(^| )Netflix,\1#Netflix,g
+s,(^| )Netherlands,\1#Netherlands,g
+s,(^| )Networking,\1#Networking,g
+s,(^| )Nevada,\1#Nevada,g
+s,(^| )New ,\1#New,g
+s,(^| )New Hampshire,\1#NewHampshire,g
+s,(^| )New Jersey Devils,\1#NewJerseyDevils,g
+s,(^| )New Jersey,\1#NewJersey,g
+s,(^| )New Mexico,\1#NewMexico,g
+s,(^| )New Orleans Pelicans,\1#NewOrleansPelicans,g
+s,(^| )New Orleans,\1#NewOrleans,g
+s,(^| )New Taipei City,\1#NewTaipeiCity,g
+s,(^| )New York City,\1#NYC,g
+s,(^| )New York City,\1#NewYorkCity,g
+s,(^| )New York Islanders,\1#NewYorkIslanders,g
+s,(^| )New York Knicks,\1#NewYorkKnicks,g
+s,(^| )New York Life Insurance,\1#NewYorkLifeInsurance,g
+s,(^| )New York Mets,\1#NewYorkMets,g
+s,(^| )New York Rangers,\1#NewYorkRangers,g
+s,(^| )New York Yankees,\1#NewYorkYankees,g
+s,(^| )New York,\1#NewYork,g
+s,(^| )New Zealand,\1#NewZealand,g
+s,(^| )Newark,\1#Newark,g
+s,(^| )Newell Brands,\1#NewellBrands,g
+s,(^| )Newmont,\1#Newmont,g
+s,(^| )News Corp.,\1#NewsCorp,g
+s,(^| )News,\1#News,g
+s,(^| )NextEra Energy,\1#NextEraEnergy,g
+s,(^| )Nezahualcóyotl,\1#Nezahualcóyotl,g
+s,(^| )Niamey,\1#Niamey,g
+s,(^| )Nicaragua,\1#Nicaragua,g
+s,(^| )Nicki Minaj,\1#NickiMinaj,g
+s,(^| )Nicola Coughlan,\1#NicolaCoughlan,g
+s,(^| )Nicole Kidman,\1#NicoleKidman,g
+s,(^| )Nicosia,\1#Nicosia,g
+s,(^| )Niger,\1#Niger,g
+s,(^| )Nigeria,\1#Nigeria,g
+s,(^| )Nike,\1#Nike,g
+s,(^| )Nikola Jokić,\1#NikolaJokić,g
+s,(^| )Ningbo,\1#Ningbo,g
+s,(^| )Nintendo,\1#Nintendo,g
+s,(^| )Nirmala Sitharaman,\1#NirmalaSitharaman,g
+s,(^| )Nizhny Novgorod,\1#NizhnyNovgorod,g
+s,(^| )Nobel Prize,\1#NobelPrize,g
+s,(^| )Nokia,\1#Nokia,g
+s,(^| )Nonprofit,\1#Nonprofit,g
+s,(^| )Nordstrom,\1#Nordstrom,g
+s,(^| )Norfolk Southern,\1#NorfolkSouthern,g
+s,(^| )North Carolina,\1#NorthCarolina,g
+s,(^| )North Carolina,\1#SouthCarolina,g
+s,(^| )North Dakota,\1#NorthDakota,g
+s,(^| )North Korea,\1#NorthKorea,g
+s,(^| )North Macedonia,\1#NorthMacedonia,g
+s,(^| )North-Dakota,\1#NorthDakota,g
+s,(^| )Northern Trust,\1#NorthernTrust,g
+s,(^| )Northern,\1#Northern,g
+s,(^| )Northrop Grumman,\1#NorthropGrumman,g
+s,(^| )Northwestern Mutual,\1#NorthwesternMutual,g
+s,(^| )Norway,\1#Norway,g
+s,(^| )Notre Dame,\1#NotreDame,g
+s,(^| )Nouakchott,\1#Nouakchott,g
+s,(^| )Nova,\1#Nova,g
+s,(^| )Novak Djokovic,\1#NovakDjokovic,g
+s,(^| )Novosibirsk,\1#Novosibirsk,g
+s,(^| )Nucor,\1#Nucor,g
+s,(^| )Nuku'alofa,\1#Nukualofa,g
+s,(^| )Nur-Sultan,\1#NurSultan,g
+s,(^| )Nvidia,\1#Nvidia,g
+s,(^| )O'Reilly Automotive,\1#OReillyAutomotive,g
+s,(^| )OKR,\1#OKR,g
+s,(^| )OPEC,\1#OPEC,g
+s,(^| )Obama,\1#Obama,g
+s,(^| )Occidental Petroleum,\1#OccidentalPetroleum,g
+s,(^| )Oddities,\1#Oddities,g
+s,(^| )Odesa,\1#Odesa,g
+s,(^| )Ohio,\1#Ohio,g
+s,(^| )Ohtani,\Ohtani,g
+s,(^| )Oil and,\1#Oil,g
+s,(^| )Oklahoma City Thunder,\1#OklahomaCityThunder,g
+s,(^| )Oklahoma City,\1#OklahomaCity,g
+s,(^| )Oklahoma,\1#Oklahoma,g
+s,(^| )Old Republic International,\1#OldRepublicInternational,g
+s,(^| )Olivia Rodrigo,\1#OliviaRodrigo,g
+s,(^| )Olympia,\1#Olympia,g
+s,(^| )Olympics,\1#Olympics,g
+s,(^| )Omaha,\1#Omaha,g
+s,(^| )Oman,\1#Oman,g
+s,(^| )Omdurman,\1#Omdurman,g
+s,(^| )Omnicom Group,\1#OmnicomGroup,g
+s,(^| )Omsk,\1#Omsk,g
+s,(^| )Oneok,\1#Oneok,g
+s,(^| )Onion,\1#Onion,g
+s,(^| )Onitsha,\1#Onitsha,g
+s,(^| )OpenAI,\1#OpenAI,g
+s,(^| )OprahWinfrey,\1#OprahWinfrey,g
+s,(^| )Oracle,\1#Oracle,g
+s,(^| )Oregon,\1#Oregon,g
+s,(^| )Oreos,\1##Oreos,g
+s,(^| )Orlando Magic,\1#OrlandoMagic,g
+s,(^| )Osaka,\1#Osaka,g
+s,(^| )Oscar Health,\1#OscarHealth,g
+s,(^| )Oshkosh,\1#Oshkosh,g
+s,(^| )Oslo,\1#Oslo,g
+s,(^| )Otis Worldwide,\1#OtisWorldwide,g
+s,(^| )Ottawa Senators,\1#OttawaSenators,g
+s,(^| )Ottawa,\1#Ottawa,g
+s,(^| )Ouagadougou,\1#Ouagadougou,g
+s,(^| )Overland Park,\1#OverlandPark,g
+s,(^| )Ovintiv,\1#Ovintiv,g
+s,(^| )Owens & Minor,\1#OwensMinor,g
+s,(^| )Owens Corning,\1#OwensCorning,g
+s,(^| )Oxford,\1#Oxford,g
+s,(^| )PAC,\1#PAC,g
+s,(^| )PBF Energy,\1#PBFEnergy,g
+s,(^| )PC,\1#PC,g
+s,(^| )PCE,\1#PCE,g
+s,(^| )PFAS,\1#PFAS,g
+s,(^| )PG&E,\1#PGE,g
+s,(^| )PLA,\1#PLA,g
+s,(^| )PMI,\1#PMI,g
+s,(^| )PNC Financial Services Group,\1#PNCFinancialServicesGroup,g
+s,(^| )POTUS,\1#POTUS,g
+s,(^| )PPE,\1#PPE,g
+s,(^| )PPG Industries,\1#PPGIndustries,g
+s,(^| )PPI,\1#PPI,g
+s,(^| )PPL,\1#PPL,g
+s,(^| )PPP,\1#PPP,g
+s,(^| )PTSD,\1#PTSD,g
+s,(^| )PVH,\1#PVH,g
+s,(^| )Paccar,\1#Paccar,g
+s,(^| )Pacific Life,\1#PacificLife,g
+s,(^| )Packaging Corp. of America,\1#PackagingCorpofAmerica,g
+s,(^| )Packers,\1#Packers,g
+s,(^| )Pakistan,\1#Pakistan,g
+s,(^| )Palau,\1#Palau,g
+s,(^| )Palembang,\1#Palembang,g
+s,(^| )Palestine,\1#Palestine,g
+s,(^| )Palestinian,\1#Palestinian,g
+s,(^| )Palo Alto Networks,\1#PaloAltoNetworks,g
+s,(^| )Panama City,\1#PanamaCity,g
+s,(^| )Panama,\1#Panama,g
+s,(^| )Panthers,\1#Panthers,g
+s,(^| )Papa Johns,\1#PapaJohns,g
+s,(^| )Papua New Guinea,\1#PapuaNewGuinea,g
+s,(^| )Par Pacific Holdings,\1#ParPacificHoldings,g
+s,(^| )Paraguay,\1#Paraguay,g
+s,(^| )Paramaribo,\1#Paramaribo,g
+s,(^| )Paramount Global,\1#ParamountGlobal,g
+s,(^| )Paramount,\1#Paramount,g
+s,(^| )Parenting,\1#Parenting,g
+s,(^| )Paris,\1#Paris,g
+s,(^| )Parker-Hannifin,\1#ParkerHannifin,g
+s,(^| )Parliament,\1#Parliament,g
+s,(^| )Passover,\1#Passover,g
+s,(^| )Patna,\1#Patna,g
+s,(^| )Patrick Mahomes,\1#PatrickMahomes,g
+s,(^| )Patriots,\1#Patriots,g
+s,(^| )Paul Mescal,\1#PaulMescal,g
+s,(^| )PaulNewman,\1#PaulNewman,g
+s,(^| )Pax Jolie-Pitt,\1#PaxJoliePitt,g
+s,(^| )PayPal Holdings,\1#PayPalHoldings,g
+s,(^| )PeaceCorps,\1#PeaceCorps,g
+s,(^| )Peacock,\1#Peacock,g
+s,(^| )PearlJam,\1#PearlJam,g
+s,(^| )Pedro Almodóvar,\1#PedroAlmodóvar,g
+s,(^| )Pedro Pascal,\1#PedroPascal,g
+s,(^| )Pennsylvania,\1#Pennsylvania,g
+s,(^| )Penske Automotive Group,\1#PenskeAutomotiveGroup,g
+s,(^| )Pentagon,\1#Pentagon,g
+s,(^| )PepsiCo,\1#PepsiCo,g
+s,(^| )Performance Food Group,\1#PerformanceFoodGroup,g
+s,(^| )Perm,\1#Perm,g
+s,(^| )Perth,\1#Perth,g
+s,(^| )Peru,\1#Peru,g
+s,(^| )Peshawar,\1#Peshawar,g
+s,(^| )Peso Pluma,\1#PesoPluma,g
+s,(^| )Peter Kiewit Sons',\1#PeterKiewitSons,g
+s,(^| )Pfizer,\1#Pfizer,g
+s,(^| )Pharma,\1#Pharma,g
+s,(^| )Philadelphia 76ers,\1#Philadelphia76ers,g
+s,(^| )Philadelphia Flyers,\1#PhiladelphiaFlyers,g
+s,(^| )Philadelphia Phillies,\1#PhiladelphiaPhillies,g
+s,(^| )Philadelphia,\1#Philadelphia,g
+s,(^| )Philip Morris International,\1#PhilipMorrisInternational,g
+s,(^| )Philippines,\1#Philippines,g
+s,(^| )Phillips 66,\1#Phillips66,g
+s,(^| )Phnom Penh,\1#PhnomPenh,g
+s,(^| )Phoenix Suns,\1#PhoenixSuns,g
+s,(^| )Phoenix,\1#Phoenix,g
+s,(^| )Phys Org,\1#PhysOrg,g
+s,(^| )Pierre,\1#Pierre,g
+s,(^| )Pimpri-Chinchwad,\1#PimpriChinchwad,g
+s,(^| )Pingdingshan,\1#Pingdingshan,g
+s,(^| )Pinterest,\1#Pinterest,g
+s,(^| )Pittsburgh Penguins,\1#PittsburghPenguins,g
+s,(^| )Pittsburgh Pirates,\1#PittsburghPirates,g
+s,(^| )Pittsburgh,\1#Pittsburgh,g
+s,(^| )Plains GP Holdings,\1#PlainsGPHoldings,g
+s,(^| )Plastics,\1#Plastics,g
+s,(^| )PlayStation,\1#PlayStation,g
+s,(^| )Plumbing,\1#Plumbing,g
+s,(^| )Podcast,\1#Podcast,g
+s,(^| )Podgorica,\1#Podgorica,g
+s,(^| )Poem,\1#Poem,g
+s,(^| )Pointe-Noire,\1#PointeNoire,g
+s,(^| )Poland,\1#Poland,g
+s,(^| )Police,\1#Police,g
+s,(^| )Policy,\1#Policy,g
+s,(^| )Politic,\1#Politic,g
+s,(^| )Politics,\1#Politics,g
+s,(^| )Pope,\1#Pope,g
+s,(^| )Port Harcourt,\1#PortHarcourt,g
+s,(^| )Port Louis,\1#PortLouis,g
+s,(^| )Port Moresby,\1#PortMoresby,g
+s,(^| )Port of Spain,\1#PortOfSpain,g
+s,(^| )Port-au-Prince,\1#PortAuPrince,g
+s,(^| )Portal,\1#Portal,g
+s,(^| )Portland Trail Blazers,\1#PortlandTrailBlazers,g
+s,(^| )Portland,\1#Portland,g
+s,(^| )Porto Alegre,\1#PortoAlegre,g
+s,(^| )Porto,\1#Porto,g
+s,(^| )Porto-Novo,\1#PortoNovo,g
+s,(^| )Portugal,\1#Portugal,g
+s,(^| )Post Holdings,\1#PostHoldings,g
+s,(^| )Powerball,\1#Powerball,g
+s,(^| )Prague,\1#Prague,g
+s,(^| )Praia,\1#Praia,g
+s,(^| )Prayagraj,\1#Prayagraj,g
+s,(^| )Pretoria,\1#Pretoria,g
+s,(^| )Prime Minister,\1#PrimeMinister,g
+s,(^| )Prince Andrew,\1#PrinceAndrew,g
+s,(^| )Prince Harry,\1#PrinceHarry,g
+s,(^| )Prince,\1#Prince,g
+s,(^| )Principal Financial,\1#PrincipalFinancial,g
+s,(^| )Procter & Gamble,\1#ProcterGamble,g
+s,(^| )Product Launch,\1#ProductLaunch,g
+s,(^| )Progressive,\1#Progressive,g
+s,(^| )Prologis,\1#Prologis,g
+s,(^| )Property,\1#Property,g
+s,(^| )Providence,\1#Providence,g
+s,(^| )Prudential Financial,\1#PrudentialFinancial,g
+s,(^| )Psychology,\1#Psychology,g
+s,(^| )Public Service Enterprise Group,\1#PublicServiceEnterpriseGroup,g
+s,(^| )Public Service,\1#PublicService,g
+s,(^| )Publish,\1#Publish,g
+s,(^| )Publix Super Markets,\1#PublixSuperMarkets,g
+s,(^| )Puebla,\1#Puebla,g
+s,(^| )PulteGroup,\1#PulteGroup,g
+s,(^| )Pune,\1#Pune,g
+s,(^| )Purchasing,\1#Purchasing,g
+s,(^| )Putian,\1#Putian,g
+s,(^| )Putin,\1#Putin,g
+s,(^| )Pyongyang,\1#Pyongyang,g
+s,(^| )QVC Group,\1#QVCGroup,g
+s,(^| )QXO Building Products,\1#QXOBuildingProducts,g
+s,(^| )Qatar,\1#Qatar,g
+s,(^| )Qingdao,\1#Qingdao,g
+s,(^| )Qingyuan,\1#Qingyuan,g
+s,(^| )Qinhuangdao,\1#Qinhuangdao,g
+s,(^| )Qiqihar,\1#Qiqihar,g
+s,(^| )Qom,\1#Qom,g
+s,(^| )Qualcomm,\1#Qualcomm,g
+s,(^| )Quanta Services,\1#QuantaServices,g
+s,(^| )Quanzhou,\1#Quanzhou,g
+s,(^| )Quebec City,\1#QuebecCity,g
+s,(^| )Quebec,\1#Quebec,g
+s,(^| )Quest Diagnostics,\1#QuestDiagnostics,g
+s,(^| )Quetta,\1#Quetta,g
+s,(^| )Quezon City,\1#QuezonCity,g
+s,(^| )Quinta Brunson,\1#QuintaBrunson,g
+s,(^| )Quito,\1#Quito,g
+s,(^| )RFK,\1#RFK,g
+s,(^| )RNA,\1#RNA,g
+s,(^| )RNC,\1#RNC,g
+s,(^| )ROI,\1#ROI,g
+s,(^| )RTX,\1#RTX,g
+s,(^| )Rabat,\1#Rabat,g
+s,(^| )Rachel Bilson,\1#RachelBilson,g
+s,(^| )Racing,\1#Racing,g
+s,(^| )Radiology,\1#Radiology,g
+s,(^| )RahmEmanuel,\1#RahmEmanuel,g
+s,(^| )Raipur,\1#Raipur,g
+s,(^| )Rajkot,\1#Rajkot,g
+s,(^| )Raleigh,\1#Raleigh,g
+s,(^| )Ramadan,\1#Ramadan,g
+s,(^| )Ranchi,\1#Ranchi,g
+s,(^| )Rangoon,\1#Rangoon,g
+s,(^| )Rapid City,\1#RapidCity,g
+s,(^| )Rawalpindi,\1#Rawalpindi,g
+s,(^| )Raymond James Financial,\1#RaymondJamesFinancial,g
+s,(^| )Real Estate,\1#RealEstate,g
+s,(^| )RealClearPolitics,\1#RealClearPolitics,g
+s,(^| )Recife,\1#Recife,g
+s,(^| )Recipe,\1#Recipe,g
+s,(^| )Reese Witherspoon,\1#ReeseWitherspoon,g
+s,(^| )Regeneron Pharmaceuticals,\1#RegeneronPharmaceuticals,g
+s,(^| )Regina,\1#Regina,g
+s,(^| )Regions Financial,\1#RegionsFinancial,g
+s,(^| )Regulation,\1#Regulation,g
+s,(^| )Reinsurance Group of America,\1#ReinsuranceGroupofAmerica,g
+s,(^| )Rekha Gupta,\1#RekhaGupta,g
+s,(^| )Relationship,\1#Relationship,g
+s,(^| )Reliance,\1#Reliance,g
+s,(^| )Religion,\1#Religion,g
+s,(^| )Republic Services,\1#RepublicServices,g
+s,(^| )Republic,\1#Republic,g
+s,(^| )Research,\1#Research,g
+s,(^| )Restaurant,\1#Restaurant,g
+s,(^| )Retail,\1#Retail,g
+s,(^| )Reykjavik,\1#Reykjavik,g
+s,(^| )Rhode Island,\1#RhodeIsland,g
+s,(^| )Richmond,\1#Richmond,g
+s,(^| )Riga,\1#Riga,g
+s,(^| )Rihanna,\1#Rihanna,g
+s,(^| )Rio de Janeiro,\1#RioDeJaneiro,g
+s,(^| )Rio de Janeiro,\1#RiodeJaneiro,g
+s,(^| )Riyadh,\1#Riyadh,g
+s,(^| )Rizhao,\1#Rizhao,g
+s,(^| )Robert Downey Jr.,\1#RobertDowneyJr,g
+s,(^| )Robot,\1#Robot,g
+s,(^| )Rockwell Automation,\1#RockwellAutomation,g
+s,(^| )Rodrigo Chaves Robles,\1#RodrigoChavesRobles,g
+s,(^| )Roku ,\1#Roku ,g
+s,(^| )Romance,\1#Romance,g
+s,(^| )Romania,\1#Romania,g
+s,(^| )Rome,\1#Rome,g
+s,(^| )RonChernow,\1#RonChernow,g
+s,(^| )RonDeSantis,\1#RonDeSantis,g
+s,(^| )Rory McIlroy,\1#RoryMcIlroy,g
+s,(^| )Rosalia,\1#Rosalia,g
+s,(^| )Rosario,\1#Rosario,g
+s,(^| )Roseau,\1#Roseau,g
+s,(^| )Ross Stores,\1#RossStores,g
+s,(^| )Rostov-on-Don,\1#RostovonDon,g
+s,(^| )Rotterdam,\1#Rotterdam,g
+s,(^| )Royal Navy,\1#RoyalNavy,g
+s,(^| )Rubio,\1#Rubio,g
+s,(^| )Rui’an,\1#Rui’an,g
+s,(^| )Rush Enterprises,\1#RushEnterprises,g
+s,(^| )Russia,\1#Russia,g
+s,(^| )Rwanda,\1#Rwanda,g
+s,(^| )Ryan Gosling,\1#RyanGosling,g
+s,(^| )Ryan Reynolds,\1#RyanReynolds,g
+s,(^| )Ryder System,\1#RyderSystem,g
+s,(^| )S&P Global,\1#SPGlobal,g
+s,(^| )S. Jaishankar,\1#SJaishankar,g
+s,(^| )SAM,\1#SAM,g
+s,(^| )SCOTUS,\1#SCOTUS,g
+s,(^| )SEC,\1#SEC,g
+s,(^| )SEO,\1#SEO,g
+s,(^| )SNAP,\1#SNAP,g
+s,(^| )SPAC,\1#SPAC,g
+s,(^| )SQL,\1#SQL,g
+s,(^| )STEM,\1#STEM,g
+s,(^| )SZA,\1#SZA,g
+s,(^| )SaaS,\1#SaaS,g
+s,(^| )Sabrina Carpenter,\1#SabrinaCarpenter,g
+s,(^| )Sabrina Ionescu,\1#SabrinaIonescu,g
+s,(^| )Sacramento Kings,\1#SacramentoKings,g
+s,(^| )Sacramento,\1#Sacramento,g
+s,(^| )Saharanpur,\1#Saharanpur,g
+s,(^| )Saint Kitts and Nevis,\1#SaintKittsAndNevis,g
+s,(^| )Saint Kitts,SaintKitts,g
+s,(^| )Saint Louis,\1#SaintLouis,g
+s,(^| )Saint Lucia,\1#SaintLucia,g
+s,(^| )Saint Paul,SaintPaul,g
+s,(^| )Saint Paul,\1#SaintPaul,g
+s,(^| )Saint Petersburg,\1#SaintPetersburg,g
+s,(^| )Saint Vincent and the Grenadines,\1#SaintVincentAndTheGrenadines,g
+s,(^| )Saint,\1#Saint,g
+s,(^| )Saitama,\1#Saitama,g
+s,(^| )Salem,\1#Salem,g
+s,(^| )Salesforce,\1#Salesforce,g
+s,(^| )Salon,\1#Salon,g
+s,(^| )Salt Lake City,\1#SaltLakeCity,g
+s,(^| )Salvador,\1#Salvador,g
+s,(^| )Sam Kerr,\1#SamKerr,g
+s,(^| )Samara,\1#Samara,g
+s,(^| )Samoa,\1#Samoa,g
+s,(^| )Samsung,\1#Samsung,g
+s,(^| )Sam’s Club,\SamsClub,g
+s,(^| )San Antonio Spurs,\1#SanAntonioSpurs,g
+s,(^| )San Antonio,\1#SanAntonio,g
+s,(^| )San Diego Padres,\1#SanDiegoPadres,g
+s,(^| )San Diego,\1#SanDiego,g
+s,(^| )San Francisco Giants,\1#SanFranciscoGiants,g
+s,(^| )San Francsico,\1#SanFrancsico,g
+s,(^| )San Jose Sharks,\1#SanJoseSharks,g
+s,(^| )San Jose,\1#SanJose,g
+s,(^| )San Marino,\1#SanMarino,g
+s,(^| )San Salvador,\1#SanSalvador,g
+s,(^| )Sanaa,\1#Sanaa,g
+s,(^| )Sanmina,\1#Sanmina,g
+s,(^| )Santa Cruz de la Sierra,\1#SantaCruzdelaSierra,g
+s,(^| )Santa Cruz,\1#SantaCruz,g
+s,(^| )Santa Fe,\1#SantaFe,g
+s,(^| )Santiago,\1#Santiago,g
+s,(^| )Santo Domingo Este,\1#SantoDomingoEste,g
+s,(^| )Santo Domingo,\1#SantoDomingo,g
+s,(^| )Sao Paulo,\1#SaoPaulo,g
+s,(^| )Sao Tome and Principe,\1#SaoTomeAndPrincipe,g
+s,(^| )Sao Tome and Principe,\1#SaoTomeandPrincipe,g
+s,(^| )Sapporo,\1#Sapporo,g
+s,(^| )Sarah Ferguson,\1#SarahFerguson,g
+s,(^| )Sarajevo,\1#Sarajevo,g
+s,(^| )Saskatchewan,\1#Saskatchewan,g
+s,(^| )Saskatoon,\1#Saskatoon,g
+s,(^| )Saudi Arabia,\1#SaudiArabia,g
+s,(^| )Science Applications International,\1#ScienceApplicationsInternational,g
+s,(^| )Science,\1#Science,g
+s,(^| )Scientific,\1#Scientific,g
+s,(^| )Scientist,\1#Scientist,g
+s,(^| )Scotia,\1#Scotia,g
+s,(^| )Scotland,\1#Scotland,g
+s,(^| )Scottie Scheffler,\1#ScottieScheffler,g
+s,(^| )Scottish,\1 #Scottish,g
+s,(^| )Seaboard,\1#Seaboard,g
+s,(^| )Seahawks,\1#Seahawks,g
+s,(^| )SeanConnery,\1#SeanConnery,g
+s,(^| )Seattle Kraken,\1#SeattleKraken,g
+s,(^| )Seattle Mariners,\1#SeattleMariners,g
+s,(^| )Seattle,\1#Seattle,g
+s,(^| )Securian Financial Group,\1#SecurianFinancialGroup,g
+s,(^| )Security,\1#Security,g
+s,(^| )Selena Gomez,\1#SelenaGomez,g
+s,(^| )Self-Help,\1#Self-Help,g
+s,(^| )Semarang,\1#Semarang,g
+s,(^| )Semiconductor,\1#Semiconductor,g
+s,(^| )Sempra,\1#Sempra,g
+s,(^| )Senate,\1#Senate,g
+s,(^| )Sendai,\1#Sendai,g
+s,(^| )Senegal,\1#Senegal,g
+s,(^| )Seniors,\1#Seniors,g
+s,(^| )Seoul,\1#Seoul,g
+s,(^| )Serbia,\1#Serbia,g
+s,(^| )ServiceNow,\1#ServiceNow,g
+s,(^| )Seychelles,\1#Seychelles,g
+s,(^| )Shai Gilgeous-Alexander,\1#ShaiGilgeousAlexander,g
+s,(^| )Shakira,\1#Shakira,g
+s,(^| )Shanghai,\1#Shanghai,g
+s,(^| )Shangqiu,\1#Shangqiu,g
+s,(^| )Shangrao,\1#Shangrao,g
+s,(^| )Shantou,\1#Shantou,g
+s,(^| )Shaoxing,\1#Shaoxing,g
+s,(^| )Sharjah,\1#Sharjah,g
+s,(^| )Shenyang,\1#Shenyang,g
+s,(^| )Shenzhen,\1#Shenzhen,g
+s,(^| )Sherwin-Williams,\1#SherwinWilliams,g
+s,(^| )Shijiazhuang,\1#Shijiazhuang,g
+s,(^| )Shipping,\1#Shipping,g
+s,(^| )Shiraz,\1#Shiraz,g
+s,(^| )Shohei Ohtani,\1#ShoheiOhtani,g
+s,(^| )Shubra El Kheima,\1#ShubraElKheima,g
+s,(^| )Shymkent,\1#Shymkent,g
+s,(^| )Sierra Leone,\1#SierraLeone,g
+s,(^| )Simone Biles,\1#SimoneBiles,g
+s,(^| )Singapore,\1#Singapore,g
+s,(^| )Sioux Falls,\1#SiouxFalls,g
+s,(^| )Sirius XM Holdings,\1#SiriusXMHoldings,g
+s,(^| )Skechers U.S.A.,\1#SkechersUSA,g
+s,(^| )Skopje,\1#Skopje,g
+s,(^| )Slovakia,\1#Slovakia,g
+s,(^| )Slovenia,\1#Slovenia,g
+s,(^| )Small Business,\1#SmallBusiness,g
+s,(^| )Smart Bitches,\1#SmartBitches,g
+s,(^| )Smart Phone,\1#SmartPhone,g
+s,(^| )Smartphone,\1#Smartphone,g
+s,(^| )Snoop Dogg,\1#SnoopDogg,g
+s,(^| )Soccer,\1#Soccer,g
+s,(^| )Social Service,\1#SocialService,g
+s,(^| )Society,\1#Society,g
+s,(^| )Sofia,\1#Sofia,g
+s,(^| )Software,\1#Software,g
+s,(^| )Solapur,\1#Solapur,g
+s,(^| )Solomon Islands,\1#SolomonIslands,g
+s,(^| )Solventum,\1#Solventum,g
+s,(^| )Somalia,\1#Somalia,g
+s,(^| )Sonic Automotive,\1#SonicAutomotive,g
+s,(^| )Sony,\1#Sony,g
+s,(^| )South #Africa,\1#SouthAfrica,g
+s,(^| )South Africa,\1#SouthAfrica,g
+s,(^| )South Burlington,\1#SouthBurlington,g
+s,(^| )South Carolina,\1#SouthCarolina,g
+s,(^| )South Dakota,\1#SouthDakota,g
+s,(^| )South Korea,\1#SouthKorea,g
+s,(^| )South Sudan,\1#SouthSudan,g
+s,(^| )South Tangerang,\1#SouthTangerang,g
+s,(^| )South Tarawa,\1#SouthTarawa,g
+s,(^| )Southern,\1#Southern,g
+s,(^| )Southwest Airlines,\1#SouthwestAirlines,g
+s,(^| )SpaceX,\1#SpaceX,g
+s,(^| )Spain,\1#Spain,g
+s,(^| )SpartanNash,\1#SpartanNash,g
+s,(^| )Spokane,\1#Spokane,g
+s,(^| )Sporting,\1#Sporting,g
+s,(^| )Sports,\1#Sports,g
+s,(^| )Spotify,\1#Spotify,g
+s,(^| )Springfield,\1#Springfield,g
+s,(^| )Springsteen,\1#Springsteen,g
+s,(^| )Sprouts Farmers Market,\1#SproutsFarmersMarket,g
+s,(^| )Spurs,\1#Spurs,g
+s,(^| )Sri Lanka,\1#SriLanka,g
+s,(^| )Srinagar,\1#Srinagar,g
+s,(^| )St Petersburg (Russia),\1#StPetersburg (#Russia),g
+s,(^| )St. Louis Blues,\1#StLouisBlues,g
+s,(^| )St. Louis Cardinals,\1#StLouisCardinals,g
+s,(^| )Stamford,\1#Stamford,g
+s,(^| )Stanley Black & Decker,\1#StanleyBlackDecker,g
+s,(^| )Starbucks,\1#Starbucks,g
+s,(^| )Starlink,\1#Starlink,g
+s,(^| )Starmer,\1#Starmer,g
+s,(^| )State Farm Insurance,\1#StateFarmInsurance,g
+s,(^| )State Street,\1#StateStreet,g
+s,(^| )Steel Dynamics,\1#SteelDynamics,g
+s,(^| )Steelers,\1#Steelers,g
+s,(^| )Stefanos Tsitsipas,\1#StefanosTsitsipas,g
+s,(^| )Stephane Cardinale,\1#StephaneCardinale,g
+s,(^| )Stephen Colletti,\1#StephenColletti,g
+s,(^| )Stephen Curry,\1#StephenCurry,g
+s,(^| )Stereogum,\1#Stereogum,g
+s,(^| )Steve Bannon,\1#SteveBannon,g
+s,(^| )Steven Spielberg,\1#StevenSpielberg,g
+s,(^| )Stock,\1#Stock,g
+s,(^| )Stockholm,\1#Stockholm,g
+s,(^| )StoneX Group,\1#StoneXGroup,g
+s,(^| )Streaming,\1#Streaming ,g
+s,(^| )Stryker,\1#Stryker,g
+s,(^| )Sudan,\1#Sudan,g
+s,(^| )Sudbury,\1#Sudbury,g
+s,(^| )Sudoku,\1#Sudoku,g
+s,(^| )Sunetra Pawar,\1#SunetraPawar,g
+s,(^| )Super Bowl,\1#SuperBowl,g
+s,(^| )Super Micro Computer,\1#SuperMicroComputer,g
+s,(^| )Supply Chain,\1#SupplyChain,g
+s,(^| )Supreme Court,\1#SupremeCourt,g
+s,(^| )Surabaya,\1#Surabaya,g
+s,(^| )Surat,\1#Surat,g
+s,(^| )Surgery,\1#Surgery,g
+s,(^| )Suriname,\1#Suriname,g
+s,(^| )Suva,\1#Suva,g
+s,(^| )Suwon,\1#Suwon,g
+s,(^| )Suzhou,\1#Suzhou,g
+s,(^| )Suzuki,\1#Suzuki,g
+s,(^| )Sweden,\1#Sweden,g
+s,(^| )Swimming,\1#Swimming,g
+s,(^| )Switzerland,\1#Switzerland,g
+s,(^| )Sydney McLaughlin-Levrone,\1#SydneyMcLaughlinLevrone,g
+s,(^| )Sydney Sweeney,\1#SydneySweeney,g
+s,(^| )Sydney,\1#Sydney,g
+s,(^| )SydneySweeney,\1#SydneySweeney,g
+s,(^| )SylvesterStallone,\1#SylvesterStallone,g
+s,(^| )Synchrony Financial,\1#SynchronyFinancial,g
+s,(^| )Syria,\1#Syria,g
+s,(^| )Sysco,\1#Sysco,g
+s,(^| )São Luís,\1#SãoLuís,g
+s,(^| )São Paulo,\1#SãoPaulo,g
+s,(^| )TD Synnex,\1#TDSynnex,g
+s,(^| )TIAA,\1#TIAA,g
+s,(^| )TJX,\1#TJX,g
+s,(^| )TSA,\1#TSA,g
+s,(^| )TV,\1#TV,g
+s,(^| )Tabriz,\1#Tabriz,g
+s,(^| )Taco Bell,\1#TacoBell,g
+s,(^| )TacoBell,\1#TacoBell,g
+s,(^| )Taguig,\1#Taguig,g
+s,(^| )Taichung,\1#Taichung,g
+s,(^| )Tainan,\1#Tainan,g
+s,(^| )Taipei,\1#Taipei,g
+s,(^| )Taiwan,\1#Taiwan,g
+s,(^| )Taiyuan,\1#Taiyuan,g
+s,(^| )Taizhou,\1#Taizhou,g
+s,(^| )Tai’an,\1#Tai’an,g
+s,(^| )Tajikistan,\1#Tajikistan,g
+s,(^| )Tallahassee,\1#Tallahassee,g
+s,(^| )Tallinn,\1#Tallinn,g
+s,(^| )Tampa Bay Lightning,\1#TampaBayLightning,g
+s,(^| )Tampa Bay Rays,\1#TampaBayRays,g
+s,(^| )Tangerang,\1#Tangerang,g
+s,(^| )Tangier,\1#Tangier,g
+s,(^| )Tangshan,\1#Tangshan,g
+s,(^| )Tanzania,\1#Tanzania,g
+s,(^| )Taoyuan,\1#Taoyuan,g
+s,(^| )Targa Resources,\1#TargaResources,g
+s,(^| )Target,\1#Target,g
+s,(^| )Tariff,\1#Tariff,g
+s,(^| )Tashkent,\1#Tashkent,g
+s,(^| )Taxpayer,\1#Taxpayer,g
+s,(^| )Taylor Morrison Home,\1#TaylorMorrisonHome,g
+s,(^| )Taylor Swift,\1#TaylorSwift,g
+s,(^| )Tbilisi,\1#Tbilisi,g
+s,(^| )Tech,\1#Tech,g
+s,(^| )Tegucigalpa,\1#Tegucigalpa,g
+s,(^| )Tehran,\1#Tehran,g
+s,(^| )Tel Aviv,\1#TelAviv,g
+s,(^| )Temu,\1#Temu,g
+s,(^| )Tenet Healthcare,\1#TenetHealthcare,g
+s,(^| )Tennessee,\1#Tennessee,g
+s,(^| )Tennis,\1#Tennis,g
+s,(^| )Tesla,\1#Tesla,g
+s,(^| )Texas Instruments,\1#TexasInstruments,g
+s,(^| )Texas Rangers,\1#TexasRangers,g
+s,(^| )Texas,\1#Texas,g
+s,(^| )Textiles,\1#Textiles,g
+s,(^| )Textron,\1#Textron,g
+s,(^| )Teyana Taylor,\1#TeyanaTaylor,g
+s,(^| )Thailand,\1#Thailand,g
+s,(^| )Thane,\1#Thane,g
+s,(^| )The 'Stros,\1#TheStros,g
+s,(^| )The A’s,\1#TheAs,g
+s,(^| )The Blue Crew,\1#TheBlueCrew,g
+s,(^| )The BoSox,\1#TheBoSox,g
+s,(^| )The Boys in Blue,\1#TheBoysinBlue,g
+s,(^| )The Brew Crew,\1#TheBrewCrew,g
+s,(^| )The Bronx Bombers,\1#TheBronxBombers,g
+s,(^| )The Bucs,\1#TheBucs,g
+s,(^| )The Cards,\1#TheCards,g
+s,(^| )The Cubs,\1#TheCubs,g
+s,(^| )The D-backs,\1#TheDbacks,g
+s,(^| )The Daily Record,\1#TheDailyRecord,g
+s,(^| )The Fish,\1#TheFish,g
+s,(^| )The Friars,\1#TheFriars,g
+s,(^| )The G-Men,\1#TheGMen,g
+s,(^| )The Guardian,\1#TheGuardian,g
+s,(^| )The Guardians,\1#TheGuardians,g
+s,(^| )The Halos,\1#TheHalos,g
+s,(^| )The Hill,\1#TheHill,g
+s,(^| )The Jays,\1#TheJays,g
+s,(^| )The Mets,\1#TheMets,g
+s,(^| )The Nats,\1#TheNats,g
+s,(^| )The O’s,\1#TheOs,g
+s,(^| )The Phils,\1#ThePhils,g
+s,(^| )The Rays,\1#TheRays,g
+s,(^| )The Redlegs,\1#TheRedlegs,g
+s,(^| )The Sox,\1#TheSox,g
+s,(^| )The Twinkies,\1#TheTwinkies,g
+s,(^| )Thermo Fisher Scientific,\1#ThermoFisherScientific,g
+s,(^| )Thimphu,\1#Thimphu,g
+s,(^| )Thiruvananthapuram,\1#Thiruvananthapuram,g
+s,(^| )Thor Industries,\1#ThorIndustries,g
+s,(^| )Thrivent Financial for Lutherans,\1#ThriventFinancialforLutherans,g
+s,(^| )Thunder Bay,\1#ThunderBay,g
+s,(^| )Tianjin,\1#Tianjin,g
+s,(^| )Tiger Woods,\1#TigerWoods,g
+s,(^| )Tijuana,\1#Tijuana,g
+s,(^| )TikTok,\1#TikTok,g
+s,(^| )Tiktok,\1#Tiktok,g
+s,(^| )Tilda Swinton,\1#TildaSwinton,g
+s,(^| )Tim Burton,\1#TimBurton,g
+s,(^| )Timor-Leste,\1#TimorLeste,g
+s,(^| )Timothée Chalamet,\1#TimothéeChalamet,g
+s,(^| )Tirana,\1#Tirana,g
+s,(^| )Tiruchirappalli,\1#Tiruchirappalli,g
+s,(^| )Tobacco,\1#Tobacco,g
+s,(^| )Today,\1#Today,g
+s,(^| )Togo,\1#Togo,g
+s,(^| )Tokyo,\1#Tokyo,g
+s,(^| )Toll Brothers,\1#TollBrothers,g
+s,(^| )Tom Cruise,\1#TomCruise,g
+s,(^| )Tom Holland,\1#TomHolland,g
+s,(^| )TomCruise,\1#TomCruise,g
+s,(^| )Tonga,\1#Tonga,g
+s,(^| )Topeka,\1#Topeka,g
+s,(^| )Torah,\1#Torah,g
+s,(^| )Toronto Blue Jays,\1#TorontoBlueJays,g
+s,(^| )Toronto Maple Leafs,\1#TorontoMapleLeafs,g
+s,(^| )Toronto Raptors,\1#TorontoRaptors,g
+s,(^| )Toronto,\1#Toronto,g
+s,(^| )Touba,\1#Touba,g
+s,(^| )Tourism,\1#Tourism,g
+s,(^| )Town,\1#Town,g
+s,(^| )Toyko,\1#Toyko,g
+s,(^| )Toyota,\1#Toyota,g
+s,(^| )Tractor Supply,\1#TractorSupply,g
+s,(^| )Trade,\1#Trade,g
+s,(^| )TransDigm Group,\1#TransDigmGroup,g
+s,(^| )Transgender,\1#Transgender,g
+s,(^| )Transportation,\1#Transportation,g
+s,(^| )Travel,\1#Travel,g
+s,(^| )Travelers,\1#Travelers,g
+s,(^| )Travis Kelce,\1#TravisKelce,g
+s,(^| )Trending,\1#Trending,g
+s,(^| )Trenton,\1#Trenton,g
+s,(^| )Trinidad and Tobago,\1#TrinidadAndTobago,g
+s,(^| )Trinity,\1#Trinity,g
+s,(^| )Tripoli,\1#Tripoli,g
+s,(^| )Trucking,\1#Trucking,g
+s,(^| )Trudeau,\1#Trudeau,g
+s,(^| )Truist Financial,\1#TruistFinancial,g
+s,(^| )Trujillo,\1#Trujillo,g
+s,(^| )Trump,\1#Trump,g
+s,(^| )Tshikapa,\1#Tshikapa,g
+s,(^| )Tshwane (Pretoria),\1#Tshwane(Pretoria),g
+s,(^| )Tucker Carlson,\1#TuckerCarlson,g
+s,(^| )Tucson,\1#Tucson,g
+s,(^| )Tulsa,\1#Tulsa,g
+s,(^| )Tunis,\1#Tunis,g
+s,(^| )Tunisia,\1#Tunisia,g
+s,(^| )Turkey,\1#Turkey,g
+s,(^| )Turkmenistan,\1#Turkmenistan,g
+s,(^| )Tuvalu,\1#Tuvalu,g
+s,(^| )Twin Peaks,\1#TwinPeaks,g
+s,(^| )Twins,\1#Twins,g
+s,(^| )Tyla,\1#Tyla,g
+s,(^| )Tyler James Williams,\1#TylerJamesWilliams,g
+s,(^| )Tyra Banks,\1#TyraBanks,g
+s,(^| )Tyson Foods,\1#TysonFoods,g
+s,(^| )Türkiye,\1#Türkiye,g
+s,(^| )U.S. Bancorp,\1#USBancorp,g
+s,(^| )UAE,\1#UAE ,g
+s,(^| )UAE,\1#UAE,g
+s,(^| )UAV,\1#UAV,g
+s,(^| )UCLA,\1#UCLA,g
+s,(^| )UConn,\1#UConn,g
+s,(^| )UI,\1#UI,g
+s,(^| )UK ,\1#UK ,g
+s,(^| )UN ,\1#UN ,g
+s,(^| )UN,\1#UN,g
+s,(^| )URL,\1#URL,g
+s,(^| )US Foods Holding,\1#USFoodsHolding,g
+s,(^| )US,\1#US,g
+s,(^| )USA,\1#USA,g
+s,(^| )USAA,\1#USAA,g
+s,(^| )UX,\1#UX,g
+s,(^| )Uber Technologies,\1#UberTechnologies,g
+s,(^| )Uber,\1#Uber,g
+s,(^| )Ufa,\1#Ufa,g
+s,(^| )Uganda,\1#Uganda,g
+s,(^| )Ukrai,\1#Ukrai,g
+s,(^| )Ukraine,\1#Ukraine,g
+s,(^| )Ulaanbaatar,\1#Ulaanbaatar,g
+s,(^| )Ulsan,\1#Ulsan,g
+s,(^| )Ulta Beauty,\1#UltaBeauty,g
+s,(^| )UncleRoger,\1#UncleRoger,g
+s,(^| )Union Pacific,\1#UnionPacific,g
+s,(^| )United Airlines Holdings,\1#UnitedAirlinesHoldings,g
+s,(^| )United Arab Emerates,\1#UAE,g
+s,(^| )United Arab Emirates,\1#UAE,g
+s,(^| )United Kingdom,\1#UK,g
+s,(^| )United Natural Foods,\1#UnitedNaturalFoods,g
+s,(^| )United Parcel Service,\1#UnitedParcelService,g
+s,(^| )United Rentals,\1#UnitedRentals,g
+s,(^| )United States Steel,\1#UnitedStatesSteel,g
+s,(^| )United States,\1#UnitedStates,g
+s,(^| )United,\1#United,g
+s,(^| )UnitedHealth Group,\1#UnitedHealthGroup,g
+s,(^| )Universal Health Services,\1#UniversalHealthServices,g
+s,(^| )University,\1#University,g
+s,(^| )Unum Group,\1#UnumGroup,g
+s,(^| )Uruguay,\1#Uruguay,g
+s,(^| )Utah Jazz,\1#UtahJazz,g
+s,(^| )Utah Mammoth,\1#UtahMammoth,g
+s,(^| )Utah,\1#Utah,g
+s,(^| )Utilities,\1#Utilities,g
+s,(^| )Uzbekistan,\1#Uzbekistan,g
+s,(^| )VF,\1#VF,g
+s,(^| )VPN,\1#VPN,g
+s,(^| )VR,\1#VR,g
+s,(^| )Vadodara,\1#Vadodara,g
+s,(^| )Vaduz,\1#Vaduz,g
+s,(^| )Valentine,\1#Valentine,g
+s,(^| )Valero Energy,\1#ValeroEnergy,g
+s,(^| )Valletta,\1#Valletta,g
+s,(^| )Valparaiso,\1#Valparaiso,g
+s,(^| )Vance,\1#Vance,g
+s,(^| )Vancouver Canucks,\1#VancouverCanucks,g
+s,(^| )Vancouver,\1#Vancouver,g
+s,(^| )Vanuatu,\1#Vanuatu,g
+s,(^| )Varanasi,\1#Varanasi,g
+s,(^| )Variety,\1#Variety,g
+s,(^| )Vasai-Virar,\1#VasaiVirar,g
+s,(^| )Vatican City,\1#VaticanCity,g
+s,(^| )Vatican,\1#Vatican,g
+s,(^| )Vegas Golden Knights,\1#VegasGoldenKnights,g
+s,(^| )Vegas,\1#Vegas,g
+s,(^| )Venezuela,\1#Venezuela,g
+s,(^| )Verizon Communications,\1#VerizonCommunications,g
+s,(^| )Verizon,\1#Verizon,g
+s,(^| )Vermont,\1#Vermont,g
+s,(^| )Vertex Pharmaceuticals,\1#VertexPharmaceuticals,g
+s,(^| )Vertiv Holdings,\1#VertivHoldings,g
+s,(^| )Viatris,\1#Viatris,g
+s,(^| )Victor Wembanyama,\1#VictorWembanyama,g
+s,(^| )Victoria Monét,\1#VictoriaMonét,g
+s,(^| )Victoria,\1#Victoria,g
+s,(^| )Video,\1#Video,g
+s,(^| )Videos,\1#Videos,g
+s,(^| )Vienna,\1#Vienna,g
+s,(^| )Vientiane,\1#Vientiane,g
+s,(^| )Vietnam,\1#Vietnam,g
+s,(^| )Vijayawada,\1#Vijayawada,g
+s,(^| )Vilnius,\1#Vilnius,g
+s,(^| )Virgin Island,\1#VirginIsland,g
+s,(^| )Virgin,\1#Virgin,g
+s,(^| )Virginia Beach,\1#VirginiaBeach,g
+s,(^| )Virginia,\1#Virginia,g
+s,(^| )Virus,\1#Virus,g
+s,(^| )Visa,\1#Visa,g
+s,(^| )Visakhapatnam,\1#Visakhapatnam,g
+s,(^| )Vistra,\1#Vistra,g
+s,(^| )Vladimir Putin,\1#VladimirPutin,g
+s,(^| )Vodaphone,\1#Vodaphone,g
+s,(^| )Vogue,\1#Vogue,g
+s,(^| )Volgograd,\1#Volgograd,g
+s,(^| )Volkswagen,\1#Volkswagen,g
+s,(^| )Volodymyr Zelenskyy,\1#VolodymyrZelenskyy,g
+s,(^| )Volvo,\1#Volvo,g
+s,(^| )Voronezh,\1#Voronezh,g
+s,(^| )Voya Financial,\1#VoyaFinancial,g
+s,(^| )Vulcan Materials,\1#VulcanMaterials,g
+s,(^| )W.R. Berkley,\1#WRBerkley,g
+s,(^| )W.W. Grainger,\1#WWGrainger,g
+s,(^| )WEC Energy Group,\1#WECEnergyGroup,g
+s,(^| )WESCO International,\1#WESCOInternational,g
+s,(^| )WHO,\1#WHO,g
+s,(^| )WMD,\1#WMD,g
+s,(^| )WSJ,\1#WSJ,g
+s,(^| )WTO,\1#WTO,g
+s,(^| )Walgreens Boots Alliance,\1#WalgreensBootsAlliance,g
+s,(^| )Wall Street,\1#WallStreet,g
+s,(^| )Walmart,\1#Walmart,g
+s,(^| )Walt Disney,\1#WaltDisney,g
+s,(^| )Wanzhou,\1#Wanzhou,g
+s,(^| )Warner Bros. Discovery,\1#WarnerBrosDiscovery,g
+s,(^| )Warren Buffett,\1#WarrenBuffett,g
+s,(^| )Warsaw,\1#Warsaw,g
+s,(^| )Washington Capitals,\1#WashingtonCapitals,g
+s,(^| )Washington Nationals,\1#WashingtonNationals,g
+s,(^| )Washington Wizards,\1#WashingtonWizards,g
+s,(^| )Washington,\1#Washington,g
+s,(^| )Waste Management,\1#WasteManagement,g
+s,(^| )Watsco,\1#Watsco,g
+s,(^| )Wayfair,\1#Wayfair,g
+s,(^| )Weather,\1#Weather,g
+s,(^| )Web,\1#Web,g
+s,(^| )Weifang,\1#Weifang,g
+s,(^| )Weihai,\1#Weihai,g
+s,(^| )Wellington,\1#Wellington,g
+s,(^| )Wells Fargo,\1#WellsFargo,g
+s,(^| )Welltower,\1#Welltower,g
+s,(^| )Wendy's,\1#Wendys,g
+s,(^| )Wenzhou,\1#Wenzhou,g
+s,(^| )West Valley City,\1#WestValleyCity,g
+s,(^| )West Virginia,\1#WestVirginia,g
+s,(^| )West-#Virginia,\1#WestVirginia,g
+s,(^| )Western & Southern Financial Group,\1#WesternSouthernFinancialGroup,g
+s,(^| )Western Digital,\1#WesternDigital,g
+s,(^| )Westinghouse Air Brake Technologies,\1#WestinghouseAirBrakeTechnologies,g
+s,(^| )Westlake,\1#Westlake,g
+s,(^| )Westminster,\1#Westminster,g
+s,(^| )Whirlpool,\1#Whirlpool,g
+s,(^| )Wi-Fi,\1#Wi-Fi,g
+s,(^| )Wichita,\1#Wichita,g
+s,(^| )WilliamShatner,\1#WilliamShatner,g
+s,(^| )Williams,\1#Williams,g
+s,(^| )Williams-Sonoma,\1#WilliamsSonoma,g
+s,(^| )Wilmington,\1#Wilmington,g
+s,(^| )Windhoek,\1#Windhoek,g
+s,(^| )Windows,\1#Windows,g
+s,(^| )Windsor,\1#Windsor,g
+s,(^| )Winning Lotto,\1#WinningLotto,g
+s,(^| )Winnipeg Jets,\1#WinnipegJets,g
+s,(^| )Winnipeg,\1#Winnipeg,g
+s,(^| )Winona Ryder,\1#WinonaRyder,g
+s,(^| )Winston Churchill,\1#WinstonChurchill,g
+s,(^| )Winter,\1#Winter,g
+s,(^| )Wired,\1#Wired,g
+s,(^| )Wireless,\1#Wireless,g
+s,(^| )Wisconsin,\1#Wisconsin,g
+s,(^| )Women,\1#Women,g
+s,(^| )WoodrowWilson,\1#WoodrowWilson,g
+s,(^| )Worcester,\1#Worcester,g
+s,(^| )Workday,\1#Workday,g
+s,(^| )World Kinect,\1#WorldKinect,g
+s,(^| )World,\1#World,g
+s,(^| )Wrestling,\1#Wrestling,g
+s,(^| )Wuhan,\1#Wuhan,g
+s,(^| )Wuhu,\1#Wuhu,g
+s,(^| )Wuxi,\1#Wuxi,g
+s,(^| )Wyoming,\1#Wyoming,g
+s,(^| )XPO,\1#XPO,g
+s,(^| )Xbox,\1#Xbox,g
+s,(^| )Xcel Energy,\1#XcelEnergy,g
+s,(^| )Xiamen,\1#Xiamen,g
+s,(^| )Xiangyang,\1#Xiangyang,g
+s,(^| )Xianyang,\1#Xianyang,g
+s,(^| )Xingtai,\1#Xingtai,g
+s,(^| )Xining,\1#Xining,g
+s,(^| )Xinxiang,\1#Xinxiang,g
+s,(^| )Xinyang,\1#Xinyang,g
+s,(^| )Xi’an,\1#Xi’an,g
+s,(^| )Xuzhou,\1#Xuzhou,g
+s,(^| )Xylem,\1#Xylem,g
+s,(^| )YOUTUBE,\1#YOUTUBE,g
+s,(^| )YOY,\1#YOY,g
+s,(^| )Yachting,\1#Yachting,g
+s,(^| )Yahoo,\1#Yahoo,g
+s,(^| )Yancheng,\1#Yancheng,g
+s,(^| )Yangon,\1#Yangon,g
+s,(^| )Yangzhou,\1#Yangzhou,g
+s,(^| )Yankees,\1#Yankees,g
+s,(^| )Yantai,\1#Yantai,g
+s,(^| )Yaounde,\1#Yaounde,g
+s,(^| )Yaoundé,\1#Yaoundé,g
+s,(^| )Yekaterinburg,\1#Yekaterinburg,g
+s,(^| )Yellowstone,\1#Yellowstone,g
+s,(^| )Yemen,\1#Yemen,g
+s,(^| )Yerevan,\1#Yerevan,g
+s,(^| )Yibin,\1#Yibin,g
+s,(^| )Yichang,\1#Yichang,g
+s,(^| )Yinchuan,\1#Yinchuan,g
+s,(^| )Yiwu,\1#Yiwu,g
+s,(^| )Yoga,\1#Yoga,g
+s,(^| )Yokohama,\1#Yokohama,g
+s,(^| )Yongin,\1#Yongin,g
+s,(^| )Yorgos Lanthimos,\1#YorgosLanthimos,g
+s,(^| )Yorkshire,\1#Yorksh,g
+s,(^| )Youtube,\1#Youtube,g
+s,(^| )Yueyang,\1#Yueyang,g
+s,(^| )Yum Brands,\1#YumBrands,g
+s,(^| )Yum China Holdings,\1#YumChinaHoldings,g
+s,(^| )Yuyao,\1#Yuyao,g
+s,(^| )ZDNet,\1#ZDNet,g
+s,(^| )Zagreb,\1#Zagreb,g
+s,(^| )Zambia,\1#Zambia,g
+s,(^| )Zamboanga City,\1#ZamboangaCity,g
+s,(^| )Zaozhuang,\1#Zaozhuang,g
+s,(^| )Zapopan,\1#Zapopan,g
+s,(^| )Zelenskiy,\1#Zelenskiy,g
+s,(^| )Zelensky,\1#Zelensky,g
+s,(^| )Zendaya,\1#Zendaya,g
+s,(^| )Zhangjiagang,\1#Zhangjiagang,g
+s,(^| )Zhangjiakou,\1#Zhangjiakou,g
+s,(^| )Zhanjiang,\1#Zhanjiang,g
+s,(^| )Zhaoqing,\1#Zhaoqing,g
+s,(^| )Zheng Qinwen,\1#ZhengQinwen,g
+s,(^| )Zhengzhou,\1#Zhengzhou,g
+s,(^| )Zhenjiang,\1#Zhenjiang,g
+s,(^| )Zhongshan,\1#Zhongshan,g
+s,(^| )Zhuhai,\1#Zhuhai,g
+s,(^| )Zhuzhou,\1#Zhuzhou,g
+s,(^| )Zibo,\1#Zibo,g
+s,(^| )Zimbabwe,\1#Zimbabwe,g
+s,(^| )Zimmer Biomet Holdings,\1#ZimmerBiometHoldings,g
+s,(^| )Zionism,\1#Zionism,g
+s,(^| )Zoetis,\1#Zoetis,g
+s,(^| )Zuckerberg,\1#Zuckerberg,g
+s,(^| )Zunyi,\1#Zunyi,g
+s,(^| )com/arc/outboundfe,,g
+s,(^| )com/feed, ,g
+s,(^| )com/rss,,g
+s,(^| )connachttribune,\1#Connacht Tribune,g
+s,(^| )cricketireland,\1#Cricket #Ireland,g
+s,(^| )donegaldailycom/feed,\1#donegaldaily,g
+s,(^| )eThekwini,\1#eThekwini,g
+s,(^| )iPhone,\1#iPhone,g
+s,(^| )ie/?service=rss,,g
+s,(^| )ie/Engineer,,g
+s,(^| )ie/feed,,g
+s,(^| )ie/rssjsp?se,,g
+s,(^| )mRNA,\1#mRNA,g
+s,(^| )rtes/rss/?index=/news,\1#RTES,g
+s,(^| )sluggerotoole,\1#SluggerOToole,g
+s,(^| )sluggerotoolecom/feed,\1#SluggerOToole,g
+s,(^| )techcentral,\1#TechCentral,g
+s,(^| )thejournal,\1#TheJournal,g
+s,(^| )trinitynews,\1#TrinityNews,g
+s,(^| )Ürümqi,\1#Ürümqi,g
+s,(^| )İzmir,\1#İzmir,g
+s,(^| )##,#,g
+`;
+
+    // Converts sed 's,pattern,replacement,g' lines into JavaScript RegExp objects
+    function compileSedRules(rawRules) {
+        return rawRules
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(line => line.startsWith('s') && line.length > 3)
+            .map(line => {
+                const delim = line[1]; // automatically detects ',' or '|' or '/'
+                const parts = line.split(delim);
+                if (parts.length < 4) return null;
+
+                const pattern = parts[1];
+                // Convert sed backreferences (\1, \2) to JS backreferences ($1, $2)
+                const replacement = parts[2].replace(/\\(\d+)/g, '$$$1');
+                const flags = parts[3] || '';
+
+                return {
+                    regex: new RegExp(pattern, flags),
+                    replacement: replacement
+                };
+            })
+            .filter(Boolean);
+    }
+
+    const compiledRules = compileSedRules(sedRules);
+
+    function applySedToText(text) {
+        let result = text;
+        for (const rule of compiledRules) {
+            result = result.replace(rule.regex, rule.replacement);
+        }
+        return result;
+    }
+
+    function processText() {
+        const rawText = document.getElementById('newsInput').value;
+        const lineListDiv = document.getElementById('lineList');
+        const lines = rawText.split(/\r?\n/);
+
+        lineListDiv.innerHTML = '';
+
+        lines.forEach(line => {
+            if (line.trim() === "") return;
+
+            // Split headline text from trailing URL so sed never alters the URL
+            let textPart = line.trim();
+            let urlPart = "";
+            const urlMatch = textPart.match(/(\s+https?:\/\/\S+)$/i);
+            if (urlMatch) {
+                urlPart = urlMatch[1];
+                textPart = textPart.slice(0, -urlPart.length);
+            }
+
+            // 1. Apply your sed replacement rules to the headline text
+            let taggedText = applySedToText(textPart);
+
+            // 2. Run compromise NLP to extract people names
+            let doc = nlp(textPart);
+            let people = doc.people().out('array');
+
+            let personHashtags = people.map(name => {
+                let cleanName = name.replace(/[^a-zA-Z0-9]/g, '');
+                return cleanName ? `<span class="hashtag">#${cleanName}</span>` : '';
+            }).filter(Boolean).join(' ');
+
+            // Display if either a sed rule matched OR a person was found
+            if (taggedText !== textPart || personHashtags.length > 0) {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `${personHashtags} <span class="modified-line">${taggedText}${urlPart}</span>`;
+                lineListDiv.appendChild(div);
+            }
+        });
+    }
+
+    function clearAll() {
+        document.getElementById('newsInput').value = '';
+        document.getElementById('lineList').innerHTML = '';
+    }
+</script>
+
+</body>
+</html>
